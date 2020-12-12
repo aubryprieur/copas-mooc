@@ -1,0 +1,25 @@
+<div class="container my-2" style="padding-top: 20px;">
+ <div class="col-12 col-lg-6 mx-auto">
+  <div class="card">
+   <div class="card-block" style="padding: 2rem;">
+    <h2>Renvoyer les instructions de confirmation</h2>
+    <%= form_for(resource, as: resource_name, url: confirmation_path(resource_name), html: { method: :post }) do |f| %>
+     <%= devise_error_messages! %>
+     <div class="field">
+      <%= f.label :email %><br />
+      <%= f.email_field :email, class: 'form-control', autofocus: true, autocomplete: "email", value: (resource.pending_reconfirmation? ? resource.unconfirmed_email : resource.email) %>
+      <br>
+     </div>
+     <div class="actions">
+      <%= f.submit "Renvoyer les instructions", class: 'btn btn-primary btn-block' %>
+     </div>
+    <% end %>
+    <div class="text-center mx-auto">
+     <small>
+      <%= render "devise/shared/links" %>
+     </small>
+    </div>
+   </div>
+  </div>
+ </div>
+</div>
