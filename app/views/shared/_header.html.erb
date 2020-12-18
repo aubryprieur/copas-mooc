@@ -1,13 +1,26 @@
 <!-- Fixed navbar (Start) -->
 <div class="d-flex sticky-top flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
-  <%= image_tag('mooc.png', height: 35, class: 'my-0 mr-md-auto', alt: "Plantoost") %>
+  <%= image_tag('mooc.png', height: 35, class: 'my-0 mr-md-auto', alt: "COPAS") %>
   <nav class="my-2 my-md-0 mr-md-3">
     <a class="p-2 text-dark" href="#">Pour les entreprises</a>
     <a class="p-2 text-dark" href="#">Devenir formateur</a>
   </nav>
   <nav class="my-2 my-md-0 mr-md-3">
-    <%= link_to "Se connecter", new_user_session_path, class: 'btn btn-outline-primary' %>
-    <%= link_to "S'inscrire", new_user_registration_path, class: 'btn btn-primary' %>
+  <% if user_signed_in? %>
+   <div class="dropdown">
+    <a class="btn btn-white dropdown-toggle" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+     <%= current_user.first_name %>
+    </a>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+     <%= link_to "Paramètres", edit_user_registration_path, class: 'dropdown-item' %>
+     <div class="dropdown-divider"></div>
+     <%= link_to destroy_user_session_url, :method => :delete, class: "dropdown-item" do %>Se déconnecter<% end %>
+    </div>
+   </div>
+  <% else %>
+   <%= link_to 'Se connecter', new_user_session_path, class: 'btn btn-outline-primary' %>
+   <%= link_to "S'inscrire", new_user_registration_path, class: 'btn btn-primary' %>
+  <% end %>
   </nav>
 </div>
 <!-- Fixed navbar (End) -->
