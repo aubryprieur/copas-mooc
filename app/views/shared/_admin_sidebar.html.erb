@@ -1,0 +1,21 @@
+<div class="col-12 col-lg-2">
+ <div class="sidebar">
+  <div class="card-body">
+   <h5><i class="glyphicon glyphicon-file"></i>
+    <small><b>Sessions</b></small>
+   </h5>
+   <ul class="nav nav-pills">
+    <li class="nav-link"><%= link_to 'Gérer les sessions', admin_workshops_path %></li>
+    <li class="nav-link"><%= link_to 'Ajouter une session', new_admin_workshop_path %></li>
+   </ul>
+   <br>
+   <h5><i class="glyphicon glyphicon-user"></i>
+    <small><b>Utilisateurs</b></small>
+   </h5>
+   <ul class="nav nav-pills nav-justified">
+    <li class="nav-link"><%= link_to 'Gérer les utilisateurs', admin_users_path %></li>
+    <li class="nav-link"><%= link_to 'Nouvel utilisateur', new_admin_user_path %></li>
+   </ul>
+  </div>
+ </div>
+</div>
