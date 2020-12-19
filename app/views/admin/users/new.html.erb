@@ -1,0 +1,78 @@
+<div class="row">
+ <%= render partial: 'shared/admin_sidebar' %>
+ <div class="col-12 col-lg-10">
+  <div class="card">
+   <div class="card-header">
+    Ajouter un nouvel utilisateur
+   </div>
+   <%= form_for([:admin,@user]) do |f| %>
+    <div class="card-body">
+     <% if @user.errors.any? %>
+      <div id="error_explanation">
+       <h2><%= pluralize(@user.errors.count, "error") %> a interdit la sauvegarde de cet utilisateur:</h2>
+       <ul>
+       <% @user.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+       <% end %>
+       </ul>
+      </div>
+     <% end %>
+     <div class="row">
+      <div class="col-md-4">
+       <div class="form-group">
+        <label>Prénom</label>
+         <%= f.text_field :first_name, class: 'form-control', autofocus: true, autocomplete: "first_name" %>
+       </div>
+      </div>
+      <div class="col-md-4">
+       <div class="form-group">
+        <label>Nom</label>
+        <%= f.text_field :last_name, class: 'form-control', autofocus: true, autocomplete: "last_name" %>
+       </div>
+      </div>
+      <div class="col-md-4">
+       <div class="form-group">
+        <label>E-mail</label>
+        <%= f.email_field :email, class: 'form-control', autofocus: true, autocomplete: "email" %>
+       </div>
+      </div>
+      <div class="col-md-4">
+       <div class="form-group">
+        <label>Mot de passe</label>
+        <% if @minimum_password_length %>
+        <em>(<%= @minimum_password_length %> characters minimum)</em>
+        <% end %><br />
+        <%= f.password_field :password, class: 'form-control', autocomplete: "off" %>
+       </div>
+      </div>
+      <div class="col-md-4">
+       <div class="form-group">
+        <label>Confirmation du mot de passe</label>
+         <%= f.password_field :password_confirmation, class: 'form-control', autocomplete: "off" %>
+       </div>
+      </div>
+      <div class="col-md-4">
+       <div class="form-group">
+       </div>
+      </div>
+       <hr>
+      <div class="col-md-12">
+       <div class="form-group">
+        <%= f.label :image %>
+        <%= f.file_field :image, class: 'form-control' %>
+       </div>
+      </div>
+     </div>
+     <hr>
+     <span>
+      <%= link_to 'Retour en arrière', admin_users_path, :class => 'btn btn-secondary' %>
+     </span>
+     <span>
+      <%= f.submit "Créer l'utilisateur", :class => 'btn btn-primary' %>
+     </span>
+    </div>
+   </div>
+   <% end %>
+  </div>
+ </div>
+</div>

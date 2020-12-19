@@ -1,0 +1,40 @@
+<div class="row">
+  <%= render partial: 'shared/admin_sidebar' %>
+  <div class="col-12 col-lg-10">
+    <div class="card">
+      <div class="card-header">Gérer les sessions</div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Workshop ID</th>
+            <th>Titre</th>
+            <th>Créé le</th>
+            <th><i class="fa fa-pencil" aria-hidden="true"></i></th>
+            <th><i class="fa fa-trash" aria-hidden="true"></i></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @workshops.each_with_index do |workshop, i| %>
+            <tr>
+              <th scope="row"><%= i+1 %></th>
+              <td><%= workshop.id %></td>
+              <td><%= workshop.title %></td>
+              <td>Il y a <%= time_ago_in_words(workshop.created_at.localtime) %></td>
+              <td>
+                <%= link_to edit_admin_workshop_path(workshop) do %>
+                  <i class="fa fa-pencil" aria-hidden="true"></i>
+                <% end %>
+              </td>
+              <td>
+                <%= link_to admin_workshop_path(workshop), method: :delete, data: { confirm: "Vous êtes sûr?" } do %>
+                  <i class="fa fa-trash" aria-hidden="true"></i>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

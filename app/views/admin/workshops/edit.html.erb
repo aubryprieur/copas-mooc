@@ -1,0 +1,112 @@
+<div class="row">
+  <%= render partial: 'shared/admin_sidebar' %>
+  <div class="col-12 col-lg-10">
+    <div class="card">
+      <div class="card-header">
+        Editer la session
+      </div>
+      <%= form_for([:admin,@workshop]) do |f| %>
+        <div class="card-body">
+          <% if @workshop.errors.any? %>
+            <div id="error_explanation">
+              <h2><%= pluralize(@workshop.errors.count, "error") %> a interdit que cette session soit sauvée:</h2>
+              <ul>
+              <% @workshop.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+              <% end %>
+              </ul>
+            </div>
+          <% end %>
+          <div class="row">
+            <div class="col-md-8">
+              <div class="form-group">
+                <label>Titre</label>
+                  <%= f.text_field :title, class: 'form-control', autofocus: true, autocomplete: "title" %>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Session ID</label>
+                <input class="form-control" id="disabledInput" type="text" placeholder="<%= @workshop.id %>" disabled>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="form-group">
+                <label>Sous-titre</label>
+                <%= f.text_area :subtitle, rows: '2', class: 'form-control', autofocus: true, autocomplete: "subtitle" %>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="form-group">
+                <label>Description</label>
+                <%= f.text_area :description, rows: '5', class: 'form-control', autofocus: true, autocomplete: "subtitle" %>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Propriétaire ID</label>
+                <%= f.number_field :user_id, class: 'form-control', autofocus: true, autocomplete: "user_id" %>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Tarif</label>
+                <%= f.number_field :cost, class: 'form-control', autofocus: true, autocomplete: "cost" %>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Discount (%)</label>
+                <%= f.number_field :discount, class: 'form-control', autofocus: true, autocomplete: "discount" %>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Niveau de difficulté</label>
+                <%= f.text_field :difficulty, class: 'form-control', autofocus: true, autocomplete: "difficulty" %>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Catégorie</label>
+                <%= f.text_field :category, class: 'form-control', autofocus: true, autocomplete: "category" %>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Langue</label>
+                <%= f.text_field :language, class: 'form-control', autofocus: true, autocomplete: "language" %>
+              </div>
+            </div>
+            <hr>
+            <div class="col-md-8">
+              <div class="form-group">
+                <label>Image Info</label>
+                <% if @workshop.photo.attached? %>
+                <%= image_tag @workshop.photo, style: "width:100%;" %>
+                <% end %>
+                <textarea rows="5" class="form-control" value="" disabled><%= @workshop.photo %></textarea>
+              </div>
+              <div class="form-group">
+                <label>Changer la photo?</label>
+                <%= f.file_field :photo, class: 'form-control' %>
+              </div>
+            </div>
+          </div>
+          <hr>
+          <span>
+            <%= link_to 'Retour en arrière', admin_workshops_path, :class => 'btn btn-secondary' %>
+          </span>
+          <span>
+            <%= f.submit 'Enregistrer la session', :class => 'btn btn-primary' %>
+          </span>
+        </div>
+      </div>
+      <% end %>
+    </div>
+  </div>
+</div>

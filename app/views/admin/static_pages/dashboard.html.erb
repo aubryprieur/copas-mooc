@@ -1,0 +1,61 @@
+<div class="row">
+ <%= render partial: 'shared/admin_sidebar' %>
+ <div class="col-12 col-lg-10">
+  <div class="card mb-3">
+   <div class="card-body" style="background-color: #eb5e44; color: #fff;" >
+    <div class="row">
+     <div class="col-3">
+      <i class="fa fa-folder fa-3x"></i>
+     </div>
+     <div class="col-3 text-right">
+      <div><%= Workshop.drafts.count %></div>
+      <div>Projets</div>
+     </div>
+     <div class="col-3 text-right">
+      <div><%= Workshop.published.count %></div>
+      <div>publié</div>
+     </div>
+     <div class="col-3 text-right">
+      <div><%= Workshop.count %></div>
+      <div>total des sessions</div>
+     </div>
+    </div>
+   </div>
+   <div class="card-header">Voir le détail</div>
+  </div>
+  <div class="row">
+   <div class="col-md-3">
+    <div class="card mb-3">
+     <div class="card-body">
+      <div class="row">
+       <div class="col-12 col-md-6">
+        <i class="fa fa-user-o fa-5x"></i>
+       </div>
+       <div class="col-12 col-md-6 text-right">
+        <div><%= User.count %></div>
+        <div>total des utilisateurs</div>
+       </div>
+      </div>
+     </div>
+     <div class="card-header">Voir le détail</div>
+    </div>
+   </div>
+   <div class="col-md-3">
+    <div class="card mb-3">
+     <div class="card-body">
+      <div class="row">
+       <div class="col-12 col-md-6">
+        <i class="fa fa-user-circle fa-5x"></i>
+       </div>
+       <div class="col-12 col-md-6 text-right">
+        <div><%= Admin.count %></div>
+        <div>total des admin</div>
+       </div>
+      </div>
+     </div>
+     <div class="card-header">Voir le détail</div>
+    </div>
+   </div>
+  </div>
+ </div>
+</div>

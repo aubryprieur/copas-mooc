@@ -1,0 +1,34 @@
+<div class="container my-2" style="padding-top: 20px;">
+ <div class="col-12 col-lg-6 mx-auto">
+  <div class="card">
+   <div class="card-block" style="padding: 2rem;">
+    <h2>Connexion à l'administration</h2>
+    <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+     <div class="field">
+      <%= f.label :email %><br />
+      <%= f.email_field :email, class: 'form-control', autofocus: true, autocomplete: "email" %>
+     </div>
+     <div class="field">
+      <%= f.label :password %><br />
+      <%= f.password_field :password, class: 'form-control', autocomplete: "off" %>
+     </div>
+     <% if devise_mapping.rememberable? -%>
+      <div class="field">
+       <%= f.check_box :remember_me %>
+       <%= f.label :remember_me %>
+      </div>
+     <% end -%>
+     <br>
+     <div class="actions">
+      <%= f.submit "Se connecter", class: 'btn btn-primary btn-block' %>
+     </div>
+    <% end %>
+    <div class="text-center mx-auto">
+     <small>
+      <%= render "devise/shared/links" %>
+     </small>
+    </div>
+   </div>
+  </div>
+ </div>
+</div>
