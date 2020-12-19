@@ -1,0 +1,31 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  title: MyString
+  subtitle: MyString
+  user_id: 1
+  slug: MyString
+  difficulty: MyString
+  category: MyString
+  language: MyString
+  description: MyText
+  requirements: MyText
+  outcomes: MyText
+  status: MyString
+  cost: 9.99
+  discount: 1
+
+two:
+  title: MyString
+  subtitle: MyString
+  user_id: 1
+  slug: MyString
+  difficulty: MyString
+  category: MyString
+  language: MyString
+  description: MyText
+  requirements: MyText
+  outcomes: MyText
+  status: MyString
+  cost: 9.99
+  discount: 1
