@@ -1,0 +1,76 @@
+<div class="row">
+  <%= render partial: 'shared/admin_sidebar' %>
+  <div class="col-12 col-lg-10">
+    <div class="card">
+      <div class="card-header">
+        Ajouter une nouvelle leçon
+      </div>
+      <%= form_for([:admin,@workshop, @lesson]) do |f| %>
+        <div class="card-body">
+          <% if @lesson.errors.any? %>
+            <div id="error_explanation">
+              <h2><%= pluralize(@lesson.errors.count, "error") %> a interdit la sauvegarde de cette leçon:</h2>
+              <ul>
+              <% @lesson.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+              <% end %>
+              </ul>
+            </div>
+          <% end %>
+          <div class="row">
+            <div class="col-md-8">
+              <div class="form-group">
+                <label>Titre</label>
+                  <%= f.text_field :title, class: 'form-control', autofocus: true, autocomplete: "title" %>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="form-group">
+                <label>Description</label>
+                <%= f.text_area :description, rows: '5', class: 'form-control', autofocus: true, autocomplete: "subtitle" %>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Propriétaire ID</label>
+                <input class="form-control" id="disabledInput" type="text" placeholder="<%= @workshop.user_id %>" disabled>
+                <%= f.hidden_field :user_id, value: @workshop.user_id %>
+              </div>
+            </div>
+              <hr>
+            <div class="col-md-12">
+              <div class="form-group">
+                <%= f.label :video %>
+                <%= f.file_field :video, class: 'form-control' %>
+              </div>
+            </div>
+          </div>
+          <hr>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Session ID</label>
+                <input class="form-control" id="disabledInput" type="text" placeholder="<%= @workshop.id %>" disabled>
+                <%= f.hidden_field :workshop_id, value: @workshop.id %>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="form-group">
+                <label>Session Titre</label>
+                <input class="form-control" id="disabledInput" type="text" placeholder="<%= @workshop.title %>" disabled>
+              </div>
+            </div>
+          </div>
+          <hr>
+          <span>
+            <%= link_to "Retour à la session", edit_admin_workshop_path(@workshop), :class => 'btn btn-secondary' %>
+          </span>
+          <span>
+            <%= f.submit "Créer une leçon", :class => 'btn btn-primary' %>
+          </span>
+        </div>
+      </div>
+      <% end %>
+    </div>
+  </div>
+</div>
