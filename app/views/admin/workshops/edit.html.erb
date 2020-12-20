@@ -95,6 +95,23 @@
                 <label>Changer la photo?</label>
                 <%= f.file_field :photo, class: 'form-control' %>
               </div>
+             <div class="card">
+              <div class="card-body">
+               <div class="card-header">
+                <span style="padding-right: 5px;">Programme de la session</span>
+                <%= link_to 'Ajouter une leçon', new_admin_workshop_lesson_path(@workshop), class: "btn btn-primary btn-sm my-10" %>
+               </div>
+               <div id="lessons" class="list-group" data-url="<%= sort_lessons_path %>">
+                <% if @workshop.lessons.count == 0 %>
+                 <div class="list-group-item">Aucune leçon n'a été trouvée pour cette session. Veuillez en créer une!</div>
+                <% else %>
+                 <% @workshop.lessons.order(order: :asc).each_with_index do |lesson| %>
+                  <%= link_to lesson.title, edit_admin_workshop_lesson_path(@workshop, lesson), class: "list-group-item", id: dom_id(lesson) %>
+                 <% end %>
+                <% end %>
+               </div>
+              </div>
+             </div>
             </div>
           </div>
           <hr>
