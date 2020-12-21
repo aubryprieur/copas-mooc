@@ -3,6 +3,7 @@ class LessonsController < ApplicationController
  before_action :authenticate_user!, only: [:show]
 
  def show
+  @workshop = Workshop.find(params[:workshop_id])
   @lesson = Lesson.find(params[:id])
  end
 
