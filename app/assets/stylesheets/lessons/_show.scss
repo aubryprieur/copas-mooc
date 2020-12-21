@@ -1,0 +1,32 @@
+.list-group-item {
+ position: relative;
+ display: block;
+ a { color: #111; }
+ &.active {
+  color: #111;
+  background-color: #ecf0f1;
+  border-color: #bdc3c7;
+ }
+}
+
+.workshop-title {
+ border: 1px solid #eee;
+ width:100%;
+ box-sizing:border-box;
+ position:relative;
+ padding-top:50px;
+ margin-bottom:15px;
+ overflow:hidden;
+}
+.workshop-title-header {
+ width:100%;
+ position:absolute;
+ top:0;
+ left:0;
+ height:50px;
+ float:left;
+ background: #f6f6f6;
+ box-shadow: rgba(0,0,0,0.1) 0px 2px 2px;
+ z-index:99;
+ overflow:hidden;
+}
