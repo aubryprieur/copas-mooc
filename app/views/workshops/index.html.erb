@@ -1,0 +1,42 @@
+<div id="workshops-top">
+  <h1>Améliorez vos connaissances grâce à ces formations!</h1>
+  <h5>Votre abonnement mensuel aide les instructeurs.</h5>
+  <br>
+  <a href="#workshops" class="btn btn-primary">Parcourir les cours</a>
+</div>
+<div class="container">
+  <div class="mx-auto text-center" style="margin-top: 50px; margin-bottom: 30px;">
+    <h2 class="mx-auto">Séances vidéo de petite taille</h2>
+    <span class="text-center mx-auto">Un apprentissage concis</span>
+    <br>
+  </div>
+  <div class="row">
+    <div id="workshops" class="card-group mx-auto">
+      <% @workshops.each do |workshop| %>
+        <div class="card mx-1">
+          <div class="content-card-header bg-white text-xs-center">
+            <div class="card-text">
+              <%= link_to workshop do %><%=h truncate(workshop.title, :length => 60) %><% end %>
+            </div>
+          </div>
+          <% if workshop.photo.blank? %>
+            <%= image_tag('no_image.jpg', alt: "COPAS", height: 200, width: 300, alt: "Workshop image") %>
+          <% else %>
+            <%= link_to workshop do %>
+              <%= image_tag workshop.photo, alt: "Workshop image", height: 200, width: 300 %>
+            <% end %>
+          <% end %>
+          <div class="content-card-header bg-white text-xs-center">
+            <small class="text-muted">
+              <%= workshop.difficulty %>
+            </small>
+            <br>
+            <span class="tag tag-primary">
+              <%= workshop.category %>
+            </span>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
