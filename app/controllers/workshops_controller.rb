@@ -6,6 +6,7 @@ class WorkshopsController < ApplicationController
   end
 
   def show
+    @instructor = User.find(@workshop.user_id)
   end
 
   private

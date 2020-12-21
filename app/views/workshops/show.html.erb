@@ -1,0 +1,102 @@
+<div class="container">
+  <h1><%= @workshop.title %></h1>
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card">
+        <%= image_tag @workshop.photo, class: 'img-fluid', style: 'height: 350px; max-width: 100%;' %>
+        <div class="card-body">
+          <%= @workshop.description %>
+        </div>
+      </div>
+      <br>
+      <ul class="card list-group">
+        <% @workshop.lessons.each_with_index do |lesson, i| %>
+          <li class="list-group-item">
+            <div class="media">
+              <div class="media-left">
+                <div class="text-muted"><%= i+1 %>.</div>
+              </div>
+              <div class="media-body">
+                <a href="#">&nbsp;<%= link_to lesson.title, workshop_lesson_path(@workshop, lesson) %></a>
+              </div>
+              <div class="media-right">
+                <small><i class="fa fa-play-circle-o" aria-hidden="true"></i></small>
+              </div>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body text-center">
+          <p>
+            <a class="btn btn-primary btn-block text-white">
+              <strong>S'inscrire</strong>
+            </a>
+          </p>
+        </div>
+      </div>
+      <br>
+      <div class="card">
+        <div class="card-header">
+          <div class="media align-items-center">
+            <div class="media-left">
+              <% if @instructor.photo.attached? %>
+                <%= image_tag @instructor.photo, alt: "User Profile", height: 50, width: 50, class: 'img-thumbnail', style: "margin-right: 20px;" %>
+              <% end %>
+            </div>
+            <div class="media-body">
+              <h4 class="card-title"><%= @instructor.full_name %></h4>
+              <p class="card-subtitle">Instructeur</p>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <p>C'est ici qu'apparaît la description de l'instructeur.</p>
+        </div>
+      </div>
+      <br>
+      <div class="card">
+        <ul class="list-group list-group-fit">
+          <li class="list-group-item">
+            <div class="media align-items-center">
+              <div class="media-left">
+                <i class="fa fa-level-up" aria-hidden="true"></i>&nbsp;
+              </div>
+              <div class="media-body">
+                <%= @workshop.difficulty %>
+              </div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="media align-items-center">
+              <div class="media-left">
+                <i class="fa fa-clock-o" aria-hidden="true"></i>&nbsp;
+              </div>
+              <div class="media-body">
+                <%= @workshop.category %>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <br>
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">Notations</h4>
+        </div>
+        <div class="card-body">
+          <div>
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <i class="fa fa-star" aria-hidden="true"></i>
+          </div>
+          <small class="text-muted">Nombre d'avis</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -6,6 +6,10 @@ class User < ApplicationRecord
 
   has_one_attached :photo
 
+  def full_name
+   "#{first_name} #{last_name}"
+  end
+
   protected
   def confirmation_required?
     false
