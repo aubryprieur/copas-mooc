@@ -1,0 +1,27 @@
+.content-card-header {
+  a { color: #111; }
+  &.active { color: #111; }
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 0;
+  background-color: #f5f5f5;
+  border-bottom: 0px solid #eee;
+}
+.text-xs-center { text-align: center !important; }
+.rating { line-height: 1; }
+.rating .material-icons { color: #FFA726; font-size: 18px; }
+.tag {
+  display: inline-block;
+  padding: 0.25em 0.4em;
+  font-size: 75%;
+  font-weight: bold;
+  line-height: 1;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 0.25rem;
+}
+.tag:empty { display: none; }
+a.tag:focus, a.tag:hover { color: #fff; text-decoration: none; cursor: pointer; }
+.tag-primary { background-color: #e74c3c; }
+.tag-primary[href]:focus, .tag-primary[href]:hover { background-color: #e74c3c; }
