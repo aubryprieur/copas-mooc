@@ -31,9 +31,21 @@
       <div class="card">
         <div class="card-body text-center">
           <p>
-            <a class="btn btn-primary btn-block text-white">
-              <strong>S'inscrire</strong>
-            </a>
+            <% if user_signed_in? %>
+              <% if current_user.already_enrolled?(@workshop) %>
+                Vous avez un accès complet à cette formation.
+              <% else %>
+                <%= form_for [@workshop, @enrollment] do |f| %>
+                  <div class="form-group">
+                    <%= f.hidden_field :user_id, :value => current_user.id %>
+                    <%= f.hidden_field :workshop_id, :value => @workshop.id %>
+                  </div>
+                  <%= f.submit "S'inscrire à la formation", class: "btn btn-primary btn-block text-white" %>
+                <% end %>
+              <% end %>
+            <% else %>
+              Vous devez être connecté pour vous inscrire à l'atelier.
+            <% end %>
           </p>
         </div>
       </div>

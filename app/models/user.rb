@@ -6,6 +6,12 @@ class User < ApplicationRecord
 
   has_many :comments, as: :commentable
   has_one_attached :photo
+  has_many :enrollments, dependent: :destroy
+  has_many :enrolled_workshops, through: :enrollments, source: :workshop
+
+  def already_enrolled?(workshop)
+    return enrolled_workshops.include?(workshop)
+  end
 
   def full_name
    "#{first_name} #{last_name}"
