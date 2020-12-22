@@ -1,11 +1,14 @@
 class UsersController < ApplicationController
   before_action :set_user_per_params, only: [:show]
-  before_action :set_current_user, only: [:profile, :update]
+  before_action :set_current_user, only: [:profile, :avatar, :update]
 
   def show
   end
 
   def profile
+  end
+
+  def avatar
   end
 
   def update
@@ -16,6 +19,7 @@ class UsersController < ApplicationController
       flash[:notice] = "Impossible de mettre à jour, veuillez réessayer"
     end
   end
+
 
   private
 
@@ -28,6 +32,6 @@ class UsersController < ApplicationController
   end
 
   def user_params
-    params.require(:user).permit(:first_name, :last_name, :photo, :remove_image, :description)
+    params.require(:user).permit(:first_name, :last_name, :photo, :description)
   end
 end

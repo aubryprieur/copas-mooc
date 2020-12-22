@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
   devise_for :admins, :path => '', :path_names => {:sign_in => 'signin_as_admin', :sign_out => 'signout_as_admin'}, controllers: { sessions: 'admin/sessions' }
   devise_for :users
+  get "/edit_profile", to: "users#profile"
+  get "/edit_avatar", to: "users#avatar"
   root "workshops#index"
 
   resources :users
@@ -25,7 +27,5 @@ Rails.application.routes.draw do
       resources :lessons
     end
   end
-
-  get "/edit_profile", to: "users#profile"
 
 end
