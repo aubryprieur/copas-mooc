@@ -26,4 +26,6 @@ Rails.application.routes.draw do
     end
   end
 
+  get "/edit_profile", to: "users#profile"
+
 end
