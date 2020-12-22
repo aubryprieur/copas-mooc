@@ -1,0 +1,30 @@
+<div class="text-xs-center">
+  <% if @user.photo.attached? %>
+    <%= image_tag @user.photo, alt: "Profil d'utilisateur", height: 100, width: 100, class: 'rounded-circle', style: "margin-right: 20px;" %>
+  <% else %>
+    <%= image_tag 'user_profile_pic.png', alt: "Profil d'utilisateur", height: 50, width: 50, class: 'img-thumbnail', style: "margin-bottom: 20px;" %>
+  <% end %>
+  <h1>
+    <%= @user.full_name %>
+  </h1>
+  <p>
+    <span class="tag tag-primary">Stagiaire</span>
+  </p>
+</div>
+<hr>
+<div class="container">
+  <div class="col-6 mx-auto">
+    <div class="card">
+      <div class="card-header bg-white">
+        <div class="media">
+          <h4 class="card-title mx-auto">
+            À propos de moi
+          </h4>
+          <p>
+            <%= @user.description %>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

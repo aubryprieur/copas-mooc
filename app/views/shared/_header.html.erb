@@ -13,6 +13,8 @@
     </a>
     <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
      <%= link_to "Paramètres", edit_user_registration_path, class: 'dropdown-item' %>
+     <%= link_to "Editer mon profil", edit_profile_path, class: 'dropdown-item' %>
+      <%= link_to "Editer mon avatar", edit_avatar_path, class: 'dropdown-item' %>
      <div class="dropdown-divider"></div>
      <%= link_to destroy_user_session_url, :method => :delete, class: "dropdown-item" do %>Se déconnecter<% end %>
     </div>

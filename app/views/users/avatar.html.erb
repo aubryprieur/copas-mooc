@@ -1,0 +1,28 @@
+<div class="container my-2">
+  <div class="col-12 col-lg-6 mx-auto">
+    <div class="card">
+      <div class="card-block" style="padding: 2rem;">
+        <h2>Avatar</h2>
+        <%= form_for(@user) do |f| %>
+          <div class="form-group" style="padding-top: 2rem;">
+            <label>Voulez-vous télécharger un avatar ?</label>
+            <br>
+            <div>
+              <%= f.file_field :photo, :class => "rounded", :placeholder => "Placez votre image ici" %></div>
+              <div style="padding-top: 2rem;">
+                <% if current_user.photo.attached? %>
+                  <%= image_tag current_user.photo, width: 120, height: 120, class: 'img-thumbnail' %>
+                  <br>
+                  Cochez la case pour supprimer l'image:
+                <% end %>
+              </div>
+            </div>
+            <br>
+            <div class="actions">
+              <%= f.submit "Mettre à jour", class: 'btn btn-primary' %>
+            </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
