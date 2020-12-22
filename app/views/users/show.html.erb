@@ -1,30 +1,66 @@
-<div class="text-xs-center">
-  <% if @user.photo.attached? %>
-    <%= image_tag @user.photo, alt: "Profil d'utilisateur", height: 100, width: 100, class: 'rounded-circle', style: "margin-right: 20px;" %>
-  <% else %>
-    <%= image_tag 'user_profile_pic.png', alt: "Profil d'utilisateur", height: 50, width: 50, class: 'img-thumbnail', style: "margin-bottom: 20px;" %>
-  <% end %>
-  <h1>
-    <%= @user.full_name %>
-  </h1>
-  <p>
-    <span class="tag tag-primary">Stagiaire</span>
-  </p>
+<div class="jumbotron text-xs-center" style="background-color: #dcdde1; margin-top: -20px;">
+ <% if @user.photo.attached? %>
+  <%= image_tag @user.photo, alt: "User Profile", height: 100, width: 100, class: 'rounded-circle', style: "margin-right: 20px;" %>
+ <% else %>
+  <%= image_tag 'no_image.png', alt: "User Profile", height: 100, width: 100, class: 'rounded-circle', style: "margin-right: 20px;" %>
+ <% end %>
+ <h1>
+  <%= @user.full_name %>
+ </h1>
+ <p>
+  <span class="tag tag-primary">Stagiaire</span>
+ </p>
 </div>
-<hr>
-<div class="container">
-  <div class="col-6 mx-auto">
-    <div class="card">
-      <div class="card-header bg-white">
-        <div class="media">
-          <h4 class="card-title mx-auto">
-            À propos de moi
-          </h4>
-          <p>
-            <%= @user.description %>
-          </p>
-        </div>
-      </div>
+<div class="container-fluid">
+ <div class="col-12 col-md-6 mx-auto mb-3">
+  <div class="card">
+   <div class="card-header bg-white">
+     <div class="card-body">
+      <h4 class="card-title mx-auto">
+       A propos de moi
+      </h4>
+      <p>
+       <%= @user.description %>
+      </p>
+     </div>
     </div>
+   </div>
+   <br>
+   <div class="card">
+    <div class="card-body">
+     <p>
+     <% if @user.comments.present? %>
+      <% @user.comments.each do |c| %>
+       <div>
+       <% if c.user.photo.attached? %>
+        <%= image_tag c.user.photo, alt: "User Profile", height: 30, width: 30, class: 'img-thumbnail', style: "margin-right: 20px;" %>
+       <% else %>
+        <%= image_tag 'no_image.png', alt: "User Profile", height: 30, width: 30, class: 'img-thumbnail' %>
+       <% end %>
+          <small><%= link_to c.user.full_name, c.user %> a posté ce commentaire il y a <%= time_ago_in_words(c.created_at) %> ago</small>
+       <p class="mt-1 ml-4">
+         <%= c.body %>
+       </p>
+        <% end %>
+      </div>
+     <% else %>
+      Il n'y a pas encore de commentaires pour cet utilisateur.
+     <% end %>
+     </p>
+     <% if user_signed_in? %>
+        <%= form_for [@user, @comment] do |f| %>
+         <div class="form-group">
+          Vous souhaitez laisser un commentaire ?
+          <%= f.text_area :body, class: "form-control", placeholder: "Entrez votre commentaire ici.", rows: 3 %>
+            <%= f.hidden_field :user_id, :value => current_user.id %>
+         </div>
+         <%= f.submit "Créer un commentaire", class: "btn btn-primary" %>
+        <% end %>
+     <% else %>
+      <p>Vous devez être inscrit pour commenter. Cliquer <%= link_to 'here', new_user_session_path %> pour se connecter.</p>
+     <% end %>
+    </div>
+   </div>
   </div>
+ </div>
 </div>

@@ -5,6 +5,7 @@ class LessonsController < ApplicationController
  def show
   @workshop = Workshop.find(params[:workshop_id])
   @lesson = Lesson.find(params[:id])
+  @comment = Comment.create
  end
 
  def sort
