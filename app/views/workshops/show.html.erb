@@ -10,17 +10,25 @@
       </div>
       <br>
       <ul class="card list-group">
-        <% @workshop.lessons.each_with_index do |lesson, i| %>
+        <% @workshop.lessons.order(order: :asc).each_with_index do |lesson, i| %>
           <li class="list-group-item">
             <div class="media">
               <div class="media-left">
-                <div class="text-muted"><%= i+1 %>.</div>
+                <div class="text-muted"><%= i+1 %>.&nbsp;</div>
               </div>
               <div class="media-body">
-                <a href="#">&nbsp;<%= link_to lesson.title, workshop_lesson_path(@workshop, lesson) %></a>
+                <% if user_signed_in? && current_user.already_enrolled?(@workshop) %>
+                  <a href="#"><%= link_to lesson.title, workshop_lesson_path(@workshop, lesson) %></a>
+                <% else %>
+                  <%= lesson.title %>
+                <% end %>
               </div>
               <div class="media-right">
-                <small><i class="fa fa-play-circle-o" aria-hidden="true"></i></small>
+                <% if user_signed_in? && current_user.already_enrolled?(@workshop) %>
+                  <small><i class="fa fa-play-circle-o" aria-hidden="true"></i></small>
+                <% else %>
+                  <small><i class="fa fa-lock" aria-hidden="true"></i></small>
+                <% end %>
               </div>
             </div>
           </li>
@@ -31,9 +39,21 @@
       <div class="card">
         <div class="card-body text-center">
           <p>
-            <a class="btn btn-primary btn-block text-white">
-              <strong>S'inscrire</strong>
-            </a>
+            <% if user_signed_in? %>
+              <% if current_user.already_enrolled?(@workshop) %>
+                Vous avez un accès complet à cette formation.
+              <% else %>
+                <%= form_for [@workshop, @enrollment] do |f| %>
+                  <div class="form-group">
+                    <%= f.hidden_field :user_id, :value => current_user.id %>
+                    <%= f.hidden_field :workshop_id, :value => @workshop.id %>
+                  </div>
+                  <%= f.submit "S'inscrire à la formation", class: "btn btn-primary btn-block text-white" %>
+                <% end %>
+              <% end %>
+            <% else %>
+              Vous devez être connecté pour vous inscrire à l'atelier.
+            <% end %>
           </p>
         </div>
       </div>

@@ -28,6 +28,10 @@ Rails.application.routes.draw do
     resources :comments
   end
 
+  resources :workshops do
+    resources :enrollments
+  end
+
   namespace :admin do
     root "static_pages#dashboard"
     resources :static_pages

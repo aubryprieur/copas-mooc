@@ -5,7 +5,11 @@ class LessonsController < ApplicationController
  def show
   @workshop = Workshop.find(params[:workshop_id])
   @lesson = Lesson.find(params[:id])
-  @comment = Comment.create
+  if current_user.already_enrolled?(@workshop)
+   @comment = Comment.create
+  else
+   redirect_to @workshop, alert: "Access denied."
+  end
  end
 
  def sort
