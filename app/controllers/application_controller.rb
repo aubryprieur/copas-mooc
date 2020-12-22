@@ -13,4 +13,8 @@ class ApplicationController < ActionController::Base
     admin_root_path
   end
 
+  def after_sign_in_path_for_normal(user)
+   root_path
+  end
+
 end

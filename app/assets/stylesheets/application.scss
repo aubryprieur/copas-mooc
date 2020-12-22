@@ -14,3 +14,22 @@
 @import "devise/index";
 @import "lessons/index";
 @import "workshops/index";
+
+#toast-container > div {
+  opacity: 100;
+}
+.toast {
+  background-color: #2f96b4;
+}
+.toast-success {
+  background-color: #51a351;
+}
+.toast-error {
+  background-color: #ff0000;
+}
+.toast-info {
+  background-color: #996633;
+}
+.toast-warning {
+  background-color: #ffcc00;
+}
