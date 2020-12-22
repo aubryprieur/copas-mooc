@@ -3,6 +3,7 @@ class UsersController < ApplicationController
   before_action :set_current_user, only: [:profile, :avatar, :update]
 
   def show
+    @comment = Comment.create
   end
 
   def profile

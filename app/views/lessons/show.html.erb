@@ -2,23 +2,23 @@
   <div class="row">
    <div class="col-md-8">
     <div class="card mb-2">
-    <div class="embed-responsive embed-responsive-16by9">
-     <video controls>
-      <% if @lesson.video.attached? %>
-      <source src=<%= rails_blob_path(@lesson.video) %> type="video/mp4" />
-      <% elsif @lesson.video_attacher.stored? %>
-       <source src="<%= @lesson.video[:video].url %>" type='video/mp4'>
-      <% end %>
-      <noscript>
-       <p class="vjs-no-js">
-        Pour visionner cette vidéo, veuillez activer JavaScript et envisager de passer à un navigateur web qui
-        <a href="http://videojs.com/html5-video-support/" target="_blank">supporte la vidéo HTML5</a>
-       </p>
-      </noscript>
-     </video>
+      <div class="embed-responsive embed-responsive-16by9">
+       <video controls>
+        <% if @lesson.video.attached? %>
+        <source src=<%= rails_blob_path(@lesson.video) %> type="video/mp4" />
+        <% elsif @lesson.video_attacher.stored? %>
+         <source src="<%= @lesson.video[:video].url %>" type='video/mp4'>
+        <% end %>
+        <noscript>
+         <p class="vjs-no-js">
+          Pour visionner cette vidéo, veuillez activer JavaScript et envisager de passer à un navigateur web qui
+          <a href="http://videojs.com/html5-video-support/" target="_blank">supporte la vidéo HTML5</a>
+         </p>
+        </noscript>
+       </video>
+      </div>
     </div>
-   </div>
-   <div class="card mb-2">
+    <div class="card mb-2">
     <ul class="nav nav-tabs">
      <li class="nav-item">
       <a class="nav-link active">Transcription</a>
@@ -29,7 +29,40 @@
       <div clas="my-10"><%= @lesson.description %></div>
      </div>
     </div>
-   </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+         <p>
+           <% if @lesson.comments.present? %>
+             <% @lesson.comments.each do |c| %>
+               <div>
+                 <% if c.user.photo.attached? %>
+                   <%= image_tag c.user.photo, alt: "User Profile", height: 30, width: 30, class: 'img-thumbnail', style: "margin-right: 20px;" %>
+                 <% else %>
+                   <%= image_tag 'no_image.png', alt: "User Profile", height: 30, width: 30, class: 'img-thumbnail' %>
+                 <% end %>
+                  <small>
+                    ﻿<%= link_to c.user.full_name, c.user %> a posté ce commentaire il y a <%= time_ago_in_words(c.created_at) %>
+                  </small>
+                  <p class="mt-1 ml-4">
+                    <%= c.body %>
+                  </p>
+                </div>
+              <% end %>
+            <% else %>
+              Il n'y a pas encore de commentaires pour ce chapitre.
+            <% end %>
+          </p>
+          <%= form_for [@lesson, @comment] do |f| %>
+            <div class="form-group">
+              Vous souhaitez laisser un commentaire ?
+              <%= f.text_area :body, class: "form-control", placeholder: "Entrez votre commentaire ici.", rows: 3 %>
+            <%= f.hidden_field :user_id, :value => current_user.id %>
+          </div>
+          <%= f.submit "Créer le commentaire", class: "btn btn-primary" %>
+         <% end %>
+      </div>
+    </div>
   </div>
   <div class="col-md-4 center">
    <div class="workshop-title">
