@@ -1,5 +1,5 @@
 document.addEventListener("turbolinks:load", function () {
-  var stripe = Stripe(<%= Rails.application.secrets.stripe[:publishable_key] %>);
+  var stripe = Stripe("pk_test_UjApN2yBGIDXSuI4WNlXQcdD");
   var elements = stripe.elements();
   // Custom styling can be passed to options when creating an Element.
   var style = {

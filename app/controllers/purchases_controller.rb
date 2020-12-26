@@ -44,7 +44,7 @@ class PurchasesController < ApplicationController
       charge = Stripe::Charge.create(
         :amount => amount,
         :description => @workshop.title.to_s,
-        :currency => 'usd',
+        :currency => 'eur',
         :customer => customer.id
       )
       create_charge = Charge.create user_id: current_user.id, stripe_charge_id: charge.id, amount: @workshop.cost.to_f

@@ -5,6 +5,10 @@ Rails.application.routes.draw do
     get '/users/sign_out' => 'devise/sessions#destroy'
   end
 
+  devise_scope :admin do
+    get '/signout_as_admin' => 'devise/sessions#destroy'
+  end
+
   get "/edit_profile", to: "users#profile"
   get "/edit_avatar", to: "users#avatar"
 
