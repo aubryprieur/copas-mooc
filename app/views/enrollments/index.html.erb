@@ -1,0 +1,30 @@
+<div class="generic-header">
+ <h2>Your Enrollments</h2>
+</div>
+
+<div class="container py-5">
+ <% @user_enrollments.each do |e| %>
+  <div class="row">
+   <div class="col-12 col-sm-5 px-5 py-2 mx-auto">
+    <div class="media my-2">
+     <% if e.photo.blank? %>
+      <%= image_tag('no-image.png') %>
+     <% else %>
+      <%= link_to e do %>
+       <%= image_tag e.photo, size: 60, class: 'img-thumbnail mr-3' %>
+      <% end %>
+     <% end %>
+     <div class="media-body">
+      <h5 class="mt-0"><%= link_to e.title, e, class: 'text-dark' %></h5>
+      <div class="d-flex justify-content-between align-items-center">
+       <span class="tag tag-primary">
+        <%= e.category %>
+       </span>
+       <small class="text-muted mx-2"><%= e.lessons.size %> lesson<% if e.lessons.size > 1 %>s<% end %></small>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+ <% end %>
+</div>

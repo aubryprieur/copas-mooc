@@ -39,7 +39,7 @@
                  <% if c.user.photo.attached? %>
                    <%= image_tag c.user.photo, alt: "User Profile", height: 30, width: 30, class: 'img-thumbnail', style: "margin-right: 20px;" %>
                  <% else %>
-                   <%= image_tag 'no_image.png', alt: "User Profile", height: 30, width: 30, class: 'img-thumbnail' %>
+                   <%= image_tag 'no_avatar.png', alt: "User Profile", height: 30, width: 30, class: 'img-thumbnail' %>
                  <% end %>
                   <small>
                     ﻿<%= link_to c.user.full_name, c.user %> a posté ce commentaire il y a <%= time_ago_in_words(c.created_at) %>

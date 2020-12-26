@@ -5,10 +5,18 @@ Rails.application.routes.draw do
     get '/users/sign_out' => 'devise/sessions#destroy'
   end
 
+  devise_scope :admin do
+    get '/signout_as_admin' => 'devise/sessions#destroy'
+  end
+
   get "/edit_profile", to: "users#profile"
   get "/edit_avatar", to: "users#avatar"
 
   root "workshops#index"
+
+  get 'payment-complete', :to => 'purchases#payment_complete', as: 'payment_complete'
+
+  resource :purchase
 
   resources :users
   resources :workshops do
@@ -31,6 +39,8 @@ Rails.application.routes.draw do
   resources :workshops do
     resources :enrollments
   end
+
+  resources :enrollments, only: [:index]
 
   namespace :admin do
     root "static_pages#dashboard"

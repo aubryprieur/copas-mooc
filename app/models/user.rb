@@ -8,6 +8,7 @@ class User < ApplicationRecord
   has_one_attached :photo
   has_many :enrollments, dependent: :destroy
   has_many :enrolled_workshops, through: :enrollments, source: :workshop
+  has_many :charges
 
   def already_enrolled?(workshop)
     return enrolled_workshops.include?(workshop)

@@ -35,6 +35,7 @@ gem 'devise', '~> 4.7', '>= 4.7.3'
 gem 'fastimage', '~> 2.2'
 gem 'image_processing', '~> 1.12', '>= 1.12.1'
 gem 'mini_magick', '~> 4.11'
+gem 'stripe', '~> 5.28'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

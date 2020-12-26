@@ -19,4 +19,3 @@ import "../stylesheets/application"
 // const imagePath = (name) => images(name, true)
 
 global.toastr = require("toastr")
-

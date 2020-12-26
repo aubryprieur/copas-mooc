@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>CopasMooc</title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_pack_tag 'application_checkout', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_include_tag "https://js.stripe.com/v3/", 'data-turbolinks-track': 'reload'  %>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  </head>
+
+  <body>
+    <%= render 'shared/header' %>
+    <%= render 'shared/alert_messages' %>
+    <%= yield %>
+    <%= render 'shared/footer' %>
+  </body>
+</html>
