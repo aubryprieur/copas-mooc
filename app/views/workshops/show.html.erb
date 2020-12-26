@@ -38,23 +38,15 @@
     <div class="col-md-4">
       <div class="card">
         <div class="card-body text-center">
-          <p>
-            <% if user_signed_in? %>
-              <% if current_user.already_enrolled?(@workshop) %>
-                Vous avez un accès complet à cette formation.
-              <% else %>
-                <%= form_for [@workshop, @enrollment] do |f| %>
-                  <div class="form-group">
-                    <%= f.hidden_field :user_id, :value => current_user.id %>
-                    <%= f.hidden_field :workshop_id, :value => @workshop.id %>
-                  </div>
-                  <%= f.submit "S'inscrire à la formation", class: "btn btn-primary btn-block text-white" %>
-                <% end %>
-              <% end %>
+          <% if user_signed_in? %>
+            <% if current_user.already_enrolled?(@workshop) %>
+              Vous avez un accès complet à cette formation.
             <% else %>
-              Vous devez être connecté pour vous inscrire à l'atelier.
+              <%= link_to 'Enroll in workshop', new_purchase_path(workshop_id: @workshop.id), class: "btn btn-primary btn-block text-white" %>
             <% end %>
-          </p>
+          <% else %>
+            <%= link_to 'Enroll in workshop', new_purchase_path(workshop_id: @workshop.id), class: "btn btn-primary btn-block text-white" %>
+          <% end %>
         </div>
       </div>
       <br>

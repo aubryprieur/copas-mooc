@@ -12,6 +12,8 @@ Rails.application.routes.draw do
 
   get 'payment-complete', :to => 'purchases#payment_complete', as: 'payment_complete'
 
+  resource :purchase
+
   resources :users
   resources :workshops do
     resources :lessons
