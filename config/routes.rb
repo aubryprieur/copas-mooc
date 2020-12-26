@@ -10,6 +10,8 @@ Rails.application.routes.draw do
 
   root "workshops#index"
 
+  get 'payment-complete', :to => 'purchases#payment_complete', as: 'payment_complete'
+
   resources :users
   resources :workshops do
     resources :lessons
