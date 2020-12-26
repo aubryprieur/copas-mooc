@@ -2,7 +2,7 @@
  <% if @user.photo.attached? %>
   <%= image_tag @user.photo, alt: "User Profile", height: 100, width: 100, class: 'rounded-circle', style: "margin-right: 20px;" %>
  <% else %>
-  <%= image_tag 'no_image.png', alt: "User Profile", height: 100, width: 100, class: 'rounded-circle', style: "margin-right: 20px;" %>
+  <%= image_tag 'no_avatar.png', alt: "User Profile", height: 100, width: 100, class: 'rounded-circle', style: "margin-right: 20px;" %>
  <% end %>
  <h1>
   <%= @user.full_name %>
@@ -35,7 +35,7 @@
        <% if c.user.photo.attached? %>
         <%= image_tag c.user.photo, alt: "User Profile", height: 30, width: 30, class: 'img-thumbnail', style: "margin-right: 20px;" %>
        <% else %>
-        <%= image_tag 'no_image.png', alt: "User Profile", height: 30, width: 30, class: 'img-thumbnail' %>
+        <%= image_tag 'no_avatar.png', alt: "User Profile", height: 30, width: 30, class: 'img-thumbnail' %>
        <% end %>
           <small><%= link_to c.user.full_name, c.user %> a posté ce commentaire il y a <%= time_ago_in_words(c.created_at) %> ago</small>
        <p class="mt-1 ml-4">
