@@ -13,4 +13,8 @@ class EnrollmentsController < ApplicationController
     end
   end
 
+  def index
+    @user_enrollments = current_user.enrolled_workshops
+  end
+
 end

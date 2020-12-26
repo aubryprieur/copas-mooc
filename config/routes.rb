@@ -40,6 +40,8 @@ Rails.application.routes.draw do
     resources :enrollments
   end
 
+  resources :enrollments, only: [:index]
+
   namespace :admin do
     root "static_pages#dashboard"
     resources :static_pages
