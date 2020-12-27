@@ -2,21 +2,23 @@
   <div class="row">
    <div class="col-md-8">
     <div class="card mb-2">
-      <div class="embed-responsive embed-responsive-16by9">
-       <video controls>
         <% if @lesson.video.attached? %>
-        <source src=<%= rails_blob_path(@lesson.video) %> type="video/mp4" />
-        <% elsif @lesson.video_attacher.stored? %>
-         <source src="<%= @lesson.video[:video].url %>" type='video/mp4'>
+          <div class="embed-responsive embed-responsive-16by9">
+            <video controls>
+              <source src=<%= rails_blob_path(@lesson.video) %> type="video/mp4" />
+              <noscript>
+                <p class="vjs-no-js">
+                  Pour visionner cette vidéo, veuillez activer JavaScript et envisager de passer à un navigateur web qui
+                  <a href="http://videojs.com/html5-video-support/" target="_blank">supporte la vidéo HTML5</a>
+                </p>
+              </noscript>
+            </video>
+          </div>
+        <% else %>
+          <div class="container-no-video">
+            <p class="d-flex justify-content-center no-video">Ce chapitre ne contient pas de support vidéo.</p>
+          </div>
         <% end %>
-        <noscript>
-         <p class="vjs-no-js">
-          Pour visionner cette vidéo, veuillez activer JavaScript et envisager de passer à un navigateur web qui
-          <a href="http://videojs.com/html5-video-support/" target="_blank">supporte la vidéo HTML5</a>
-         </p>
-        </noscript>
-       </video>
-      </div>
     </div>
     <div class="card mb-2">
     <ul class="nav nav-tabs">
@@ -26,7 +28,7 @@
     </ul>
     <div class="tab-pane fade show active">
      <div class=container style="padding-top: 10px; padding-bottom: 10px;">
-      <div clas="my-10"><%= @lesson.description %></div>
+      <div clas="my-10"><%= @lesson.rich_body %></div>
      </div>
     </div>
     </div>

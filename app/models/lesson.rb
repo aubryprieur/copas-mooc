@@ -6,4 +6,5 @@ class Lesson < ApplicationRecord
   has_many :comments, as: :commentable
 
   has_one_attached :video
+  has_rich_text :rich_body
 end

@@ -56,7 +56,7 @@ class Admin::WorkshopsController < ApplicationController
   end
 
   def admin_workshop_params
-    params.require(:workshop).permit(:title, :subtitle, :description, :user_id, :difficulty, :category, :language, :requirements, :outcomes, :cost, :discount, :photo, :remove_image)
+    params.require(:workshop).permit(:title, :subtitle, :user_id, :difficulty, :category, :language, :requirements, :outcomes, :cost, :discount, :photo, :remove_image, :rich_body)
   end
 
 end

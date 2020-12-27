@@ -25,3 +25,7 @@
 a.tag:focus, a.tag:hover { color: #fff; text-decoration: none; cursor: pointer; }
 .tag-primary { background-color: #e74c3c; }
 .tag-primary[href]:focus, .tag-primary[href]:hover { background-color: #e74c3c; }
+
+.card-text {
+  max-width: 270px;
+}

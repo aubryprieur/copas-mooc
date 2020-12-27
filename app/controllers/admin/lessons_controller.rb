@@ -61,7 +61,7 @@ class Admin::LessonsController < ApplicationController
  end
 
  def admin_lesson_params
-  params.require(:lesson).permit(:title, :description, :user_id, :workshop_id, :slug, :order, :video, :remove_video)
+  params.require(:lesson).permit(:title, :description, :user_id, :workshop_id, :slug, :order, :video, :remove_video, :rich_body)
  end
 
 end
