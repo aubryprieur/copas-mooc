@@ -23,7 +23,7 @@
             <% if workshop.photo.blank? %>
               <%= image_tag('no_image.jpg', alt: "COPAS", height: 200, width: 300, alt: "Workshop image") %>
             <% else %>
-              <%= link_to workshop do %>
+              <%= link_to workshop, class: "text-center" do %>
                 <%= image_tag workshop.photo, alt: "Workshop image", height: 200, width: 300 %>
               <% end %>
             <% end %>
