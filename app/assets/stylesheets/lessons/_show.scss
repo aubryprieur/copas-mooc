@@ -10,14 +10,20 @@
 }
 
 .workshop-title {
- border: 1px solid #eee;
  width:100%;
  box-sizing:border-box;
  position:relative;
  padding-top:50px;
- margin-bottom:15px;
+ margin-top: 5px;
+ margin-bottom:20px;
  overflow:hidden;
 }
+
+.workshop-title h5 {
+  padding-top: 5px;
+  padding-bottom: 10px;
+}
+
 .workshop-title-header {
  width:100%;
  position:absolute;
@@ -26,11 +32,30 @@
  height:50px;
  float:left;
  background: #f6f6f6;
- box-shadow: rgba(0,0,0,0.1) 0px 2px 2px;
  z-index:99;
  overflow:hidden;
+ margin-top: 10px;
+ margin-bottom: 10px;
+}
+
+.list-lessons {
+  margin-top: 30px;
+  margin-bottom: 10px;
 }
 
 .no-video {
   margin: 10px;
+}
+
+#sticky {
+  position: fixed;
+  top: 80px;
+  right: 10px;
+}
+
+.lessons-navigation {
+  background-color: white;
+  padding: 10px 0;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 2px;
 }

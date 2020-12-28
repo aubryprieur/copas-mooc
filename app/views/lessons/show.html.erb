@@ -32,6 +32,14 @@
      </div>
     </div>
     </div>
+    <div class="mb-2 text-center lessons-navigation">
+      <% if @workshop.lessons.where(id: @lesson.id-1).present? %>
+        <%= link_to "<<< Précédent", workshop_lesson_path(@workshop, @lesson.id - 1), class:"btn btn-outline-secondary btn-lessons-navigation" %>
+      <% end %>
+      <% if @workshop.lessons.where(id: @lesson.id+1).present? %>
+        <%= link_to "Suivant >>>", workshop_lesson_path(@workshop, @lesson.id + 1), class:"btn btn-outline-secondary btn-lessons-navigation" %>
+      <% end %>
+    </div>
     <div class="card">
       <div class="card-body">
          <p>
@@ -66,11 +74,12 @@
       </div>
     </div>
   </div>
-  <div class="col-md-4 center">
+  <div class="col-md-4 center" id="sticky">
    <div class="workshop-title">
     <div class="workshop-title-header text-center">
-     <h5 style="margin-top: 10px; margin-bottom: 10px;"><%= @workshop.title %></h5>
+     <h5><%= @workshop.title %></h5>
     </div>
+    <div class="list-lessons">
     <ul class="card list-group list-group-fit text-center">
      <% @workshop.lessons.each_with_index do |lesson, i| %>
       <li class="list-group-item <%= active_lesson(workshop_lesson_path(@workshop, lesson)) %>">
@@ -78,6 +87,8 @@
       </li>
      <% end %>
     </ul>
+
+    </div>
    </div>
    <div class="card">
     <ul class="list-group list-group-fit text-center">
@@ -95,5 +106,5 @@
    </div>
   </div>
  </div>
- </div>
 </div>
+
