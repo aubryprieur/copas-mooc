@@ -12,6 +12,8 @@ Rails.application.routes.draw do
   get "/edit_profile", to: "users#profile"
   get "/edit_avatar", to: "users#avatar"
 
+  resources :complete_lessons, only: [:create, :destroy]
+
   root "workshops#index"
 
   get 'payment-complete', :to => 'purchases#payment_complete', as: 'payment_complete'

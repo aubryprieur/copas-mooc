@@ -9,6 +9,9 @@ class User < ApplicationRecord
   has_many :enrollments, dependent: :destroy
   has_many :enrolled_workshops, through: :enrollments, source: :workshop
   has_many :charges
+  has_many :completes
+  has_many :complete_lessons, through: :completes, source: :completed, source_type: 'Lesson'
+
 
   def already_enrolled?(workshop)
     return enrolled_workshops.include?(workshop)

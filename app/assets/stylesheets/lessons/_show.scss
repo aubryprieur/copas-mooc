@@ -59,3 +59,24 @@
   border: 1px solid rgba(0, 0, 0, 0.125);
   border-radius: 2px;
 }
+
+#completed-lesson-link a:link {
+  text-decoration: none;
+}
+
+#completed-lesson-link a {
+  color: #6C757D;
+  padding: 0 10px;
+}
+
+#completed-card {
+  background-color: white;
+  margin: 10px 0;
+  padding: 10px 0;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 2px;
+}
+
+#lesson-completed {
+  color: #3ccdae;
+}

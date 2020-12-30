@@ -24,7 +24,9 @@
                 <% end %>
               </div>
               <div class="media-right">
-                <% if user_signed_in? && current_user.already_enrolled?(@workshop) %>
+                <% if user_signed_in? && current_user.already_enrolled?(@workshop) && current_user.complete_lessons.exists?(id: lesson.id) %>
+                  <small><i class="fa fa-check-circle" aria-hidden="true" style= "color: #3ccdae" ></i></small>
+                <% elsif user_signed_in? && current_user.already_enrolled?(@workshop) %>
                   <small><i class="fa fa-play-circle-o" aria-hidden="true"></i></small>
                 <% else %>
                   <small><i class="fa fa-lock" aria-hidden="true"></i></small>
