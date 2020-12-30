@@ -32,6 +32,19 @@
      </div>
     </div>
     </div>
+    <div id="completed-card">
+      <div id="completed-lesson-link">
+        <% unless current_user.complete_lessons.exists?(id: @lesson.id) %>
+          <%= link_to complete_lessons_path(lesson_id: @lesson), method: :post do %>
+            <span>Chapitre en cours d'acquisition, cliquer pour valider </span><i class="fa fa-play-circle" style= "color: #6C757D"></i>
+          <% end %>
+        <% else %>
+          <%= link_to complete_lesson_path(@lesson), method: :delete do %>
+            <span id="lesson-completed">Chapitre terminé </span><i class="fa fa-check-circle" style= "color: #3ccdae" ></i>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
     <div class="mb-2 text-center lessons-navigation">
       <% if @workshop.lessons.where(id: @lesson.id-1).present? %>
         <%= link_to "<<< Précédent", workshop_lesson_path(@workshop, @lesson.id - 1), class:"btn btn-outline-secondary btn-lessons-navigation" %>
@@ -81,13 +94,15 @@
     </div>
     <div class="list-lessons">
     <ul class="card list-group list-group-fit text-center">
-     <% @workshop.lessons.each_with_index do |lesson, i| %>
-      <li class="list-group-item <%= active_lesson(workshop_lesson_path(@workshop, lesson)) %>">
-       <%= (i+1) %>. <%= link_to lesson.title, workshop_lesson_path(@workshop, lesson) %>
-      </li>
-     <% end %>
+      <% @workshop.lessons.each_with_index do |lesson, i| %>
+        <li class="list-group-item <%= active_lesson(workshop_lesson_path(@workshop, lesson)) %>">
+          <%= (i+1) %>. <%= link_to lesson.title, workshop_lesson_path(@workshop, lesson) %>
+          <% if current_user.complete_lessons.exists?(id: lesson.id) %>
+            <i class="fa fa-check-circle" style= "color: #3ccdae" ></i>
+          <% end %>
+        </li>
+      <% end %>
     </ul>
-
     </div>
    </div>
    <div class="card">
