@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_30_130825) do
+ActiveRecord::Schema.define(version: 2020_12_31_161549) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -98,7 +98,18 @@ ActiveRecord::Schema.define(version: 2020_12_30_130825) do
     t.integer "order"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.boolean "finished"
+  end
+
+  create_table "questions", force: :cascade do |t|
+    t.string "question"
+    t.string "answer"
+    t.string "distractor_1"
+    t.string "distractor_2"
+    t.string "distractor_3"
+    t.bigint "workshop_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["workshop_id"], name: "index_questions_on_workshop_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -144,4 +155,5 @@ ActiveRecord::Schema.define(version: 2020_12_30_130825) do
   add_foreign_key "completes", "users"
   add_foreign_key "enrollments", "users"
   add_foreign_key "enrollments", "workshops"
+  add_foreign_key "questions", "workshops"
 end

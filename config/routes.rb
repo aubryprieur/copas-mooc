@@ -30,6 +30,15 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :workshops do
+    resources :questions
+  end
+  resources :questions do
+    collection do
+      patch :sort
+    end
+  end
+
   resources :lessons do
     resources :comments
   end
@@ -50,8 +59,12 @@ Rails.application.routes.draw do
     resources :users
     resources :workshops
     resources :lessons
+    resources :questions
     resources :workshops do
       resources :lessons
+    end
+    resources :workshops do
+      resources :questions
     end
   end
 

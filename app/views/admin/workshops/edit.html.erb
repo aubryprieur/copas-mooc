@@ -3,7 +3,7 @@
   <div class="col-12 col-lg-10">
     <div class="card">
       <div class="card-header">
-        Editer la session
+        Editer la formation
       </div>
       <%= form_for([:admin,@workshop]) do |f| %>
         <div class="card-body">
@@ -98,7 +98,7 @@
              <div class="card">
               <div class="card-body">
                <div class="card-header">
-                <span style="padding-right: 5px;">Programme de la session</span>
+                <span style="padding-right: 5px;">Les chapitres de la formation</span>
                 <%= link_to 'Ajouter une leçon', new_admin_workshop_lesson_path(@workshop), class: "btn btn-primary btn-sm my-10" %>
                </div>
                <div id="lessons" class="list-group" data-url="<%= sort_lessons_path %>">
@@ -112,6 +112,27 @@
                </div>
               </div>
              </div>
+
+             <div class="card">
+              <div class="card-body">
+               <div class="card-header">
+                <span style="padding-right: 5px;">Les questions du quizz de la formation</span>
+                <%= link_to 'Ajouter une question', new_admin_workshop_question_path(@workshop), class: "btn btn-primary btn-sm my-10" %>
+               </div>
+               <div id="lessons" class="list-group" data-url="<%= sort_questions_path %>">
+                <% if @workshop.questions.count == 0 %>
+                 <div class="list-group-item">No questions for this workshop found. Please create one!</div>
+                <% else %>
+                 <% @workshop.questions.each_with_index do |question| %>
+                  <%= link_to question.question, edit_admin_workshop_question_path(@workshop, question), class: "list-group-item", id: dom_id(question) %>
+                 <% end %>
+                <% end %>
+               </div>
+              </div>
+             </div>
+
+
+
             </div>
           </div>
           <hr>
@@ -119,7 +140,7 @@
             <%= link_to 'Retour en arrière', admin_workshops_path, :class => 'btn btn-secondary' %>
           </span>
           <span>
-            <%= f.submit 'Enregistrer la session', :class => 'btn btn-primary' %>
+            <%= f.submit 'Enregistrer la formation', :class => 'btn btn-primary' %>
           </span>
         </div>
       </div>

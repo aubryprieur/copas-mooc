@@ -1,0 +1,82 @@
+<div class="row">
+  <%= render partial: 'shared/admin_sidebar' %>
+  <div class="col-12 col-lg-10">
+    <div class="card">
+      <div class="card-header">
+        Add New Question
+      </div>
+      <%= form_for([:admin,@workshop, @question]) do |f| %>
+        <div class="card-body">
+          <% if @question.errors.any? %>
+            <div id="error_explanation">
+              <h2><%= pluralize(@question.errors.count, "error") %> prohibited this lesson from being saved:</h2>
+              <ul>
+              <% @question.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+              <% end %>
+              </ul>
+            </div>
+          <% end %>
+          <div class="row">
+            <div class="col-md-8">
+              <div class="form-group">
+                <label>Question</label>
+                  <%= f.text_field :question, class: 'form-control', autofocus: true, autocomplete: "title" %>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="form-group">
+                <label>Réponse</label>
+                  <%= f.text_field :answer, class: 'form-control', autofocus: true, autocomplete: "title" %>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="form-group">
+                <label>Distraction 1</label>
+                  <%= f.text_field :distractor_1, class: 'form-control', autofocus: true, autocomplete: "title" %>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="form-group">
+                <label>Distraction 2</label>
+                  <%= f.text_field :distractor_2, class: 'form-control', autofocus: true, autocomplete: "title" %>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="form-group">
+                <label>Distraction 3</label>
+                  <%= f.text_field :distractor_3, class: 'form-control', autofocus: true, autocomplete: "title" %>
+              </div>
+            </div>
+            <hr>
+          </div>
+          <hr>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Workshop ID</label>
+                <input class="form-control" id="disabledInput" type="text" placeholder="<%= @workshop.id %>" disabled>
+                <%= f.hidden_field :workshop_id, value: @workshop.id %>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="form-group">
+                <label>Workshop Title</label>
+                <input class="form-control" id="disabledInput" type="text" placeholder="<%= @workshop.title %>" disabled>
+              </div>
+            </div>
+          </div>
+          <hr>
+          <span>
+            <%= link_to 'Back to Workshop', edit_admin_workshop_path(@workshop), :class => 'btn btn-secondary' %>
+          </span>
+          <span>
+            <%= f.submit 'Créer la question', :class => 'btn btn-primary' %>
+          </span>
+        </div>
+      </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
