@@ -2,6 +2,11 @@ class QuestionsController < ApplicationController
  before_action :authenticate_admin!, only: [:sort]
  before_action :authenticate_user!, only: [:show]
 
+ def index
+  @workshop = Workshop.find(params[:workshop_id])
+  @questions = Question.all
+ end
+
  def show
   @question = Question.find(params[:id])
  end

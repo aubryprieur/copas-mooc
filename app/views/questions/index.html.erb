@@ -1,0 +1,34 @@
+<div class="container">
+  <h1>QCM - Formation  <%= @workshop.title %></h1>
+  <% @questions.each_with_index do |question, i| %>
+    <li>
+      <%= (i+1) %>. <%= question.question %>
+    </li>
+    <%= form_for(question) do |f| %>
+      <%= hidden_field_tag :workshop_id, question.workshop.id %>
+      <%= hidden_field_tag :user_id, current_user.id %>
+      <div>
+        <%= f.radio_button :answer, "#{question.answer}", :checked => false  %>
+        <%= f.label "#{question.answer}" %>
+      </div>
+      <div>
+        <%= f.radio_button :answer, "#{question.distractor_1}" %>
+        <%= f.label "#{question.distractor_1}" %>
+      </div>
+      <% if question.distractor_2.present? %>
+        <div>
+          <%= f.radio_button :answer, "#{question.distractor_2 }" %>
+          <%= f.label "#{question.distractor_2 }" %>
+        </div>
+      <% end %>
+      <% if question.distractor_3.present? %>
+        <div>
+          <%= f.radio_button :answer, "#{question.distractor_3 }" %>
+          <%= f.label "#{question.distractor_3 }" %>
+        </div>
+      <% end %>
+      <%= f.submit :Submit, class: 'btn btn-success' %>
+    <% end %>
+  <% end %>
+</div>
+
