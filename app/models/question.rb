@@ -3,4 +3,5 @@ class Question < ApplicationRecord
   validates :answer, presence: true
   validates :distractor_1, presence: true
   belongs_to :workshop
+  has_many :answers
 end

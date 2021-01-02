@@ -39,6 +39,10 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :questions do
+    resources :answers
+  end
+
   resources :lessons do
     resources :comments
   end

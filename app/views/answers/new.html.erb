@@ -1,0 +1,42 @@
+<div class="container">
+  <p><%= @question.question %></p>
+
+  <%= form_for([@question, @answer]) do |f| %>
+    <% if @answer.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@answer.errors.count, "error") %> a interdit la sauvegarde de votre réponse:</h2>
+      <ul>
+      <% @answer.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+    <% end %>
+    <%= hidden_field_tag :question_id, @question.id %>
+    <%= hidden_field_tag :user_id, current_user.id %>
+    <div>
+      <%= f.radio_button :user_answer, "#{@question.answer}", :checked => false%>
+      <%= f.label "#{@question.answer}" %>
+    </div>
+    <div>
+      <%= f.radio_button :user_answer, "#{@question.distractor_1}"%>
+      <%= f.label "#{@question.distractor_1}" %>
+    </div>
+    <% if @question.distractor_2.present? %>
+      <div>
+        <%= f.radio_button :user_answer, "#{@question.distractor_2 }"%>
+        <%= f.label "#{@question.distractor_2 }" %>
+      </div>
+    <% end %>
+    <% if @question.distractor_3.present? %>
+      <div>
+        <%= f.radio_button :user_answer, "#{@question.distractor_3 }" %>
+        <%= f.label "#{@question.distractor_3 }" %>
+      </div>
+    <% end %>
+    <hr>
+    <span>
+      <%= f.submit 'Sauvergarder la réponse', :class => 'btn btn-primary' %>
+    </span>
+  <% end %>
+</div>

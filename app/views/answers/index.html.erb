@@ -1,0 +1,32 @@
+<div class="container">
+  <h1>Correction</h1>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th style="width: 5%;">#</th>
+          <th style="width: 30%;">La question</th>
+          <th style="width: 30%;">Votre réponse</th>
+          <th style="width: 30%;">Correction</th>
+          <th style="width: 5%;">Vérification</th>
+        </tr>
+      </thead>
+      <body>
+        <% @answers.each_with_index do |answer, i| %>
+          <tr>
+            <th scope="row"><%= i+1 %></th>
+            <td><%= answer.question.question %></td>
+            <td><%= answer.user_answer%></td>
+            <td><%= answer.question.answer%></td>
+            <td>
+              <% if answer.question.answer == answer.user_answer %>
+              OK
+              <% else %>
+              NON
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </body>
+    </table>
+</div>
