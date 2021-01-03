@@ -8,6 +8,8 @@ class WorkshopsController < ApplicationController
   def show
     @instructor = User.find(@workshop.user_id)
     @enrollment = Enrollment.new
+    @questions = Question.all
+    @question = @questions.where(workshop_id: @workshop.id)[0]
   end
 
   private
