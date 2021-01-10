@@ -29,7 +29,7 @@ class AnswersController < ApplicationController
       if @question.id < limit
         redirect_to new_question_answer_path(@question.id+1), notice: "Réponse enregistrée."
       else
-        redirect_to question_answers_path, notice: "QCM terminé."
+        redirect_to workshop_results_path(@workshop), notice: "QCM terminé."
       end
     end
   end

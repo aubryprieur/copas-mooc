@@ -55,6 +55,10 @@ Rails.application.routes.draw do
     resources :enrollments
   end
 
+  resources :workshops do
+    get '/results', to: 'results#results'
+  end
+
   resources :enrollments, only: [:index]
 
   namespace :admin do
