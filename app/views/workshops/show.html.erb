@@ -35,9 +35,15 @@
             </div>
           </li>
         <% end %>
-        <li class="list-group-item">
-          <%= link_to "QCM", new_question_answer_path(@question) %>
-        </li>
+        <% if @answers.count == @questions.count %>
+          <li class="list-group-item">
+            <%= link_to "Résultat du QCM", workshop_results_path(@workshop) %>
+          </li>
+        <% else %>
+          <li class="list-group-item">
+            <%= link_to "QCM", new_question_answer_path(@question) %>
+          </li>
+        <% end %>
       </ul>
     </div>
     <div class="col-md-4">
