@@ -1,6 +1,6 @@
 <div class="container">
   <div>
-    <h1>Total des questions du QCM : <%= @questions.count %> questions</h1>
+    <h1>Total des questions du QCM : <%= @questions.where(workshop_id: @question.workshop_id).count %> questions</h1>
     <ul>
       <li>Vous ne pouvez répondre qu'une seule fois au QCM</li>
       <li>Dès la réponse validée, vous ne pourrez pas la modifier</li>
@@ -10,7 +10,7 @@
   <hr>
   <p><%= @question.question %></p>
 
-  <%= form_for([@workshop, @question, @answer]) do |f| %>
+  <%= form_for([@question, @answer]) do |f| %>
     <% if @answer.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@answer.errors.count, "error") %> a interdit la sauvegarde de votre réponse:</h2>

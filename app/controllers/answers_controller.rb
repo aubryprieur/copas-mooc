@@ -10,6 +10,7 @@ class AnswersController < ApplicationController
 
   def new
     @question = Question.find(params[:question_id])
+    @workshop = @question.workshop_id
     @answer = Answer.new
 
     @questions = Question.all
