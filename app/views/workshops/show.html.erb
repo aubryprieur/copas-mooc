@@ -35,15 +35,34 @@
             </div>
           </li>
         <% end %>
-        <% if @answers.count == @questions.count %>
-          <li class="list-group-item">
-            <%= link_to "Résultat du QCM", workshop_results_path(@workshop) %>
-          </li>
-        <% else %>
-          <li class="list-group-item">
-            <%= link_to "QCM", new_question_answer_path(@question) %>
-          </li>
-        <% end %>
+      </ul>
+      <br>
+      <ul class="card list-group">
+        <li class="list-group-item">
+          <div class="media">
+            <div class="media-left">
+              <div class="text-muted">3.&nbsp;</div>
+            </div>
+            <div class="media-body">
+              <% if user_signed_in? && current_user.already_enrolled?(@workshop) %>
+                <% if @answers.count == @questions.count %>
+                  <%= link_to "Résultat du QCM", workshop_results_path(@workshop) %>
+                <% else %>
+                  <%= link_to "QCM", new_question_answer_path(@question) %>
+                <% end %>
+              <% else %>
+                QCM
+              <% end %>
+            </div>
+            <div class="media-right">
+              <% if user_signed_in? && current_user.already_enrolled?(@workshop) %>
+                <small><i class="fa fa-play-circle-o" aria-hidden="true"></i></small>
+              <% else %>
+                <small><i class="fa fa-lock" aria-hidden="true"></i></small>
+              <% end %>
+            </div>
+          </div>
+        </li>
       </ul>
     </div>
     <div class="col-md-4">

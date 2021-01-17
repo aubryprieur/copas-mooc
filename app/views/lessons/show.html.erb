@@ -103,7 +103,11 @@
         </li>
       <% end %>
       <li class="list-group-item">
-        <%= link_to "QCM", workshop_questions_path(@workshop, @questions) %>
+        <% if @answers.count == @questions.count %>
+          <%= link_to "Résultat du QCM", workshop_results_path(@workshop) %>
+        <% else %>
+          <%= link_to "QCM", new_question_answer_path(@question) %>
+        <% end %>
       </li>
     </ul>
     </div>

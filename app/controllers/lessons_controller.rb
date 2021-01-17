@@ -5,6 +5,9 @@ class LessonsController < ApplicationController
  def show
   @workshop = Workshop.find(params[:workshop_id])
   @lesson = Lesson.find(params[:id])
+  @answers = Answer.where(workshop_id: @workshop)
+  @questions = @workshop.questions
+  @question = @workshop.questions.first
   if current_user.already_enrolled?(@workshop)
    @comment = Comment.create
   else
