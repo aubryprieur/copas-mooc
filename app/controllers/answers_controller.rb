@@ -1,13 +1,6 @@
 class AnswersController < ApplicationController
   before_action :authenticate_user!
 
-  def index
-    @questions = Question.all
-    @answers = Answer.all
-
-    @workshop = @questions[0].workshop_id
-  end
-
   def new
     @question = Question.find(params[:question_id])
     @workshop = @question.workshop_id
@@ -19,7 +12,7 @@ class AnswersController < ApplicationController
   def create
     @question = Question.find(params[:question_id])
     @workshop = @question.workshop_id
-    @questions = Question.all
+    @questions = Question.where(workshop_id: @workshop)
     limit = @questions.count
     @answer = Answer.new(answer_params)
     @answer.user_answer = params[:answer][:user_answer]
