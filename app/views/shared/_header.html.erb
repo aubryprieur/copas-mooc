@@ -14,6 +14,8 @@
      <%= current_user.first_name %>
     </a>
     <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+     <%= link_to "Mes formations", enrollments_path, class: 'dropdown-item' %>
+      <div class="dropdown-divider"></div>
      <%= link_to "Paramètres", edit_user_registration_path, class: 'dropdown-item' %>
      <%= link_to "Editer mon profil", edit_profile_path, class: 'dropdown-item' %>
       <%= link_to "Editer mon avatar", edit_avatar_path, class: 'dropdown-item' %>

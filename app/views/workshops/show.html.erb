@@ -72,10 +72,10 @@
             <% if current_user.already_enrolled?(@workshop) %>
               Vous avez un accès complet à cette formation.
             <% else %>
-              <%= link_to 'Enroll in workshop', new_purchase_path(workshop_id: @workshop.id), class: "btn btn-primary btn-block text-white" %>
+              <%= link_to "S'inscrire à la formation", new_purchase_path(workshop_id: @workshop.id), class: "btn btn-primary btn-block text-white" %>
             <% end %>
           <% else %>
-            <%= link_to 'Enroll in workshop', new_purchase_path(workshop_id: @workshop.id), class: "btn btn-primary btn-block text-white" %>
+            <%= link_to "S'inscrire à la formation", new_purchase_path(workshop_id: @workshop.id), class: "btn btn-primary btn-block text-white" %>
           <% end %>
         </div>
       </div>

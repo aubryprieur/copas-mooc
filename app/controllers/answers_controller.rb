@@ -6,14 +6,16 @@ class AnswersController < ApplicationController
     @workshop = @question.workshop_id
     @answer = Answer.new
 
-    @questions = Question.all
+    @questions = Question.where(workshop_id: @workshop)
   end
 
   def create
     @question = Question.find(params[:question_id])
     @workshop = @question.workshop_id
     @questions = Question.where(workshop_id: @workshop)
+    @answers = Answer.where(workshop_id: @workshop, user_id: current_user)
     limit = @questions.count
+
     @answer = Answer.new(answer_params)
     @answer.user_answer = params[:answer][:user_answer]
     @answer.question_id = params[:question_id]
@@ -22,7 +24,7 @@ class AnswersController < ApplicationController
     if @answer.invalid?
       redirect_to workshop_results_path(@workshop), alert: "Vous avez déjà répondu au QCM."
     elsif @answer.save
-      if @question.id < limit
+      if @answers.count < limit
         redirect_to new_question_answer_path(@question.id+1), notice: "Réponse enregistrée."
       else
         redirect_to workshop_results_path(@workshop), notice: "QCM terminé."
