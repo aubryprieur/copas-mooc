@@ -5,6 +5,7 @@ class LessonsController < ApplicationController
  def show
   @workshop = Workshop.find(params[:workshop_id])
   @lesson = Lesson.find(params[:id])
+  @lessons = Lesson.where(workshop_id: @workshop)
   @answers = Answer.where(workshop_id: @workshop)
   @questions = @workshop.questions
   @question = @workshop.questions.first

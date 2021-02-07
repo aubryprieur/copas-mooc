@@ -1,52 +1,57 @@
-<div class="container">
+<h1 class="title-qcm">QCM</h1>
+<div class="answers-block">
   <div class="description-block-answers">
-    <h1>Total des questions du QCM : <%= @questions.where(workshop_id: @question.workshop_id).count %> questions</h1>
+    <h2>Ce questionnaire comprend <strong><%= @questions.where(workshop_id: @question.workshop_id).count %> questions</strong>, il vous permet d'évaluer vos acquis à l'issue de la formation.</h2>
+    <p>Quelques règles : </p>
     <ul>
       <li>Vous ne pouvez répondre qu'une seule fois au QCM</li>
-      <li>Dès la réponse validée, vous ne pourrez pas la modifier</li>
+      <li>Dès que vous avez validé votre réponse, vous ne pourrez plus la modifier</li>
       <li>Le nombre de bonnes réponses ne conditionne pas l'obtention de l'attestation de formation</li>
     </ul>
   </div>
-  <hr>
-  <p><%= @question.question %></p>
-
-  <%= form_for([@question, @answer]) do |f| %>
-    <% if @answer.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@answer.errors.count, "error") %> a interdit la sauvegarde de votre réponse:</h2>
-      <ul>
-      <% @answer.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
+  <div class="question-block">
+    <div class="question-text">
+      <%= @question.question %>
+    </div>
+    <div class="choices-block">
+      <%= form_for([@question, @answer]) do |f| %>
+        <% if @answer.errors.any? %>
+        <div id="error_explanation">
+          <h2><%= pluralize(@answer.errors.count, "error") %> a interdit la sauvegarde de votre réponse:</h2>
+          <ul>
+          <% @answer.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+          </ul>
+        </div>
+        <% end %>
+        <%= hidden_field_tag :workshop_id, @question.workshop_id %>
+        <%= hidden_field_tag :question_id, @question.id %>
+        <%= hidden_field_tag :user_id, current_user.id %>
+        <div>
+          <%= f.radio_button :user_answer, "#{@question.answer}", :checked => false%>
+          <%= f.label "#{@question.answer}" %>
+        </div>
+        <div>
+          <%= f.radio_button :user_answer, "#{@question.distractor_1}"%>
+          <%= f.label "#{@question.distractor_1}" %>
+        </div>
+        <% if @question.distractor_2.present? %>
+          <div>
+            <%= f.radio_button :user_answer, "#{@question.distractor_2 }"%>
+            <%= f.label "#{@question.distractor_2 }" %>
+          </div>
+        <% end %>
+        <% if @question.distractor_3.present? %>
+          <div>
+            <%= f.radio_button :user_answer, "#{@question.distractor_3 }" %>
+            <%= f.label "#{@question.distractor_3 }" %>
+          </div>
+        <% end %>
+        <span>
+          <%= f.submit 'Validez votre réponse', :class => 'btn btn-primary btn-submit' %>
+        </span>
       <% end %>
-      </ul>
     </div>
-    <% end %>
-    <%= hidden_field_tag :workshop_id, @question.workshop_id %>
-    <%= hidden_field_tag :question_id, @question.id %>
-    <%= hidden_field_tag :user_id, current_user.id %>
-    <div>
-      <%= f.radio_button :user_answer, "#{@question.answer}", :checked => false%>
-      <%= f.label "#{@question.answer}" %>
-    </div>
-    <div>
-      <%= f.radio_button :user_answer, "#{@question.distractor_1}"%>
-      <%= f.label "#{@question.distractor_1}" %>
-    </div>
-    <% if @question.distractor_2.present? %>
-      <div>
-        <%= f.radio_button :user_answer, "#{@question.distractor_2 }"%>
-        <%= f.label "#{@question.distractor_2 }" %>
-      </div>
-    <% end %>
-    <% if @question.distractor_3.present? %>
-      <div>
-        <%= f.radio_button :user_answer, "#{@question.distractor_3 }" %>
-        <%= f.label "#{@question.distractor_3 }" %>
-      </div>
-    <% end %>
-    <hr>
-    <span>
-      <%= f.submit 'Sauvergarder la réponse', :class => 'btn btn-primary' %>
-    </span>
-  <% end %>
+  </div>
 </div>

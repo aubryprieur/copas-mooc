@@ -41,7 +41,7 @@
         <li class="list-group-item">
           <div class="media">
             <div class="media-left">
-              <div class="text-muted">3.&nbsp;</div>
+              <div class="text-muted"><%= @lessons.count + 1 %>.&nbsp;</div>
             </div>
             <div class="media-body">
               <% if user_signed_in? && current_user.already_enrolled?(@workshop) %>
