@@ -36,7 +36,7 @@
       <div id="completed-lesson-link">
         <% unless current_user.complete_lessons.exists?(id: @lesson.id) %>
           <%= link_to complete_lessons_path(lesson_id: @lesson), method: :post do %>
-            <span>Chapitre en cours d'acquisition, cliquer pour valider </span><i class="fa fa-play-circle" style= "color: #6C757D"></i>
+            <span>Je certifie avoir suivi ce chapitre. </span><i class="fa fa-play-circle" style= "color: #6C757D"></i>
           <% end %>
         <% else %>
           <%= link_to complete_lesson_path(@lesson), method: :delete do %>
@@ -102,6 +102,13 @@
           <% end %>
         </li>
       <% end %>
+      <li class="list-group-item">
+        <% if @answers.count == @questions.count %>
+          <%= link_to "Résultat du QCM", workshop_results_path(@workshop) %>
+        <% else %>
+          <%= link_to "#{ @lessons.count + 1}. QCM", new_question_answer_path(@question) %>
+        <% end %>
+      </li>
     </ul>
     </div>
    </div>
@@ -118,7 +125,7 @@
       </span>
      </li>
     </ul>
-   </div>
+  </div>
   </div>
  </div>
 </div>

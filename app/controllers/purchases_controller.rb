@@ -51,11 +51,11 @@ class PurchasesController < ApplicationController
       create_enrollment = Enrollment.create user_id: current_user.id, workshop_id: @workshop.id
 
 
-      redirect_to payment_complete_path, notice: 'Your payment is complete.'
+      redirect_to payment_complete_path, notice: 'Votre paiement est effectué.'
 
 
     rescue => exception
-      redirect_to root_path, notice: 'Your payment cannot be processed.'
+      redirect_to root_path, notice: 'Votre paiement ne peut pas être traité.'
     end
 
 

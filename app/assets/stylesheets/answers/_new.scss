@@ -1,0 +1,45 @@
+.answers-block {
+  background-color: white;
+  border-bottom: 0px solid #eee;
+  max-width: 60%;
+  margin: 0 auto;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 0 20px 20px 20px;
+}
+
+.title-qcm {
+  font-weight: bold;
+  text-align: center;
+}
+
+.description-block-answers {
+  padding: 10px;
+  background-color: $primary;
+  border-radius: 0 20px 0 20px;
+  h2 {
+    font-size: 22px;
+  }
+  ul {
+    padding-inline-start: 20px;
+  }
+  p {
+    margin-bottom: 0.2rem;
+  }
+}
+
+.question-block {
+  padding: 10px 20px ;
+}
+
+.question-text {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.choices-block {
+
+}
+
+.btn-submit {
+  margin: 10px 0;
+}

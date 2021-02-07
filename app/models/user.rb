@@ -11,7 +11,7 @@ class User < ApplicationRecord
   has_many :charges
   has_many :completes
   has_many :complete_lessons, through: :completes, source: :completed, source_type: 'Lesson'
-
+  has_many :answers
 
   def already_enrolled?(workshop)
     return enrolled_workshops.include?(workshop)

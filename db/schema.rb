@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_30_130825) do
+ActiveRecord::Schema.define(version: 2021_01_03_151642) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -53,6 +53,18 @@ ActiveRecord::Schema.define(version: 2020_12_30_130825) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["email"], name: "index_admins_on_email", unique: true
+  end
+
+  create_table "answers", force: :cascade do |t|
+    t.string "user_answer"
+    t.bigint "question_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.bigint "workshop_id", null: false
+    t.index ["question_id"], name: "index_answers_on_question_id"
+    t.index ["user_id"], name: "index_answers_on_user_id"
+    t.index ["workshop_id"], name: "index_answers_on_workshop_id"
   end
 
   create_table "charges", force: :cascade do |t|
@@ -98,7 +110,18 @@ ActiveRecord::Schema.define(version: 2020_12_30_130825) do
     t.integer "order"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.boolean "finished"
+  end
+
+  create_table "questions", force: :cascade do |t|
+    t.string "question"
+    t.string "answer"
+    t.string "distractor_1"
+    t.string "distractor_2"
+    t.string "distractor_3"
+    t.bigint "workshop_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["workshop_id"], name: "index_questions_on_workshop_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -141,7 +164,11 @@ ActiveRecord::Schema.define(version: 2020_12_30_130825) do
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "answers", "questions"
+  add_foreign_key "answers", "users"
+  add_foreign_key "answers", "workshops"
   add_foreign_key "completes", "users"
   add_foreign_key "enrollments", "users"
   add_foreign_key "enrollments", "workshops"
+  add_foreign_key "questions", "workshops"
 end

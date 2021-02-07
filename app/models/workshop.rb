@@ -6,6 +6,7 @@ class Workshop < ApplicationRecord
   has_many :lessons
   has_many :enrollments
   has_many :users, through: :enrollments
+  has_many :questions
   has_one_attached :photo
   has_rich_text :rich_body
 
