@@ -65,7 +65,7 @@
                    <%= image_tag 'no_avatar.png', alt: "User Profile", height: 30, width: 30, class: 'img-thumbnail' %>
                  <% end %>
                   <small>
-                    ﻿<%= link_to c.user.full_name, c.user %> a posté ce commentaire il y a <%= time_ago_in_words(c.created_at) %>
+                    ﻿<%= link_to c.user.full_name, c.user %>  (il y a <%= time_ago_in_words(c.created_at) %>)
                   </small>
                   <p class="mt-1 ml-4">
                     <%= c.body %>
