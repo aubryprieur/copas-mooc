@@ -1,0 +1,72 @@
+<%= form_with model: [:admin, @course], class: "space-y-8" do |f| %>
+  <%= render "shared/form_errors", record: @course %>
+
+  <fieldset class="panel panel-body">
+    <legend class="px-1 font-display text-lg font-bold">Présentation</legend>
+    <div class="grid gap-x-6 md:grid-cols-2">
+      <div class="field"><%= f.label :title, class: "label" %><%= f.text_field :title, class: "input", required: true %></div>
+      <div class="field"><%= f.label :subtitle, class: "label" %><%= f.text_field :subtitle, class: "input" %></div>
+      <div class="field"><%= f.label :category, "Thème", class: "label" %><%= f.text_field :category, class: "input", list: "categories" %>
+        <datalist id="categories"><% Course.distinct.pluck(:category).compact.each do |c| %><option value="<%= c %>"><% end %></datalist></div>
+      <div class="field"><%= f.label :slug, class: "label" %><%= f.text_field :slug, class: "input" %><p class="hint">Laisser vide pour la générer depuis l'intitulé.</p></div>
+    </div>
+    <div class="field"><%= f.label :summary, class: "label" %><%= f.text_area :summary, class: "input", rows: 4 %></div>
+    <div class="field"><%= f.label :description, "Présentation détaillée", class: "label" %><%= f.rich_text_area :description, class: "input" %></div>
+    <div class="field"><%= f.label :cover, "Image de couverture", class: "label" %><%= f.file_field :cover, accept: "image/*", class: "text-sm" %></div>
+  </fieldset>
+
+  <fieldset class="panel panel-body">
+    <legend class="px-1 font-display text-lg font-bold">Objectifs opérationnels et évaluables (ind. 5)</legend>
+    <p class="mb-4 text-sm text-ink-soft">Un objectif = ce que l'apprenant saura faire, avec le critère qui permet de le vérifier. Chaque question d'évaluation est rattachée à un objectif : l'attestation indique le résultat objectif par objectif.</p>
+    <%= f.fields_for :objectives do |o| %>
+      <div class="mb-4 grid gap-x-4 border-b border-line pb-4 md:grid-cols-[4rem_1fr_1fr_auto]">
+        <div><%= o.label :position, "N°", class: "label" %><%= o.number_field :position, class: "input", min: 1 %></div>
+        <div><%= o.label :description, "Objectif", class: "label" %><%= o.text_area :description, class: "input", rows: 2 %></div>
+        <div><%= o.label :success_criterion, "Critère d'évaluation", class: "label" %><%= o.text_area :success_criterion, class: "input", rows: 2 %></div>
+        <% if o.object.persisted? %><label class="mt-8 flex items-center gap-2 text-sm"><%= o.check_box :_destroy, class: "checkbox" %> Retirer</label><% end %>
+      </div>
+    <% end %>
+  </fieldset>
+
+  <fieldset class="panel panel-body">
+    <legend class="px-1 font-display text-lg font-bold">Information préalable (ind. 1 et art. D6313-3-1)</legend>
+    <p class="mb-4 text-sm text-ink-soft">Tous ces champs sont publiés sur la fiche formation et sont obligatoires pour la publier. La date de mise à jour s'actualise automatiquement.</p>
+    <div class="grid gap-x-6 md:grid-cols-2">
+      <div class="field"><%= f.label :target_audience, class: "label" %><%= f.text_area :target_audience, class: "input", rows: 3 %></div>
+      <div class="field"><%= f.label :prerequisites, class: "label" %><%= f.text_area :prerequisites, class: "input", rows: 3 %><p class="hint">S'il n'y en a pas, écrivez « Aucun prérequis ».</p></div>
+      <div class="field"><%= f.label :duration_hours, class: "label" %><%= f.number_field :duration_hours, step: 0.5, min: 0, class: "input" %></div>
+      <div class="field"><%= f.label :duration_details, class: "label" %><%= f.text_field :duration_details, class: "input", placeholder: "Ex. : à réaliser en 3 semaines" %></div>
+      <div class="field"><%= f.label :modality, class: "label" %><%= f.select :modality, Course::MODALITY_LABELS.invert, {}, class: "input" %></div>
+      <div class="field"><%= f.label :level, "Niveau", class: "label" %><%= f.select :level, Course::LEVEL_LABELS.invert, {}, class: "input" %></div>
+      <div class="field"><%= f.label :access_delay, class: "label" %><%= f.text_area :access_delay, class: "input", rows: 2, placeholder: "Ex. : accès sous 10 jours ouvrés après signature de la convention" %></div>
+      <div class="field"><%= f.label :digital_requirements, class: "label" %><%= f.text_area :digital_requirements, class: "input", rows: 2 %></div>
+      <div class="field"><%= f.label :pedagogical_methods, class: "label" %><%= f.text_area :pedagogical_methods, class: "input", rows: 3 %></div>
+      <div class="field"><%= f.label :evaluation_methods, class: "label" %><%= f.text_area :evaluation_methods, class: "input", rows: 3 %></div>
+      <div class="field"><%= f.label :support_details, class: "label" %><%= f.text_area :support_details, class: "input", rows: 3 %><p class="hint">Canaux, horaires et délai de réponse.</p></div>
+      <div class="field"><%= f.label :accessibility, class: "label" %><%= f.text_area :accessibility, class: "input", rows: 3 %></div>
+      <div class="field"><%= f.label :price, "Tarif HT (€) – vide = sur devis", class: "label" %><%= f.number_field :price, value: @course.price, step: 0.01, min: 0, class: "input" %></div>
+      <div class="field"><%= f.label :pricing_details, class: "label" %><%= f.text_area :pricing_details, class: "input", rows: 2 %></div>
+      <div class="field"><%= f.label :funding_options, class: "label" %><%= f.text_area :funding_options, class: "input", rows: 2 %></div>
+      <div class="field"><%= f.label :recognition, class: "label" %><%= f.text_field :recognition, class: "input" %></div>
+      <div class="field"><%= f.label :contact_email, class: "label" %><%= f.email_field :contact_email, class: "input" %></div>
+    </div>
+  </fieldset>
+
+  <fieldset class="panel panel-body">
+    <legend class="px-1 font-display text-lg font-bold">Équipe, évaluation et suivi</legend>
+    <div class="grid gap-x-6 md:grid-cols-2">
+      <div class="field"><%= f.label :trainer_id, "Formateur", class: "label" %><%= f.collection_select :trainer_id, User.staff.ordered, :id, :full_name, { include_blank: true }, class: "input" %></div>
+      <div class="field"><%= f.label :pedagogical_referent_id, "Référent pédagogique (ind. 19)", class: "label" %><%= f.collection_select :pedagogical_referent_id, User.staff.ordered, :id, :full_name, { include_blank: true }, class: "input" %></div>
+      <div class="field"><%= f.label :positioning_threshold, class: "label" %><%= f.number_field :positioning_threshold, min: 0, max: 100, class: "input" %><p class="hint">En dessous : contact avec le référent avant d'ouvrir le parcours.</p></div>
+      <div class="field"><%= f.label :pass_threshold, class: "label" %><%= f.number_field :pass_threshold, min: 0, max: 100, class: "input" %></div>
+      <div class="field"><%= f.label :inactivity_reminder_days, class: "label" %><%= f.number_field :inactivity_reminder_days, min: 1, class: "input" %></div>
+      <div class="field"><%= f.label :inactivity_alert_days, class: "label" %><%= f.number_field :inactivity_alert_days, min: 1, class: "input" %></div>
+      <div class="field"><%= f.label :status, "Statut", class: "label" %><%= f.select :status, { "Brouillon" => "draft", "Publiée" => "published", "Archivée" => "archived" }, {}, class: "input" %></div>
+    </div>
+  </fieldset>
+
+  <div class="flex gap-3">
+    <%= f.submit "Enregistrer", class: "btn btn-primary" %>
+    <%= link_to "Annuler", @course.persisted? ? admin_course_path(@course) : admin_courses_path, class: "btn btn-ghost" %>
+  </div>
+<% end %>

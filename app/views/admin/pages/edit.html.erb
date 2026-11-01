@@ -1,0 +1,9 @@
+<% page_title @page.title %>
+<%= render "admin/page_header", title: "Modifier la page", back: ["Pages", admin_pages_path] %>
+<%= form_with model: [:admin, @page], class: "panel panel-body" do |f| %>
+  <%= render "shared/form_errors", record: @page %>
+  <div class="field"><%= f.label :title, "Titre", class: "label" %><%= f.text_field :title, class: "input" %></div>
+  <div class="field"><%= f.label :body, "Contenu", class: "label" %><%= f.rich_text_area :body, class: "input" %></div>
+  <label class="field flex items-center gap-2"><%= f.check_box :published, class: "checkbox" %> Page publiée</label>
+  <%= f.submit "Enregistrer", class: "btn btn-primary" %>
+<% end %>

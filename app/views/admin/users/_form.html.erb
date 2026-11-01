@@ -1,0 +1,20 @@
+<%= form_with model: [:admin, @user], class: "panel panel-body measure" do |f| %>
+  <%= render "shared/form_errors", record: @user %>
+  <div class="grid gap-x-4 sm:grid-cols-2">
+    <div class="field"><%= f.label :first_name, "Prénom", class: "label" %><%= f.text_field :first_name, class: "input", required: true %></div>
+    <div class="field"><%= f.label :last_name, "Nom", class: "label" %><%= f.text_field :last_name, class: "input", required: true %></div>
+  </div>
+  <div class="field"><%= f.label :email, "Courriel", class: "label" %><%= f.email_field :email, class: "input", required: true %></div>
+  <div class="field"><%= f.label :job_title, "Fonction", class: "label" %><%= f.text_field :job_title, class: "input" %></div>
+  <div class="field"><%= f.label :organization_name, "Structure", class: "label" %><%= f.text_field :organization_name, class: "input" %></div>
+  <div class="field">
+    <%= f.label :role, "Rôle", class: "label" %>
+    <%= f.select :role, { "Apprenant" => "learner", "Formateur" => "trainer", "Administrateur" => "admin", "Auditeur (lecture seule)" => "auditor" }, {}, class: "input" %>
+    <p class="hint">Le compte auditeur sert à donner à l'auditeur Qualiopi un accès en consultation (ind. 17).</p>
+  </div>
+  <label class="field flex items-start gap-2"><%= f.check_box :reports_referent, class: "checkbox mt-1" %><span>Référent chargé des signalements de violences, harcèlement et discriminations (ind. 12) – seul à pouvoir les lire</span></label>
+  <div class="flex gap-3"><%= f.submit "Enregistrer", class: "btn btn-primary" %><%= link_to "Annuler", admin_users_path, class: "btn btn-ghost" %></div>
+<% end %>
+<% if @user.persisted? && policy(@user).destroy? %>
+  <%= button_to "Supprimer ce compte", admin_user_path(@user), method: :delete, class: "btn btn-danger mt-6", form: { data: { turbo_confirm: "Supprimer ce compte ?" } } %>
+<% end %>

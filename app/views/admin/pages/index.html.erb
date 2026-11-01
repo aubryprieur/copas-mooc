@@ -1,0 +1,16 @@
+<% page_title "Pages" %>
+<%= render "admin/page_header", title: "Pages institutionnelles", subtitle: "Livret d'accueil, règlement, référents, procédures : diffusées aux apprenants (ind. 9, 12, 18, 26, 31)." %>
+<div class="panel table-wrap">
+  <table class="table">
+    <thead><tr><th>Page</th><th>Mise à jour</th><th></th></tr></thead>
+    <tbody>
+      <% @pages.each do |page| %>
+        <tr>
+          <td><%= link_to page.title, page_path(page.slug), class: "font-bold", target: "_blank" %><%= status_badge("Masquée", :neutral) unless page.published %></td>
+          <td class="text-sm"><%= l(page.updated_at, format: :long) %></td>
+          <td class="text-right"><%= link_to "Modifier", edit_admin_page_path(page), class: "btn btn-ghost btn-sm" if policy(page).update? %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

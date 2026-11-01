@@ -1,0 +1,75 @@
+fr:
+  activerecord:
+    models:
+      user: Utilisateur
+      course: Formation
+      lesson: Module
+      enrollment: Inscription
+      complaint: Réclamation
+    attributes:
+      user:
+        first_name: Prénom
+        last_name: Nom
+        email: Courriel
+        password: Mot de passe
+        password_confirmation: Confirmation du mot de passe
+        terms_accepted_at: Conditions générales
+        organization_name: Structure
+        job_title: Fonction
+      course:
+        title: Intitulé
+        subtitle: Sous-titre
+        slug: Adresse web
+        summary: Résumé
+        target_audience: Public visé
+        prerequisites: Prérequis
+        duration_hours: Durée (heures)
+        duration_details: Précisions sur la durée
+        access_delay: Délai d'accès
+        modality: Modalité
+        pedagogical_methods: Méthodes pédagogiques
+        evaluation_methods: Modalités d'évaluation
+        accessibility: Accessibilité aux personnes en situation de handicap
+        pricing_details: Précisions tarifaires
+        funding_options: Financements mobilisables
+        recognition: Reconnaissance
+        digital_requirements: Compétences et outils numériques requis
+        support_details: Assistance technique et pédagogique
+        contact_email: Courriel de contact
+        pass_threshold: Seuil de réussite (%)
+        positioning_threshold: Seuil de positionnement (%)
+        inactivity_reminder_days: Relance après (jours d'inactivité)
+        inactivity_alert_days: Alerte de décrochage après (jours)
+      enrollment:
+        employer_name: Employeur
+        needs_assessment: Le recueil des besoins
+        user_id: L'apprenant
+      enrollment/needs_assessment:
+        job_title: Fonction
+        work_situations: Situations de travail
+        expectations: Attentes
+      needs_assessment:
+        job_title: Fonction
+        work_situations: Situations de travail
+        expectations: Attentes
+      lesson:
+        title: Titre
+        estimated_minutes: Durée moyenne
+        captions: Sous-titres
+      question:
+        prompt: Question
+      complaint:
+        name: Nom
+        email: Courriel
+        description: Description
+      survey_response:
+        overall_rating: Satisfaction globale
+        applied_in_practice: Mise en pratique
+      support_thread:
+        subject: Objet
+  date:
+    formats:
+      long: "%-d %B %Y"
+  time:
+    formats:
+      long: "%-d %B %Y à %H:%M"

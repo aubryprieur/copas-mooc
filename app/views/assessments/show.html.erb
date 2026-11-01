@@ -1,0 +1,41 @@
+<% page_title @assessment.title %>
+<section class="container-page py-10">
+  <nav class="mb-4 text-sm"><%= link_to @course.title, enrollment_path(@enrollment) %></nav>
+  <div class="measure">
+    <p class="mb-2"><%= status_badge @assessment.kind_label, :info %></p>
+    <h1 class="text-3xl"><%= @assessment.title %></h1>
+    <% if @assessment.instructions.present? %><div class="mt-3 text-ink-soft"><%= simple_format_text @assessment.instructions %></div><% end %>
+    <% intro = {
+         "positioning" => "Ce test situe vos connaissances au départ. Il ne compte pas pour l'attestation : répondez sans chercher, « je ne sais pas » est une réponse utile.",
+         "checkpoint" => "Ce quiz vous permet de vérifier ce que vous avez retenu. Vous pouvez le refaire.",
+         "final" => "L'évaluation finale ne peut être passée qu'une fois. Son résultat, objectif par objectif, figure sur votre attestation."
+       } %>
+    <p class="mt-3 text-ink-soft"><%= intro[@assessment.kind] %></p>
+  </div>
+
+  <% if @last_attempt && !@assessment.retakable? %>
+    <div class="panel panel-body mt-8 measure">
+      <p>Vous avez rendu cette évaluation le <%= l(@last_attempt.submitted_at, format: :long) %>.</p>
+      <%= link_to "Voir ma copie", enrollment_assessment_attempt_path(@enrollment, @assessment, @last_attempt), class: "btn btn-secondary mt-4" %>
+    </div>
+  <% elsif @questions.empty? %>
+    <div class="panel panel-body mt-8 measure">Aucune question n'est encore disponible. L'équipe a été prévenue.</div>
+  <% else %>
+    <%= form_with url: enrollment_assessment_attempts_path(@enrollment, @assessment), class: "mt-8 measure space-y-8" do %>
+      <% @questions.each_with_index do |question, i| %>
+        <fieldset>
+          <legend class="mb-3 font-bold"><span class="text-ink-soft"><%= i + 1 %>/<%= @questions.size %></span> <%= question.prompt %></legend>
+          <div class="space-y-2">
+            <% question.choices.each do |choice| %>
+              <label class="choice">
+                <%= radio_button_tag "answers[#{question.id}]", choice.id, @answers&.dig(question.id.to_s) == choice.id.to_s, required: true %>
+                <span><%= choice.label %></span>
+              </label>
+            <% end %>
+          </div>
+        </fieldset>
+      <% end %>
+      <%= submit_tag "Valider mes réponses", class: "btn btn-primary", data: { turbo_confirm: (@assessment.final? ? "Valider définitivement l'évaluation finale ?" : nil) } %>
+    <% end %>
+  <% end %>
+</section>

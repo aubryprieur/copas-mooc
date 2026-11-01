@@ -1,0 +1,13 @@
+<ol class="space-y-4">
+  <% thread.messages.includes(:author).each do |m| %>
+    <% staff = m.author.staff? %>
+    <li id="message-<%= m.id %>" class="flex gap-3 <%= 'flex-row-reverse text-right' if staff == viewer_is_staff %>">
+      <%= avatar_for m.author, size: 36 %>
+      <div class="max-w-[60ch] rounded-lg px-4 py-3 text-left <%= staff ? 'bg-canard-light' : 'bg-white border border-line' %>">
+        <p class="text-sm font-bold"><%= m.author.full_name %><%= " · équipe COPAS" if staff %></p>
+        <div class="mt-1"><%= simple_format_text m.body %></div>
+        <p class="mt-1 text-xs text-ink-soft"><%= l(m.created_at, format: :long) %></p>
+      </div>
+    </li>
+  <% end %>
+</ol>

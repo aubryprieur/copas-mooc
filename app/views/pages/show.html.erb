@@ -1,0 +1,6 @@
+<% page_title @page.title %>
+<article class="container-page py-12">
+  <h1 class="measure"><%= @page.title %></h1>
+  <p class="mt-2 text-sm text-ink-soft">Mis à jour le <%= l(@page.updated_at.to_date, format: :long) %></p>
+  <div class="prose-copas mt-8"><%= @page.body %></div>
+</article>

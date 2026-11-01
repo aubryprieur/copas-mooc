@@ -1,0 +1,24 @@
+<% page_title "Assistance" %>
+<%= render "admin/page_header", title: "Assistance technique et pédagogique",
+      subtitle: (@median_response_hours ? "Délai médian de première réponse sur 6 mois : #{@median_response_hours} h" : "Pas encore de délai de réponse mesuré.") %>
+<nav class="mb-4 flex gap-2">
+  <%= link_to "Toutes", admin_support_threads_path, class: "badge #{params[:statut].blank? ? 'badge-info' : 'badge-neutral'} no-underline" %>
+  <% SupportThread::STATUS_LABELS.each do |k, v| %><%= link_to v, admin_support_threads_path(statut: k), class: "badge #{params[:statut] == k ? 'badge-info' : 'badge-neutral'} no-underline" %><% end %>
+</nav>
+<div class="panel table-wrap">
+  <table class="table">
+    <thead><tr><th>Objet</th><th>Apprenant</th><th>Type</th><th>Statut</th><th>Mise à jour</th></tr></thead>
+    <tbody>
+      <% @threads.each do |t| %>
+        <tr>
+          <td><%= link_to t.subject, admin_support_thread_path(t), class: "font-bold" %><% if t.enrollment %><p class="text-sm text-ink-soft"><%= t.enrollment.course.title %></p><% end %></td>
+          <td class="text-sm"><%= t.user.full_name %></td>
+          <td class="text-sm"><%= t.category_label %></td>
+          <td><%= status_badge t.status_label, t.open? ? :warning : :neutral %></td>
+          <td class="text-sm"><%= l(t.updated_at, format: :long) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+<%== pagy_nav(@pagy) if @pagy.pages > 1 %>

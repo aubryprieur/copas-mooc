@@ -1,0 +1,86 @@
+<% page_title "Demande d'inscription – #{@course.title}" %>
+<section class="container-page py-10">
+  <nav class="mb-4 text-sm"><%= link_to @course.title, course_path(@course) %></nav>
+  <div class="grid gap-10 lg:grid-cols-[1fr_20rem]">
+    <div class="min-w-0">
+      <h1>Demande d'inscription</h1>
+      <p class="mt-3 text-lg text-ink-soft measure">
+        Vos réponses permettent au formateur d'adapter la formation à votre situation de travail.
+        Elles ne sont lues que par l'équipe pédagogique de COPAS.
+      </p>
+
+      <%= form_with model: @enrollment, url: course_enrollment_request_path(@course), class: "mt-8" do |f| %>
+        <%= render "shared/form_errors", record: @enrollment %>
+
+        <fieldset class="mb-10">
+          <legend class="mb-4 font-display text-xl font-bold">Votre poste et vos attentes</legend>
+          <%= f.fields_for :needs_assessment do |n| %>
+            <div class="field">
+              <%= n.label :job_title, "Votre fonction", class: "label" %>
+              <%= n.text_field :job_title, class: "input", required: true, autocomplete: "organization-title" %>
+            </div>
+            <div class="field">
+              <%= n.label :work_situations, "Dans quelles situations de travail utiliserez-vous cette formation ?", class: "label" %>
+              <%= n.text_area :work_situations, class: "input", required: true, aria: { describedby: "hint-situations" } %>
+              <p id="hint-situations" class="hint">Exemple : « J'accompagne des locataires en impayés et je prépare les commissions de prévention des expulsions. »</p>
+            </div>
+            <div class="field">
+              <%= n.label :expectations, "Qu'attendez-vous de la formation ?", class: "label" %>
+              <%= n.text_area :expectations, class: "input", required: true %>
+            </div>
+            <div class="field">
+              <%= n.label :prior_experience, "Ce que vous connaissez déjà du sujet (facultatif)", class: "label" %>
+              <%= n.text_area :prior_experience, class: "input" %>
+            </div>
+            <div class="field">
+              <%= n.label :questions, "Une question pour le formateur ? (facultatif)", class: "label" %>
+              <%= n.text_area :questions, class: "input", rows: 3 %>
+            </div>
+            <div class="field panel-tint p-4">
+              <label class="flex items-start gap-3">
+                <%= n.check_box :accommodation_contact_requested, class: "checkbox mt-1" %>
+                <span>
+                  <strong>Je souhaite être contacté par le référent handicap</strong> pour étudier un aménagement
+                  (format des contenus, temps supplémentaire, outils…).
+                  <span class="block text-sm text-ink-soft">Rien d'autre n'est enregistré ici : vous échangerez directement et de façon confidentielle avec le référent.</span>
+                </span>
+              </label>
+            </div>
+          <% end %>
+        </fieldset>
+
+        <fieldset class="mb-8">
+          <legend class="mb-4 font-display text-xl font-bold">Prise en charge</legend>
+          <div class="field">
+            <%= f.label :funding_type, "Qui finance la formation ?", class: "label" %>
+            <%= f.select :funding_type, Enrollment::FUNDING_LABELS.invert, {}, class: "input" %>
+          </div>
+          <div class="field">
+            <%= f.label :employer_name, "Votre employeur (collectivité, association…)", class: "label" %>
+            <%= f.text_field :employer_name, class: "input", autocomplete: "organization" %>
+          </div>
+          <div class="field">
+            <%= f.label :employer_contact, "Contact formation ou RH chez votre employeur (facultatif)", class: "label" %>
+            <%= f.text_field :employer_contact, class: "input" %>
+            <p class="hint">Nom et courriel de la personne qui signera la convention.</p>
+          </div>
+          <div class="field">
+            <%= f.label :employer_objectives, "Objectifs de votre structure pour cette formation (facultatif)", class: "label" %>
+            <%= f.text_area :employer_objectives, class: "input", rows: 3 %>
+          </div>
+        </fieldset>
+
+        <%= f.submit "Envoyer ma demande", class: "btn btn-primary" %>
+      <% end %>
+    </div>
+    <aside class="panel-tint h-fit p-6 text-sm">
+      <h2 class="mb-3 text-lg">Ensuite</h2>
+      <ol class="journey">
+        <li class="is-current"><span class="journey-title">Vous envoyez cette demande</span></li>
+        <li><span class="journey-title">Nous l'étudions sous 5 jours ouvrés et préparons la convention</span></li>
+        <li><span class="journey-title">Vous recevez votre accès et le livret d'accueil</span></li>
+      </ol>
+      <p class="mt-2">Délai d'accès indiqué : <%= @course.access_delay %>.</p>
+    </aside>
+  </div>
+</section>

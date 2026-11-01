@@ -1,36 +1,36 @@
 class LessonsController < ApplicationController
- before_action :authenticate_admin!, only: [:sort]
- before_action :authenticate_user!, only: [:show]
+  include LearnerEnrollment
+  before_action :set_enrollment, :require_learning_access
+  before_action :set_lesson
 
- def show
-  @workshop = Workshop.find(params[:workshop_id])
-  @lesson = Lesson.find(params[:id])
-  @lessons = Lesson.where(workshop_id: @workshop)
-  @answers = Answer.where(workshop_id: @workshop)
-  @questions = @workshop.questions
-  @question = @workshop.questions.first
-  if current_user.already_enrolled?(@workshop)
-   @comment = Comment.create
-  else
-   redirect_to @workshop, alert: "Access denied."
+  def show
+    @progress.record_view!
+    @enrollment.touch_activity!
+    @enrollment.log!("lesson.viewed", subject: @lesson) if @progress.saved_change_to_first_viewed_at?
   end
- end
 
- def sort
-  params[:lesson].each_with_index do |id, index|
-   Lesson.where(id: id).update_all(order: index + 1)
+  def complete
+    unless @progress.completed?
+      @progress.update!(completed_at: Time.current)
+      @enrollment.touch_activity!
+      @enrollment.log!("lesson.completed", subject: @lesson, metadata: { active_seconds: @progress.active_seconds })
+    end
+    target = @lesson.checkpoint ? enrollment_assessment_path(@enrollment, @lesson.checkpoint) :
+             (@lesson.next_lesson ? enrollment_lesson_path(@enrollment, @lesson.next_lesson) : enrollment_path(@enrollment))
+    redirect_to target, notice: "Module « #{@lesson.title} » terminé."
   end
-  head :ok
- end
 
- private
+  # Signal de présence envoyé par le navigateur quand la page est visible (temps actif, ind. 19)
+  def heartbeat
+    @progress.add_active_time!(params[:seconds])
+    @enrollment.touch_activity!
+    head :no_content
+  end
 
- def set_lesson
-  @lesson = current_lesson
- end
+  private
 
- def lesson_params
-  params.require(:lesson).permit(:title, :description, :user_id, :workshop_id, :slug, :order, :video, :remove_video, :rich_body)
- end
-
+  def set_lesson
+    @lesson = @course.lessons.find(params[:id])
+    @progress = @enrollment.lesson_progresses.find_or_create_by!(lesson: @lesson)
+  end
 end

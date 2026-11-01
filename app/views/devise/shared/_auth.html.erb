@@ -1,0 +1,10 @@
+<section class="container-page grid gap-10 py-12 md:grid-cols-[1fr_24rem] md:py-16">
+  <div class="order-2 md:order-1">
+    <%= yield %>
+  </div>
+  <aside class="order-1 h-fit md:order-2 panel-tint p-6">
+    <h2 class="mb-3 text-lg">Un compte, toutes vos formations</h2>
+    <p class="text-ink-soft">Votre compte conserve votre progression, vos évaluations et vos attestations. Vos données restent hébergées en France.</p>
+    <p class="mt-3 text-sm"><%= link_to "Données personnelles", page_path("confidentialite") %></p>
+  </aside>
+</section>

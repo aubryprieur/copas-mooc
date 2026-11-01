@@ -1,0 +1,14 @@
+<% page_title @thread.subject %>
+<%= render "admin/page_header", title: @thread.subject, back: ["Assistance", admin_support_threads_path],
+      subtitle: "#{@thread.user.full_name} · #{@thread.category_label}#{" · #{@thread.enrollment.course.title}" if @thread.enrollment}" %>
+<div class="measure">
+  <%= render "support_threads/messages", thread: @thread, viewer_is_staff: true %>
+  <% if policy(@thread).reply? && !current_user.auditor? %>
+    <%= form_with model: @message, url: admin_support_thread_support_messages_path(@thread), class: "mt-8" do |f| %>
+      <%= f.label :body, "Votre réponse", class: "label" %>
+      <%= f.text_area :body, class: "input", rows: 5, required: true %>
+      <%= f.submit "Répondre", class: "btn btn-primary mt-3" %>
+    <% end %>
+  <% end %>
+  <% if @thread.enrollment %><p class="mt-6 text-sm"><%= link_to "Ouvrir le dossier de l'apprenant", admin_enrollment_path(@thread.enrollment) %></p><% end %>
+</div>

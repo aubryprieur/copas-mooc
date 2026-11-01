@@ -1,0 +1,27 @@
+<% page_title "Réclamations" %>
+<%= render "admin/page_header", title: "Registre des réclamations, difficultés et aléas", subtitle: "Indicateur 31. Les signalements (ind. 12) ne sont visibles que du référent désigné." %>
+<nav class="mb-4 flex flex-wrap gap-2">
+  <%= link_to "Toutes", admin_complaints_path, class: "badge #{params[:categorie].blank? ? 'badge-info' : 'badge-neutral'} no-underline" %>
+  <% Complaint::CATEGORY_LABELS.each do |k, v| %>
+    <% next if k == "report" && !current_user.reports_referent? %>
+    <%= link_to v.split(" :").first.split(" (").first, admin_complaints_path(categorie: k), class: "badge #{params[:categorie] == k ? 'badge-info' : 'badge-neutral'} no-underline" %>
+  <% end %>
+</nav>
+<div class="panel table-wrap">
+  <table class="table">
+    <thead><tr><th>N°</th><th>Type</th><th>Reçue le</th><th>Accusé de réception</th><th>Réponse</th><th>Statut</th></tr></thead>
+    <tbody>
+      <% @complaints.each do |c| %>
+        <tr>
+          <td><%= link_to c.reference, admin_complaint_path(c), class: "font-bold" %></td>
+          <td class="text-sm"><%= c.category_label.split(" :").first %></td>
+          <td class="text-sm"><%= l(c.created_at.to_date, format: :long) %></td>
+          <td class="text-sm"><%= c.acknowledged_at ? l(c.acknowledged_at, format: :long) : "—" %></td>
+          <td class="text-sm"><%= c.responded_at ? l(c.responded_at.to_date, format: :long) : "—" %></td>
+          <td><%= status_badge c.status_label, c.closed? ? :neutral : (c.answered? ? :success : :warning) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+<%== pagy_nav(@pagy) if @pagy.pages > 1 %>

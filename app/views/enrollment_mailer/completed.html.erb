@@ -1,0 +1,4 @@
+<p>Bonjour <%= @user.first_name %>,</p>
+<p>Vous avez terminé <strong><%= @course.title %></strong>. Votre attestation de fin de formation, avec les résultats de l'évaluation des acquis, est disponible dans votre espace.</p>
+<p><a href="<%= certificate_enrollment_url(@enrollment) %>" style="display:inline-block;background:#0F5C6E;color:#ffffff;padding:10px 18px;border-radius:6px;text-decoration:none;font-weight:bold">Télécharger mon attestation</a></p>
+<p>Deux minutes pour nous dire ce que vous en avez pensé ? <a href="<%= new_enrollment_survey_url(@enrollment) %>">Donner mon avis</a></p>

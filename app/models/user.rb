@@ -1,29 +1,60 @@
 class User < ApplicationRecord
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
-  devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable, :confirmable
+  devise :database_authenticatable, :registerable, :recoverable, :rememberable,
+         :validatable, :confirmable, :lockable, :timeoutable, :trackable
 
-  has_many :comments, as: :commentable
-  has_one_attached :photo
-  has_many :enrollments, dependent: :destroy
-  has_many :enrolled_workshops, through: :enrollments, source: :workshop
-  has_many :charges
-  has_many :completes
-  has_many :complete_lessons, through: :completes, source: :completed, source_type: 'Lesson'
-  has_many :answers
+  # apprenant, formateur, administrateur, auditeur (compte observateur en lecture seule, ind. 17)
+  enum :role, { learner: 0, trainer: 1, admin: 2, auditor: 3 }, default: :learner
+  enum :organization_type, { collectivite: 0, association: 1, etablissement_public: 2, entreprise: 3, particulier: 4 }, prefix: :org
 
-  def already_enrolled?(workshop)
-    return enrolled_workshops.include?(workshop)
+  ORGANIZATION_TYPE_LABELS = {
+    "collectivite" => "Collectivité territoriale",
+    "association" => "Association",
+    "etablissement_public" => "Établissement public / bailleur",
+    "entreprise" => "Entreprise",
+    "particulier" => "À titre individuel"
+  }.freeze
+
+  has_one_attached :avatar do |attachable|
+    attachable.variant :thumb, resize_to_fill: [ 96, 96 ]
   end
 
-  def full_name
-   "#{first_name} #{last_name}"
+  has_many :enrollments, dependent: :restrict_with_error
+  has_many :courses, through: :enrollments
+  has_many :support_threads, dependent: :restrict_with_error
+  has_many :complaints, dependent: :nullify
+  has_many :trained_courses, class_name: "Course", foreign_key: :trainer_id, dependent: :nullify
+
+  validates :first_name, :last_name, presence: true, length: { maximum: 80 }
+  validates :terms_accepted_at, presence: { message: "doit être accepté" }, on: :create
+  validate :password_complexity
+
+  attr_accessor :accept_terms
+  # Devise :trackable sans conservation des adresses IP (minimisation RGPD)
+  attr_accessor :current_sign_in_ip, :last_sign_in_ip
+
+  before_validation :record_terms_acceptance, on: :create
+
+  scope :staff, -> { where(role: %i[trainer admin]) }
+  scope :ordered, -> { order(:last_name, :first_name) }
+
+  def full_name = "#{first_name} #{last_name}".strip
+  def initials = "#{first_name.to_s[0]}#{last_name.to_s[0]}".upcase
+  def staff? = trainer? || admin?
+  # L'auditeur voit l'espace de gestion sans pouvoir rien modifier.
+  def backoffice? = staff? || auditor?
+
+  def enrollment_for(course) = enrollments.find_by(course: course)
+
+  private
+
+  def record_terms_acceptance
+    self.terms_accepted_at ||= Time.current if ActiveModel::Type::Boolean.new.cast(accept_terms)
   end
 
-  protected
-  def confirmation_required?
-    false
-  end
+  def password_complexity
+    return if password.blank?
+    return if password.length >= 12 && password.match?(/[a-z]/) && password.match?(/[A-Z]/) && password.match?(/\d/)
 
+    errors.add :password, "doit contenir au moins 12 caractères, dont une majuscule, une minuscule et un chiffre"
+  end
 end

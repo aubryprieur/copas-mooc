@@ -1,63 +1,56 @@
-source 'https://rubygems.org'
-git_source(:github) { |repo| "https://github.com/#{repo}.git" }
+source "https://rubygems.org"
 
-ruby '2.7.1'
+ruby file: ".ruby-version"
 
-# Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 6.0.3', '>= 6.0.3.4'
-# Use postgresql as the database for Active Record
-gem 'pg', '>= 0.18', '< 2.0'
-# Use Puma as the app server
-gem 'puma', '~> 4.1'
-# Use SCSS for stylesheets
-gem 'sass-rails', '>= 6'
-# Transpile app-like JavaScript. Read more: https://github.com/rails/webpacker
-gem 'webpacker', '~> 4.0'
-# Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
-gem 'turbolinks', '~> 5'
-# Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
-gem 'jbuilder', '~> 2.7'
-# Use Redis adapter to run Action Cable in production
-# gem 'redis', '~> 4.0'
-# Use Active Model has_secure_password
-# gem 'bcrypt', '~> 3.1.7'
+gem "rails", "~> 8.1.0"
+gem "propshaft"
+gem "pg", "~> 1.5"
+gem "puma", ">= 6.0"
+gem "importmap-rails"
+gem "turbo-rails"
+gem "stimulus-rails"
+gem "tailwindcss-rails", "~> 4.0"
+gem "jbuilder"
 
-# Use Active Storage variant
-# gem 'image_processing', '~> 1.2'
+# Rails 8 : file d'attente, cache et Action Cable adossés à PostgreSQL (pas de Redis)
+gem "solid_queue"
+gem "solid_cache"
+gem "solid_cable"
 
-# Reduces boot times through caching; required in config/boot.rb
-gem 'bootsnap', '>= 1.4.2', require: false
+gem "bootsnap", require: false
+gem "thruster", require: false
+gem "tzinfo-data", platforms: %i[windows jruby]
 
-gem 'autoprefixer-rails'
-gem 'font-awesome-sass', '~> 4.6', '>= 4.6.2'
-gem 'simple_form'
-gem 'devise', '~> 4.7', '>= 4.7.3'
-gem 'fastimage', '~> 2.2'
-gem 'image_processing', '~> 1.12', '>= 1.12.1'
-gem 'mini_magick', '~> 4.11'
-gem 'stripe', '~> 5.28'
+# Authentification, autorisations, sécurité
+gem "devise", "~> 5.0", ">= 5.0.4"
+gem "devise-i18n"
+gem "rails-i18n", "~> 8.0"
+gem "pundit", "~> 2.4"
+gem "rack-attack"
+
+# Fichiers : Active Storage sur stockage objet S3 (Scaleway / OVH, hébergé en France)
+gem "aws-sdk-s3", require: false
+gem "image_processing", "~> 1.13"
+
+# Documents de preuve (attestation L6353-1, relevé de participation)
+gem "prawn", "~> 2.5"
+gem "prawn-table"
+
+gem "pagy", "~> 9.0"
 
 group :development, :test do
-  # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
+  gem "debug", platforms: %i[mri windows], require: "debug/prelude"
+  gem "brakeman", require: false
+  gem "bundler-audit", require: false
+  gem "rubocop-rails-omakase", require: false
 end
 
 group :development do
-  # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
-  gem 'web-console', '>= 3.3.0'
-  gem 'listen', '~> 3.2'
-  # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
-  gem 'spring'
-  gem 'spring-watcher-listen', '~> 2.0.0'
+  gem "web-console"
+  gem "letter_opener_web"
 end
 
 group :test do
-  # Adds support for Capybara system testing and selenium driver
-  gem 'capybara', '>= 2.15'
-  gem 'selenium-webdriver'
-  # Easy installation and use of web drivers to run system tests with browsers
-  gem 'webdrivers'
+  gem "capybara"
+  gem "selenium-webdriver"
 end
-
-# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]

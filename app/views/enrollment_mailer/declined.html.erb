@@ -1,0 +1,4 @@
+<p>Bonjour <%= @user.first_name %>,</p>
+<p>Nous ne pouvons pas donner suite à votre demande d'inscription à <strong><%= @course.title %></strong>.</p>
+<% if @enrollment.admin_note.present? %><p><%= @enrollment.admin_note %></p><% end %>
+<p>Répondez à ce courriel si vous souhaitez en parler : nous pouvons vous orienter vers une autre formation.</p>

@@ -1,0 +1,8 @@
+<% if record.errors.any? %>
+  <div class="error-summary" role="alert" tabindex="-1">
+    <h2 class="mb-2 text-base">Le formulaire contient <%= pluralize(record.errors.count, "erreur", plural: "erreurs") %></h2>
+    <ul class="list-disc pl-5">
+      <% record.errors.full_messages.each do |message| %><li><%= message %></li><% end %>
+    </ul>
+  </div>
+<% end %>

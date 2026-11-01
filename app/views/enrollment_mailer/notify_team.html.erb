@@ -1,0 +1,8 @@
+<p>Nouvelle demande d'inscription :</p>
+<ul>
+  <li><strong><%= @user.full_name %></strong> (<%= @user.email %>)</li>
+  <li>Formation : <%= @course.title %></li>
+  <li>Financement : <%= Enrollment::FUNDING_LABELS[@enrollment.funding_type] %><%= " – #{@enrollment.employer_name}" if @enrollment.employer_name.present? %></li>
+  <% if @enrollment.needs_assessment&.accommodation_contact_requested %><li><strong>Demande de contact avec le référent handicap</strong></li><% end %>
+</ul>
+<p><a href="<%= admin_enrollment_url(@enrollment) %>" style="display:inline-block;background:#0F5C6E;color:#ffffff;padding:10px 18px;border-radius:6px;text-decoration:none;font-weight:bold">Analyser le besoin et valider</a></p>

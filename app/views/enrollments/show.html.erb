@@ -1,0 +1,100 @@
+<% page_title @course.title %>
+<section class="container-page py-10">
+  <nav class="mb-4 text-sm"><%= link_to "Mon espace", dashboard_path %></nav>
+  <div class="grid gap-10 lg:grid-cols-[20rem_1fr]">
+    <aside class="lg:sticky lg:top-6 lg:self-start" aria-label="Étapes du parcours">
+      <h1 class="text-3xl"><%= @course.title %></h1>
+      <div class="mt-4"><%= progress_bar @enrollment.progress_percent %>
+        <p class="mt-1 text-sm text-ink-soft"><%= @enrollment.progress_percent %> % des modules · <%= seconds_label @enrollment.total_active_seconds %> de travail mesuré</p>
+      </div>
+      <ol class="journey mt-6">
+        <% journey_steps(@enrollment).each do |step| %>
+          <li class="<%= 'is-done' if step[:done] %> <%= 'is-current' if step[:current] %>">
+            <% if step[:path] && !step[:done] || step[:path] && step[:title].start_with?("Attestation") %>
+              <%= link_to step[:title], step[:path], class: "journey-title" %>
+            <% else %>
+              <span class="journey-title"><%= step[:title] %></span>
+            <% end %>
+          </li>
+        <% end %>
+      </ol>
+    </aside>
+
+    <div class="min-w-0">
+      <% if @enrollment.requested? %>
+        <div class="panel panel-body">Votre demande est en cours d'étude. Vous recevrez un courriel dès sa validation.</div>
+      <% elsif @enrollment.onboarding? %>
+        <div class="panel panel-body">
+          <h2 class="mb-2">Avant de commencer</h2>
+          <p class="text-ink-soft measure">Deux étapes ouvrent le parcours : la lecture du livret d'accueil, puis un court test qui nous aide à situer vos acquis. Le test n'est pas noté pour l'attestation.</p>
+          <div class="mt-5 flex flex-wrap gap-3">
+            <% if @enrollment.welcome_acknowledged_at.nil? %>
+              <%= link_to "Lire le livret d'accueil", welcome_enrollment_path(@enrollment), class: "btn btn-primary" %>
+            <% elsif @course.positioning_assessment && !@enrollment.positioning_done? %>
+              <%= link_to "Faire le test de positionnement", enrollment_assessment_path(@enrollment, @course.positioning_assessment), class: "btn btn-primary" %>
+            <% else %>
+              <p>Votre référent pédagogique va prendre contact avec vous : <%= Enrollment::POSITIONING_LABELS[@enrollment.positioning_decision] %>.</p>
+            <% end %>
+          </div>
+        </div>
+      <% else %>
+        <% if @enrollment.positioning_decision.present? && !@enrollment.positioning_direct_access? %>
+          <div class="panel-tint mb-6 p-4"><strong>Votre positionnement :</strong> <%= Enrollment::POSITIONING_LABELS[@enrollment.positioning_decision] %>. <%= @enrollment.positioning_note %></div>
+        <% end %>
+
+        <% if @enrollment.active? && (next_lesson = next_lesson_for(@enrollment)) && !@enrollment.all_lessons_completed? %>
+          <div class="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-lg bg-canard p-6 text-white">
+            <div>
+              <p class="text-sm opacity-90">Prochain module</p>
+              <p class="font-display text-2xl font-bold"><%= next_lesson.title %></p>
+              <p class="text-sm opacity-90">Environ <%= minutes_label next_lesson.estimated_minutes %></p>
+            </div>
+            <%= link_to enrollment_lesson_path(@enrollment, next_lesson), class: "btn bg-white text-canard hover:bg-signal hover:text-ink" do %><%= icon "play" %> Continuer<% end %>
+          </div>
+        <% end %>
+
+        <h2 class="mb-3" id="modules">Modules</h2>
+        <ol class="divide-y divide-line border-y border-line">
+          <% @course.lessons.each_with_index do |lesson, i| %>
+            <% done = @enrollment.lesson_completed?(lesson) %>
+            <li class="flex items-center gap-4 py-3">
+              <span class="<%= done ? 'text-ok' : 'text-ink-soft' %>"><%= icon(done ? "check" : "play", size: 20, label: done ? "Terminé" : "À faire") %></span>
+              <div class="flex-1">
+                <%= link_to "#{i + 1}. #{lesson.title}", enrollment_lesson_path(@enrollment, lesson), class: "font-bold" %>
+                <% if lesson.checkpoint && (a = @enrollment.latest_attempt(lesson.checkpoint)) %>
+                  <span class="ml-2 text-sm text-ink-soft">Quiz : <%= a.score %> %</span>
+                <% end %>
+              </div>
+              <span class="text-sm text-ink-soft"><%= minutes_label lesson.estimated_minutes %></span>
+            </li>
+          <% end %>
+        </ol>
+
+        <div class="mt-8 panel panel-body">
+          <h2 class="mb-2">Évaluation finale</h2>
+          <% if (final = @enrollment.final_attempt) %>
+            <p>Rendue le <%= l(final.submitted_at.to_date, format: :long) %> : <strong><%= final.score %> %</strong> (seuil <%= @course.pass_threshold %> %).</p>
+            <%= link_to "Voir ma copie corrigée", enrollment_assessment_attempt_path(@enrollment, @course.final_assessment, final), class: "btn btn-secondary mt-4" %>
+          <% elsif @enrollment.final_unlocked? %>
+            <p class="text-ink-soft">Tous les modules sont terminés : l'évaluation finale est ouverte. Elle ne peut être passée qu'une fois.</p>
+            <%= link_to "Passer l'évaluation finale", enrollment_assessment_path(@enrollment, @course.final_assessment), class: "btn btn-primary mt-4" %>
+          <% else %>
+            <p class="text-ink-soft">Elle s'ouvrira quand tous les modules seront terminés.</p>
+          <% end %>
+        </div>
+
+        <% if @enrollment.completed? %>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <%= link_to certificate_enrollment_path(@enrollment), class: "btn btn-primary", target: "_blank" do %><%= icon "download" %> Télécharger mon attestation<% end %>
+            <%= link_to "Donner mon avis", new_enrollment_survey_path(@enrollment), class: "btn btn-secondary" unless @enrollment.hot_survey %>
+          </div>
+        <% end %>
+      <% end %>
+
+      <p class="mt-10 text-sm text-ink-soft">
+        Une question ? <%= link_to "Écrire à l'équipe pédagogique", new_support_thread_path(enrollment_id: @enrollment.id) %>
+        · <%= link_to "Assistance technique", new_support_thread_path(enrollment_id: @enrollment.id, category: "technical") %>
+      </p>
+    </div>
+  </div>
+</section>

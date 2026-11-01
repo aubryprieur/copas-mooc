@@ -1,0 +1,25 @@
+<% page_title "Mon profil" %>
+<section class="container-page py-10">
+  <div class="measure">
+    <h1 class="text-3xl">Mon profil</h1>
+    <p class="mt-2 text-ink-soft">Ces informations figurent sur vos attestations. <%= link_to "Changer mon courriel ou mon mot de passe", edit_user_registration_path %></p>
+    <%= form_with model: @user, url: profile_path, method: :patch, class: "mt-8" do |f| %>
+      <%= render "shared/form_errors", record: @user %>
+      <div class="grid gap-x-4 sm:grid-cols-2">
+        <div class="field"><%= f.label :first_name, "Prénom", class: "label" %><%= f.text_field :first_name, class: "input", autocomplete: "given-name" %></div>
+        <div class="field"><%= f.label :last_name, "Nom", class: "label" %><%= f.text_field :last_name, class: "input", autocomplete: "family-name" %></div>
+      </div>
+      <div class="field"><%= f.label :job_title, "Fonction", class: "label" %><%= f.text_field :job_title, class: "input" %></div>
+      <div class="grid gap-x-4 sm:grid-cols-2">
+        <div class="field"><%= f.label :organization_name, "Structure", class: "label" %><%= f.text_field :organization_name, class: "input" %></div>
+        <div class="field"><%= f.label :organization_type, "Type de structure", class: "label" %><%= f.select :organization_type, User::ORGANIZATION_TYPE_LABELS.invert, { include_blank: true }, class: "input" %></div>
+      </div>
+      <div class="field"><%= f.label :phone, "Téléphone (facultatif)", class: "label" %><%= f.telephone_field :phone, class: "input", autocomplete: "tel" %></div>
+      <div class="field">
+        <%= f.label :avatar, "Photo (facultatif)", class: "label" %>
+        <div class="flex items-center gap-4"><%= avatar_for @user, size: 56 %><%= f.file_field :avatar, accept: "image/png,image/jpeg,image/webp", class: "text-sm" %></div>
+      </div>
+      <%= f.submit "Enregistrer", class: "btn btn-primary" %>
+    <% end %>
+  </div>
+</section>

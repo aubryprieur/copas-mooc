@@ -1,0 +1,1 @@
+class LessonPolicy < BackofficePolicy; end

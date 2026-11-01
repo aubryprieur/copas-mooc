@@ -1,0 +1,41 @@
+<% page_title @complaint.reference %>
+<%= render "admin/page_header", title: "Demande #{@complaint.reference}", back: ["Registre", admin_complaints_path], subtitle: @complaint.category_label %>
+<div class="grid gap-6 xl:grid-cols-[1fr_22rem]">
+  <div class="space-y-6">
+    <section class="panel panel-body">
+      <dl class="facts text-sm">
+        <dt>De</dt><dd><%= @complaint.name %> – <%= mail_to @complaint.email %></dd>
+        <dt>Formation</dt><dd><%= @complaint.course&.title || "—" %></dd>
+        <dt>Reçue</dt><dd><%= l(@complaint.created_at, format: :long) %></dd>
+        <dt>Accusé de réception</dt><dd><%= @complaint.acknowledged_at ? l(@complaint.acknowledged_at, format: :long) : "—" %></dd>
+      </dl>
+      <div class="mt-4 border-t border-line pt-4"><%= simple_format_text @complaint.description %></div>
+    </section>
+    <% if @complaint.response.present? %>
+      <section class="panel panel-body">
+        <h2 class="mb-2 text-lg">Réponse envoyée le <%= l(@complaint.responded_at, format: :long) %></h2>
+        <%= simple_format_text @complaint.response %>
+        <p class="mt-2 text-sm text-ink-soft">Par <%= @complaint.handled_by&.full_name %></p>
+      </section>
+    <% end %>
+    <% if policy(@complaint).update? %>
+      <%= form_with model: [:admin, @complaint], class: "panel panel-body" do |f| %>
+        <h2 class="mb-3 text-lg"><%= @complaint.response.present? ? "Envoyer une nouvelle réponse" : "Répondre" %></h2>
+        <div class="field"><%= f.label :response, "Réponse écrite (envoyée par courriel)", class: "label" %><%= f.text_area :response, value: nil, class: "input", rows: 6 %></div>
+        <div class="field"><%= f.label :improvement_action, "Action d'amélioration décidée (ind. 32)", class: "label" %><%= f.text_area :improvement_action, class: "input", rows: 2 %></div>
+        <label class="field flex items-center gap-2"><%= f.check_box :close, { class: "checkbox" }, "1", "0" %> Clôturer la demande</label>
+        <%= f.submit "Envoyer la réponse", class: "btn btn-primary" %>
+      <% end %>
+    <% end %>
+  </div>
+  <% if policy(@complaint).update? %>
+    <aside>
+      <%= form_with model: [:admin, @complaint], class: "panel panel-body" do |f| %>
+        <h2 class="mb-3 text-lg">Suivi interne</h2>
+        <div class="field"><%= f.label :status, "Statut", class: "label" %><%= f.select :status, Complaint::STATUS_LABELS.invert, {}, class: "input" %></div>
+        <div class="field"><%= f.label :internal_note, "Note interne", class: "label" %><%= f.text_area :internal_note, class: "input", rows: 4 %></div>
+        <%= f.submit "Mettre à jour", class: "btn btn-secondary" %>
+      <% end %>
+    </aside>
+  <% end %>
+</div>

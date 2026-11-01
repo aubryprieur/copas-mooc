@@ -1,0 +1,8 @@
+<div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+  <div>
+    <% if local_assigns[:back] %><nav class="mb-1 text-sm"><%= link_to back[0], back[1] %></nav><% end %>
+    <h1 class="text-3xl"><%= title %></h1>
+    <% if local_assigns[:subtitle] %><p class="mt-1 text-ink-soft"><%= subtitle %></p><% end %>
+  </div>
+  <% if local_assigns[:actions] %><div class="flex flex-wrap gap-2"><%= actions %></div><% end %>
+</div>

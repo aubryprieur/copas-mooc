@@ -1,0 +1,12 @@
+# Informations légales de l'organisme, reprises sur les attestations et les pages publiques.
+# À compléter avant la mise en production (valeurs surchargeables par variables d'environnement).
+shared:
+  name: <%= ENV.fetch("ORG_NAME", "COPAS") %>
+  legal_form: <%= ENV.fetch("ORG_LEGAL_FORM", "SCOP") %>
+  address: <%= ENV.fetch("ORG_ADDRESS", "Adresse à compléter") %>
+  siret: <%= ENV.fetch("ORG_SIRET", "À compléter") %>
+  nda: <%= ENV.fetch("ORG_NDA", "À compléter") %>
+  signatory_name: <%= ENV.fetch("ORG_SIGNATORY_NAME", "À compléter") %>
+  signatory_title: <%= ENV.fetch("ORG_SIGNATORY_TITLE", "Responsable de l'organisme de formation") %>
+  website: <%= ENV.fetch("ORG_WEBSITE", "https://copas.coop") %>
+  email: <%= ENV.fetch("TEAM_EMAIL", "formation@copas.coop") %>

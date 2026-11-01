@@ -1,0 +1,16 @@
+{
+  "name": "COPAS Academy",
+  "description": "Plateforme de formation à distance de COPAS, conforme au référentiel Qualiopi.",
+  "env": {
+    "RAILS_ENV": { "value": "production" },
+    "RACK_ENV": { "value": "production" },
+    "RAILS_LOG_TO_STDOUT": { "value": "enabled" },
+    "RAILS_SERVE_STATIC_FILES": { "value": "enabled" },
+    "SECRET_KEY_BASE": { "generator": "secret" },
+    "APP_HOST": { "description": "Nom de domaine de l'application, ex. academy.copas.coop" },
+    "MAIL_FROM": { "value": "COPAS Academy <formation@copas.coop>" },
+    "TEAM_EMAIL": { "value": "formation@copas.coop" }
+  },
+  "addons": ["postgresql:postgresql-starter-512"],
+  "formation": { "web": { "amount": 1, "size": "S" }, "worker": { "amount": 1, "size": "S" } }
+}

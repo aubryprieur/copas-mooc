@@ -1,0 +1,32 @@
+<% page_title "Nouvelle demande d'assistance" %>
+<section class="container-page py-10">
+  <div class="measure">
+    <h1 class="text-3xl">Écrire à l'équipe</h1>
+    <%= form_with model: @thread, url: support_threads_path, class: "mt-8" do |f| %>
+      <%= render "shared/form_errors", record: @thread %>
+      <fieldset class="field">
+        <legend class="label">Votre demande concerne</legend>
+        <div class="flex flex-wrap gap-2">
+          <% SupportThread::CATEGORY_LABELS.each do |value, label| %>
+            <label class="choice"><%= f.radio_button :category, value %><span><%= label %></span></label>
+          <% end %>
+        </div>
+      </fieldset>
+      <% enrollments = current_user.enrollments.includes(:course).where(status: %i[onboarding active completed]) %>
+      <% if enrollments.any? %>
+        <div class="field">
+          <%= f.label :enrollment_id, "Formation", class: "label" %>
+          <%= f.collection_select :enrollment_id, enrollments, :id, ->(e) { e.course.title }, { include_blank: "Aucune en particulier" }, class: "input" %>
+        </div>
+      <% end %>
+      <%= f.hidden_field :lesson_id %>
+      <div class="field"><%= f.label :subject, "Objet", class: "label" %><%= f.text_field :subject, class: "input", required: true, maxlength: 150 %></div>
+      <div class="field">
+        <%= label_tag "support_thread[body]", "Votre message", class: "label" %>
+        <%= text_area_tag "support_thread[body]", params.dig(:support_thread, :body), class: "input", rows: 7, required: true %>
+        <p class="hint">Pour un souci technique, précisez votre navigateur et ce que vous voyez à l'écran.</p>
+      </div>
+      <%= f.submit "Envoyer", class: "btn btn-primary" %>
+    <% end %>
+  </div>
+</section>

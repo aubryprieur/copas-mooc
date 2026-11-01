@@ -1,0 +1,58 @@
+<% page_title "Résultat – #{@assessment.title}" %>
+<section class="container-page py-10">
+  <nav class="mb-4 text-sm"><%= link_to @course.title, enrollment_path(@enrollment) %></nav>
+  <div class="measure">
+    <p class="mb-2"><%= status_badge @assessment.kind_label, :info %></p>
+    <h1 class="text-3xl"><%= @assessment.title %></h1>
+    <div class="mt-6 flex items-baseline gap-4">
+      <p class="font-display text-5xl font-bold"><%= @attempt.score %>&nbsp;%</p>
+      <p class="text-ink-soft">de bonnes réponses · seuil <%= @assessment.threshold %> %</p>
+    </div>
+    <p class="mt-2 font-bold <%= @attempt.passed ? 'text-ok' : 'text-warn' %>">
+      <% if @assessment.positioning? %>
+        <%= Enrollment::POSITIONING_LABELS[@enrollment.positioning_decision] %>
+      <% else %>
+        <%= @attempt.passed ? "Seuil atteint, bravo." : "Seuil non atteint : relisez les explications ci-dessous." %>
+      <% end %>
+    </p>
+
+    <% if @course.objectives.any? && @attempt.objective_scores.any? %>
+      <h2 class="mt-8 mb-3 text-lg">Par objectif</h2>
+      <ul class="space-y-3">
+        <% @course.objectives.each do |objective| %>
+          <% next unless (score = @attempt.objective_scores[objective.id.to_s]) %>
+          <li>
+            <p class="text-sm"><%= objective.description %></p>
+            <div class="flex items-center gap-3"><div class="flex-1"><%= progress_bar score, label: objective.description %></div><span class="w-12 text-right text-sm font-bold"><%= score %> %</span></div>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+
+    <h2 class="mt-10 mb-3 text-lg">Correction</h2>
+    <ol class="space-y-5">
+      <% @answers.each_with_index do |answer, i| %>
+        <li class="panel p-4">
+          <p class="font-bold"><%= i + 1 %>. <%= answer.question.prompt %></p>
+          <p class="mt-2 flex items-start gap-2 <%= answer.correct? ? 'text-ok' : 'text-danger' %>">
+            <%= icon(answer.correct? ? "check" : "x", label: answer.correct? ? "Bonne réponse" : "Réponse incorrecte") %>
+            <span>Votre réponse : <%= answer.choice&.label || "—" %></span>
+          </p>
+          <% unless answer.correct? %><p class="mt-1 text-sm">Bonne réponse : <strong><%= answer.question.correct_choice&.label %></strong></p><% end %>
+          <% if answer.question.explanation.present? %><p class="mt-2 text-sm text-ink-soft"><%= answer.question.explanation %></p><% end %>
+        </li>
+      <% end %>
+    </ol>
+
+    <div class="mt-8 flex flex-wrap gap-3">
+      <% if @assessment.final? %>
+        <%= link_to "Donner mon avis sur la formation", new_enrollment_survey_path(@enrollment), class: "btn btn-primary" unless @enrollment.hot_survey %>
+        <%= link_to "Télécharger mon attestation", certificate_enrollment_path(@enrollment), class: "btn btn-secondary", target: "_blank" %>
+      <% elsif @assessment.checkpoint? %>
+        <%= link_to "Module suivant", enrollment_lesson_path(@enrollment, @assessment.lesson.next_lesson), class: "btn btn-primary" if @assessment.lesson&.next_lesson %>
+        <%= link_to "Refaire le quiz", enrollment_assessment_path(@enrollment, @assessment), class: "btn btn-secondary" %>
+      <% end %>
+      <%= link_to "Retour au parcours", enrollment_path(@enrollment), class: "btn btn-ghost" %>
+    </div>
+  </div>
+</section>

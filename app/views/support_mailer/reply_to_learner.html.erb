@@ -1,0 +1,4 @@
+<p>Bonjour <%= @thread.user.first_name %>,</p>
+<p><%= @message.author.full_name %> a répondu à votre demande « <%= @thread.subject %> » :</p>
+<blockquote style="border-left:3px solid #F6B92B;margin:0;padding-left:12px"><%= simple_format h(@message.body) %></blockquote>
+<p><a href="<%= support_thread_url(@thread) %>" style="display:inline-block;background:#0F5C6E;color:#ffffff;padding:10px 18px;border-radius:6px;text-decoration:none;font-weight:bold">Voir l'échange</a></p>

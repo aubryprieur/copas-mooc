@@ -1,0 +1,3 @@
+<% page_title @assessment.title %>
+<%= render "admin/page_header", title: "Modifier l'évaluation", back: [@assessment.title, admin_course_assessment_path(@course, @assessment)] %>
+<%= render "form" %>

@@ -1,19 +1,11 @@
-<h2>Renvoyer les instructions de déverrouillage</h2>
-
-<%= simple_form_for(resource, as: resource_name, url: unlock_path(resource_name), html: { method: :post }) do |f| %>
-  <%= f.error_notification %>
-  <%= f.full_error :unlock_token %>
-
-  <div class="form-inputs">
-    <%= f.input :email,
-                required: true,
-                autofocus: true,
-                input_html: { autocomplete: "email" } %>
-  </div>
-
-  <div class="form-actions">
-    <%= f.button :submit, "Renvoyer les instructions de déverrouillage" %>
-  </div>
+<% page_title "Débloquer mon compte" %>
+<%= render layout: "devise/shared/auth" do %>
+  <h1 class="text-3xl">Débloquer mon compte</h1>
+  <p class="mt-2 text-ink-soft">Après plusieurs essais de mot de passe infructueux, le compte est bloqué 30 minutes. Vous pouvez aussi recevoir un lien de déblocage.</p>
+  <%= form_for(resource, as: resource_name, url: unlock_path(resource_name), html: { method: :post, class: "mt-8 max-w-md" }) do |f| %>
+    <%= render "devise/shared/error_messages", resource: resource %>
+    <div class="field"><%= f.label :email, "Courriel", class: "label" %><%= f.email_field :email, autofocus: true, autocomplete: "email", class: "input" %></div>
+    <%= f.submit "Recevoir le lien", class: "btn btn-primary" %>
+  <% end %>
+  <%= render "devise/shared/links" %>
 <% end %>
-
-<%= render "devise/shared/links" %>
