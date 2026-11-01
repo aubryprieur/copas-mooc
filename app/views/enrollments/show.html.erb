@@ -5,7 +5,11 @@
     <aside class="lg:sticky lg:top-6 lg:self-start" aria-label="Étapes du parcours">
       <h1 class="text-3xl"><%= @course.title %></h1>
       <div class="mt-4"><%= progress_bar @enrollment.progress_percent %>
-        <p class="mt-1 text-sm text-ink-soft"><%= @enrollment.progress_percent %> % des modules · <%= seconds_label @enrollment.total_active_seconds %> de travail mesuré</p>
+        <% if @enrollment.onsite? %>
+          <p class="mt-1 text-sm text-ink-soft"><%= hours_count @enrollment.attended_hours %> de présence sur <%= hours_count @enrollment.planned_hours %></p>
+        <% else %>
+          <p class="mt-1 text-sm text-ink-soft"><%= @enrollment.progress_percent %> % des modules · <%= seconds_label @enrollment.total_active_seconds %> de travail mesuré</p>
+        <% end %>
       </div>
       <ol class="journey mt-6">
         <% journey_steps(@enrollment).each do |step| %>
@@ -42,6 +46,9 @@
           <div class="panel-tint mb-6 p-4"><strong>Votre positionnement :</strong> <%= Enrollment::POSITIONING_LABELS[@enrollment.positioning_decision] %>. <%= @enrollment.positioning_note %></div>
         <% end %>
 
+        <% if @enrollment.onsite? %>
+          <%= render "enrollments/onsite_session", enrollment: @enrollment, cs: @enrollment.course_session %>
+        <% else %>
         <% if @enrollment.active? && (next_lesson = next_lesson_for(@enrollment)) && !@enrollment.all_lessons_completed? %>
           <div class="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-lg bg-canard p-6 text-white">
             <div>
@@ -70,22 +77,28 @@
           <% end %>
         </ol>
 
+        <% end %>
+
         <div class="mt-8 panel panel-body">
           <h2 class="mb-2">Évaluation finale</h2>
           <% if (final = @enrollment.final_attempt) %>
             <p>Rendue le <%= l(final.submitted_at.to_date, format: :long) %> : <strong><%= final.score %> %</strong> (seuil <%= @course.pass_threshold %> %).</p>
             <%= link_to "Voir ma copie corrigée", enrollment_assessment_attempt_path(@enrollment, @course.final_assessment, final), class: "btn btn-secondary mt-4" %>
           <% elsif @enrollment.final_unlocked? %>
-            <p class="text-ink-soft">Tous les modules sont terminés : l'évaluation finale est ouverte. Elle ne peut être passée qu'une fois.</p>
+            <p class="text-ink-soft"><%= @enrollment.onsite? ? "Le formateur vous indiquera le moment de la passer, en fin de formation." : "Tous les modules sont terminés : l'évaluation finale est ouverte." %> Elle ne peut être passée qu'une fois.</p>
             <%= link_to "Passer l'évaluation finale", enrollment_assessment_path(@enrollment, @course.final_assessment), class: "btn btn-primary mt-4" %>
           <% else %>
-            <p class="text-ink-soft">Elle s'ouvrira quand tous les modules seront terminés.</p>
+            <p class="text-ink-soft"><%= @enrollment.onsite? ? "Elle s'ouvrira le premier jour de la formation." : "Elle s'ouvrira quand tous les modules seront terminés." %></p>
           <% end %>
         </div>
 
         <% if @enrollment.completed? %>
           <div class="mt-6 flex flex-wrap gap-3">
-            <%= link_to certificate_enrollment_path(@enrollment), class: "btn btn-primary", target: "_blank" do %><%= icon "download" %> Télécharger mon attestation<% end %>
+            <% if @enrollment.certificate_ready? %>
+              <%= link_to certificate_enrollment_path(@enrollment), class: "btn btn-primary", target: "_blank" do %><%= icon "download" %> Télécharger mon attestation<% end %>
+            <% else %>
+              <p class="text-ink-soft">Votre attestation sera disponible dès la clôture de la dernière demi-journée par le formateur.</p>
+            <% end %>
             <%= link_to "Donner mon avis", new_enrollment_survey_path(@enrollment), class: "btn btn-secondary" unless @enrollment.hot_survey %>
           </div>
         <% end %>

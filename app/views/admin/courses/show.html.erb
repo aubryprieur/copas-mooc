@@ -1,6 +1,6 @@
 <% page_title @course.title %>
 <%= render "admin/page_header", title: @course.title, back: ["Formations", admin_courses_path],
-      subtitle: "#{Course::MODALITY_LABELS[@course.modality]} · #{hours_label(@course.duration_hours)} · durée cumulée des modules : #{minutes_label(@course.total_estimated_minutes)}",
+      subtitle: "#{@course.modality_label} · #{hours_label(@course.duration_hours)} · durée cumulée des modules : #{minutes_label(@course.total_estimated_minutes)}",
       actions: safe_join([
         (link_to("Voir la fiche publique", course_path(@course), class: "btn btn-secondary", target: "_blank") if @course.published?),
         link_to("Indicateurs", indicators_admin_course_path(@course), class: "btn btn-secondary"),
@@ -73,6 +73,16 @@
   </div>
 
   <aside class="space-y-6">
+    <% if @course.onsite? %>
+      <section class="panel panel-body text-sm">
+        <div class="mb-3 flex items-center justify-between gap-2"><h2 class="text-lg">Sessions</h2><%= link_to "Nouvelle session", new_admin_course_session_path(formation: @course.slug), class: "btn btn-secondary btn-sm" if policy(CourseSession).create? %></div>
+        <% sessions = @course.course_sessions.includes(:organization, :slots) %>
+        <% if sessions.empty? %><p class="text-ink-soft">Aucune session.</p><% end %>
+        <ul class="space-y-2">
+          <% sessions.each do |cs| %><li><%= link_to cs.organization&.name || cs.reference, admin_course_session_path(cs), class: "font-bold" %><br><span class="text-ink-soft"><%= cs.dates_label %> · <%= cs.status_label %></span></li><% end %>
+        </ul>
+      </section>
+    <% end %>
     <section class="panel panel-body text-sm">
       <h2 class="mb-3 text-lg">Suivi</h2>
       <dl class="facts">

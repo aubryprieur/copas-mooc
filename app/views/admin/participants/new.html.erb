@@ -1,0 +1,22 @@
+<% page_title "Inscrire des participants" %>
+<%= render "admin/page_header", title: "Inscrire des participants", back: [@session.course.title, admin_course_session_path(@session, anchor: "participants")],
+      subtitle: "#{@session.organization&.name} · #{@session.dates_label}" %>
+<p class="mb-6 measure text-ink-soft">Chaque participant reçoit une invitation : création de son mot de passe, recueil de ses besoins, livret d'accueil et test de positionnement. La convocation part ensuite à J-7.</p>
+<div class="grid gap-6 lg:grid-cols-2">
+  <%= form_with url: admin_course_session_participants_path(@session), scope: :participant, class: "panel panel-body" do |f| %>
+    <h2 class="mb-4 text-lg">Une personne</h2>
+    <div class="grid gap-x-4 sm:grid-cols-2">
+      <div class="field"><%= f.label :first_name, "Prénom", class: "label" %><%= f.text_field :first_name, class: "input", required: true %></div>
+      <div class="field"><%= f.label :last_name, "Nom", class: "label" %><%= f.text_field :last_name, class: "input", required: true %></div>
+    </div>
+    <div class="field"><%= f.label :email, "Courriel", class: "label" %><%= f.email_field :email, class: "input", required: true %></div>
+    <div class="field"><%= f.label :job_title, "Fonction (facultatif)", class: "label" %><%= f.text_field :job_title, class: "input" %></div>
+    <%= f.submit "Inscrire et inviter", class: "btn btn-primary" %>
+  <% end %>
+  <%= form_with url: admin_course_session_participants_path(@session), multipart: true, class: "panel panel-body" do %>
+    <h2 class="mb-4 text-lg">Une liste (fichier CSV)</h2>
+    <p class="mb-3 text-sm text-ink-soft">Colonnes attendues, avec une ligne d'en-tête : <code>prenom</code>, <code>nom</code>, <code>email</code>, <code>fonction</code> (facultative). Séparateur virgule ou point-virgule (export Excel accepté).</p>
+    <div class="field"><%= label_tag :file, "Fichier", class: "label" %><%= file_field_tag :file, accept: ".csv,text/csv", class: "text-sm", required: true %></div>
+    <%= submit_tag "Importer et inviter", class: "btn btn-primary" %>
+  <% end %>
+</div>

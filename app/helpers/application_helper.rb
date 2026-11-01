@@ -28,7 +28,11 @@ module ApplicationHelper
     "settings" => '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
     "menu" => '<path d="M4 6h16M4 12h16M4 18h16"/>',
     "x" => '<path d="M18 6 6 18M6 6l12 12"/>',
-    "eye" => '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'
+    "eye" => '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+    "calendar" => '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+    "map-pin" => '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/>',
+    "camera" => '<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>',
+    "pen" => '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>'
   }.freeze
 
   def icon(name, size: 18, css: "", label: nil)
@@ -102,4 +106,18 @@ module ApplicationHelper
   def org = Rails.application.config_for(:organization)
 
   def rich_or_text(value) = value.respond_to?(:body) ? value : simple_format_text(value)
+
+  # QR code en SVG inline (aucun service externe)
+  def qr_code(url, size: 220)
+    svg = RQRCode::QRCode.new(url).as_svg(module_size: 6, standalone: true, use_path: true, viewbox: true, svg_attributes: { width: size, height: size, role: "img", "aria-label": "QR code" })
+    svg.html_safe # rubocop:disable Rails/OutputSafety
+  end
+
+  def attendance_tone(attendance)
+    return :neutral if attendance.nil? || attendance.pending?
+
+    { "present" => :success, "absent" => :danger, "late" => :warning, "left_early" => :warning }.fetch(attendance.status, :neutral)
+  end
+
+  def hours_count(value) = "#{value.to_f.round(2).to_s.sub(/\.0\z/, '').tr('.', ',')} h"
 end

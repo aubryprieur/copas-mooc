@@ -1,0 +1,33 @@
+<% page_title @request.organization_name %>
+<%= render "admin/page_header", title: @request.organization_name, back: ["Demandes des structures", admin_training_requests_path],
+      subtitle: "#{@request.course.title} · reçue le #{l(@request.created_at, format: :long)}",
+      actions: (if @request.course_session
+                  link_to("Voir la session", admin_course_session_path(@request.course_session), class: "btn btn-secondary")
+                elsif policy(CourseSession).create?
+                  link_to("Créer la session", new_admin_course_session_path(demande: @request.id), class: "btn btn-primary")
+                end) %>
+<div class="grid gap-6 xl:grid-cols-[1fr_22rem]">
+  <section class="panel panel-body">
+    <h2 class="mb-4 text-lg">Analyse du besoin du commanditaire <span class="text-sm font-normal text-ink-soft">(ind. 4)</span></h2>
+    <dl class="facts">
+      <dt>Contact</dt><dd><%= @request.contact_name %><%= " – #{@request.contact_role}" if @request.contact_role.present? %><br><%= mail_to @request.contact_email %><%= " · #{@request.contact_phone}" if @request.contact_phone.present? %></dd>
+      <dt>Type</dt><dd><%= User::ORGANIZATION_TYPE_LABELS[@request.organization_kind] %></dd>
+      <dt>Participants</dt><dd><%= @request.participants_count || "non précisé" %></dd>
+      <dt>Période</dt><dd><%= @request.desired_period.presence || "non précisée" %></dd>
+      <dt>Profil</dt><dd><%= simple_format_text @request.participants_profile %></dd>
+      <dt>Objectifs</dt><dd><%= simple_format_text @request.structure_objectives %></dd>
+      <dt>Contraintes</dt><dd><%= simple_format_text @request.constraints.presence || "—" %></dd>
+      <dt>Aménagement</dt><dd><%= @request.accessibility_needs ? status_badge("À étudier avec la structure", :warning) : "Non signalé" %></dd>
+    </dl>
+  </section>
+  <% if policy(@request).update? %>
+    <aside>
+      <%= form_with model: [:admin, @request], class: "panel panel-body" do |f| %>
+        <h2 class="mb-3 text-lg">Suivi</h2>
+        <div class="field"><%= f.label :status, "Statut", class: "label" %><%= f.select :status, TrainingRequest::STATUS_LABELS.invert, {}, class: "input" %></div>
+        <div class="field"><%= f.label :internal_note, "Note interne (échanges, devis, adaptations prévues)", class: "label" %><%= f.text_area :internal_note, class: "input", rows: 5 %></div>
+        <%= f.submit "Enregistrer", class: "btn btn-secondary" %>
+      <% end %>
+    </aside>
+  <% end %>
+</div>

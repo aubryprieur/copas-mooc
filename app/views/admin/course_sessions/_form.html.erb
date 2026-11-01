@@ -1,0 +1,60 @@
+<%= form_with model: [:admin, @session], class: "space-y-6" do |f| %>
+  <%= render "shared/form_errors", record: @session %>
+  <%= f.hidden_field :training_request_id %>
+  <fieldset class="panel panel-body">
+    <legend class="px-1 font-display text-lg font-bold">Session</legend>
+    <div class="grid gap-x-6 md:grid-cols-2">
+      <div class="field"><%= f.label :course_id, "Formation", class: "label" %><%= f.collection_select :course_id, Course.onsite.order(:title), :id, :title, { prompt: "Choisir une formation sur site" }, class: "input", required: true %></div>
+      <div class="field">
+        <%= f.label :organization_id, "Structure cliente", class: "label" %><%= f.collection_select :organization_id, Organization.ordered, :id, :name, { include_blank: "—" }, class: "input" %>
+        <p class="hint"><%= link_to "Ajouter une structure", new_admin_organization_path %></p>
+      </div>
+      <div class="field">
+        <%= f.label :location_id, "Lieu", class: "label" %><%= f.collection_select :location_id, Location.ordered, :id, :name, { include_blank: "À préciser" }, class: "input" %>
+        <p class="hint"><%= link_to "Ajouter un lieu", new_admin_location_path %></p>
+      </div>
+      <div class="field"><%= f.label :trainer_id, "Formateur", class: "label" %><%= f.collection_select :trainer_id, User.staff.ordered, :id, :full_name, { include_blank: true }, class: "input" %></div>
+      <div class="field"><%= f.label :funding_type, "Financement", class: "label" %><%= f.select :funding_type, CourseSession::FUNDING_LABELS.invert, {}, class: "input" %></div>
+      <div class="field"><%= f.label :convention_reference, "Référence convention / bon de commande", class: "label" %><%= f.text_field :convention_reference, class: "input" %></div>
+      <div class="field"><%= f.label :capacity, "Nombre de places", class: "label" %><%= f.number_field :capacity, class: "input", min: 1 %></div>
+      <div class="field"><%= f.label :status, "Statut", class: "label" %><%= f.select :status, CourseSession::STATUS_LABELS.invert, {}, class: "input" %></div>
+    </div>
+  </fieldset>
+
+  <fieldset class="panel panel-body">
+    <legend class="px-1 font-display text-lg font-bold">Émargement</legend>
+    <div class="space-y-2">
+      <% CourseSession::ATTENDANCE_LABELS.each do |value, label| %>
+        <label class="choice"><%= f.radio_button :attendance_mode, value %><span><strong><%= label %></strong>
+          <span class="block text-sm text-ink-soft"><%= { "photo" => "Le formateur imprime la feuille générée par l'app, la fait signer, coche les présences et la photographie avant de clôturer.",
+                                                         "drawn" => "Chaque participant signe au doigt sur son téléphone (QR code) ou sur la tablette du formateur.",
+                                                         "click" => "Chaque participant confirme sa présence d'un clic sur son téléphone (QR code) ou sur la tablette du formateur." }[value] %></span></span></label>
+      <% end %>
+    </div>
+  </fieldset>
+
+  <fieldset class="panel panel-body">
+    <legend class="px-1 font-display text-lg font-bold">Demi-journées</legend>
+    <p class="mb-4 text-sm text-ink-soft">Une ligne par demi-journée : c'est l'unité d'émargement. Une journée complète = deux lignes (matin et après-midi). Laissez vide une ligne inutile.</p>
+    <%= f.fields_for :slots do |s| %>
+      <div class="mb-3 grid grid-cols-[1fr_7rem_7rem_auto] items-end gap-3">
+        <div><%= s.label :date, "Date", class: "label" %><%= s.date_field :date, class: "input" %></div>
+        <div><%= s.label :starts_at, "Début", class: "label" %><%= s.time_field :starts_at, class: "input", value: s.object.starts_at&.strftime("%H:%M") %></div>
+        <div><%= s.label :ends_at, "Fin", class: "label" %><%= s.time_field :ends_at, class: "input", value: s.object.ends_at&.strftime("%H:%M") %></div>
+        <% if s.object.persisted? %><label class="mb-3 flex items-center gap-1 text-sm"><%= s.check_box :_destroy, class: "checkbox", disabled: s.object.attendances.any? %> Retirer</label><% else %><span></span><% end %>
+      </div>
+    <% end %>
+    <% if @session.persisted? %><p class="hint">Enregistrez pour ajouter une ligne supplémentaire.</p><% end %>
+  </fieldset>
+
+  <fieldset class="panel panel-body">
+    <legend class="px-1 font-display text-lg font-bold">Déroulé adapté et supports</legend>
+    <div class="field"><%= f.label :adapted_program, "Adaptations du déroulé pour cette structure (ind. 6 et 10)", class: "label" %><%= f.text_area :adapted_program, class: "input", rows: 4 %></div>
+    <div class="field"><%= f.label :materials, "Supports à mettre à disposition des participants (1 an)", class: "label" %><%= f.file_field :materials, multiple: true, class: "text-sm" %></div>
+  </fieldset>
+
+  <div class="flex gap-3">
+    <%= f.submit "Enregistrer la session", class: "btn btn-primary" %>
+    <%= link_to "Annuler", @session.persisted? ? admin_course_session_path(@session) : admin_course_sessions_path, class: "btn btn-ghost" %>
+  </div>
+<% end %>

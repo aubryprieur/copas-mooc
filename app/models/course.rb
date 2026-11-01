@@ -2,9 +2,15 @@ class Course < ApplicationRecord
   enum :status, { draft: 0, published: 1, archived: 2 }, default: :draft
   enum :level, { initiation: 0, intermediaire: 1, perfectionnement: 2 }, default: :initiation
   enum :modality, { asynchronous: 0, blended: 1, synchronous: 2 }, default: :asynchronous
+  # online : parcours à distance ; onsite : sessions en salle (intra), avec émargement
+  enum :delivery, { online: 0, onsite: 1 }, default: :online
+  enum :default_attendance_mode, { photo: 0, drawn: 1, click: 2 }, prefix: :default_attendance
+
+  DELIVERY_LABELS = { "online" => "À distance", "onsite" => "Sur site" }.freeze
 
   MODALITY_LABELS = {
     "asynchronous" => "100 % à distance, à votre rythme",
+    "onsite" => "En salle, dans vos locaux ou les nôtres",
     "blended" => "Mixte : à distance et classes virtuelles",
     "synchronous" => "Classes virtuelles en direct"
   }.freeze
@@ -27,6 +33,8 @@ class Course < ApplicationRecord
   has_many :learners, through: :enrollments, source: :user
   has_many :survey_responses, through: :enrollments
   has_many :complaints, dependent: :nullify
+  has_many :course_sessions, dependent: :restrict_with_error
+  has_many :training_requests, dependent: :destroy
 
   has_one_attached :cover do |attachable|
     attachable.variant :card, resize_to_fill: [ 800, 450 ]
@@ -50,6 +58,8 @@ class Course < ApplicationRecord
 
   def to_param = slug
 
+  def modality_label = onsite? ? MODALITY_LABELS["onsite"] : MODALITY_LABELS[modality]
+
   def positioning_assessment = assessments.find_by(kind: :positioning)
   def final_assessment = assessments.find_by(kind: :final)
   def checkpoints = assessments.checkpoint
@@ -71,7 +81,7 @@ class Course < ApplicationRecord
   def publishable_issues
     issues = missing_public_fields.map { |f| "#{Course.human_attribute_name(f)} manquant" }
     issues << "Au moins un objectif évaluable" if objectives.empty?
-    issues << "Au moins un module" if lessons.empty?
+    issues << (onsite? ? "Au moins une séquence au déroulé" : "Au moins un module") if lessons.empty?
     issues << "Une évaluation finale avec des questions" unless final_assessment&.questions&.any?
     issues << "Un positionnement d'entrée avec des questions" unless positioning_assessment&.questions&.any?
     issues

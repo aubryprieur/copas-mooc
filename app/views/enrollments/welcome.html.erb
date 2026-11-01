@@ -8,14 +8,25 @@
     <div class="min-w-0">
       <section class="panel panel-body mb-6">
         <h2 class="mb-4">Votre formation en pratique</h2>
+        <% if (cs = @enrollment.course_session) %>
+          <dl class="facts">
+            <dt>Format</dt><dd>En présentiel<%= ", #{cs.location.name}" if cs.location %></dd>
+            <dt>Dates</dt><dd><% cs.slots.each do |slot| %><span class="block"><%= slot.label %></span><% end %></dd>
+            <% if cs.location&.access_details.present? %><dt>Accès</dt><dd><%= cs.location.access_details %></dd><% end %>
+            <dt>Évaluations</dt><dd>Un test de positionnement avant la formation, une évaluation finale en fin de cs (seuil <%= @course.pass_threshold %> %).</dd>
+            <dt>Présence</dt><dd><%= CourseSession::ATTENDANCE_LABELS[cs.attendance_mode] %>, à chaque demi-journée. Les heures émargées figurent sur votre attestation.</dd>
+            <% if cs.trainer %><dt>Formateur</dt><dd><%= cs.trainer.full_name %></dd><% end %>
+          </dl>
+        <% else %>
         <dl class="facts">
-          <dt>Format</dt><dd><%= Course::MODALITY_LABELS[@course.modality] %></dd>
-          <dt>Durée</dt><dd><%= hours_label @course.duration_hours %> – <%= pluralize(@course.lessons.size, "module") %>, durée moyenne indiquée pour chacun</dd>
-          <dt>Évaluations</dt><dd>Un test de positionnement à l'entrée, des quiz de module, une évaluation finale notée (seuil <%= @course.pass_threshold %> %).</dd>
-          <dt>Assistance</dt><dd><%= simple_format_text @course.support_details %></dd>
-          <dt>Suivi</dt><dd>Nous mesurons votre progression et le temps passé sur chaque module. Sans activité pendant <%= @course.inactivity_reminder_days %> jours, nous vous écrivons pour savoir si tout va bien.</dd>
-          <% if @course.pedagogical_referent %><dt>Référent pédagogique</dt><dd><%= @course.pedagogical_referent.full_name %></dd><% end %>
-        </dl>
+            <dt>Format</dt><dd><%= Course::MODALITY_LABELS[@course.modality] %></dd>
+            <dt>Durée</dt><dd><%= hours_label @course.duration_hours %> – <%= pluralize(@course.lessons.size, "module") %>, durée moyenne indiquée pour chacun</dd>
+            <dt>Évaluations</dt><dd>Un test de positionnement à l'entrée, des quiz de module, une évaluation finale notée (seuil <%= @course.pass_threshold %> %).</dd>
+            <dt>Assistance</dt><dd><%= simple_format_text @course.support_details %></dd>
+            <dt>Suivi</dt><dd>Nous mesurons votre progression et le temps passé sur chaque module. Sans activité pendant <%= @course.inactivity_reminder_days %> jours, nous vous écrivons pour savoir si tout va bien.</dd>
+            <% if @course.pedagogical_referent %><dt>Référent pédagogique</dt><dd><%= @course.pedagogical_referent.full_name %></dd><% end %>
+          </dl>
+        <% end %>
       </section>
       <% if @welcome %><div class="prose-copas"><%= @welcome.body %></div><% end %>
     </div>

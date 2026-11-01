@@ -22,17 +22,34 @@ class ParticipationReportPdf < BasePdf
     field "Analyse du besoin", @enrollment.needs_reviewed_at ? "le #{date(@enrollment.needs_reviewed_at)} par #{@enrollment.needs_reviewed_by&.full_name}" : "à faire"
     field "Livret d'accueil lu", date(@enrollment.welcome_acknowledged_at)
     field "Positionnement", [ Enrollment::POSITIONING_LABELS[@enrollment.positioning_decision], @enrollment.positioning_note ].compact.join(" – ")
-    field "Temps actif total mesuré", duration(@enrollment.total_active_seconds)
-    field "Progression", "#{@enrollment.progress_percent} % des modules"
-
-    section "Modules"
-    progresses = @enrollment.lesson_progresses.index_by(&:lesson_id)
-    rows = [ [ "Module", "Durée estimée", "1re consultation", "Terminé le", "Temps actif" ] ]
-    @course.lessons.each do |lesson|
-      p = progresses[lesson.id]
-      rows << [ clean(lesson.title), "#{lesson.estimated_minutes} min", date(p&.first_viewed_at), date(p&.completed_at), duration(p&.active_seconds) ]
+    if @enrollment.onsite?
+      field "Session", "#{@enrollment.course_session.reference} – #{@enrollment.course_session.dates_label}"
+      field "Heures suivies", "#{@enrollment.attended_hours.to_s.tr('.', ',')} h sur #{@enrollment.planned_hours.to_s.tr('.', ',')} h prévues"
+    else
+      field "Temps actif total mesuré", duration(@enrollment.total_active_seconds)
+      field "Progression", "#{@enrollment.progress_percent} % des modules"
     end
-    table rows
+
+    if (cs = @enrollment.course_session)
+      section "Présences (émargement)"
+      rows = [ [ "Demi-journée", "Présence", "Mode", "Signé le", "Heures" ] ]
+      cs.slots.each do |slot|
+        a = slot.attendances.find { _1.enrollment_id == @enrollment.id }
+        status = a && !a.pending? ? a.status_label : (slot.closed? ? "Absent" : "—")
+        rows << [ clean(slot.label), clean(status), clean(a&.signature_method ? Attendance::METHOD_LABELS[a.signature_method] : "—"),
+                 a&.signed_at ? I18n.l(a.signed_at, format: "%d/%m/%Y %H:%M") : "—", a ? a.hours.to_s.tr(".", ",") : "—" ]
+      end
+      table rows
+    else
+      section "Modules"
+      progresses = @enrollment.lesson_progresses.index_by(&:lesson_id)
+      rows = [ [ "Module", "Durée estimée", "1re consultation", "Terminé le", "Temps actif" ] ]
+      @course.lessons.each do |lesson|
+        p = progresses[lesson.id]
+        rows << [ clean(lesson.title), "#{lesson.estimated_minutes} min", date(p&.first_viewed_at), date(p&.completed_at), duration(p&.active_seconds) ]
+      end
+      table rows
+    end
 
     section "Évaluations"
     attempts = @enrollment.attempts.submitted.includes(:assessment).order(:submitted_at)

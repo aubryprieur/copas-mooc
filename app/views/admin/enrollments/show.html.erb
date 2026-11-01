@@ -41,6 +41,29 @@
     </div>
   </section>
 
+  <% if e.onsite? %>
+    <section class="panel xl:col-span-2" id="progression">
+      <h2 class="border-b border-line px-5 py-3 text-lg">3. Présences <span class="text-sm font-normal text-ink-soft">(émargement, <%= link_to "session #{e.course_session.reference}", admin_course_session_path(e.course_session) %>)</span></h2>
+      <div class="table-wrap">
+        <table class="table text-sm">
+          <thead><tr><th>Demi-journée</th><th>Présence</th><th>Mode</th><th>Signé le</th><th>Heures</th></tr></thead>
+          <tbody>
+            <% e.course_session.slots.each do |slot| %>
+              <% a = slot.attendances.find { _1.enrollment_id == e.id } %>
+              <tr>
+                <td><%= link_to slot.label, admin_session_slot_path(slot) %></td>
+                <td><% if a && !a.pending? %><%= status_badge a.status_label, attendance_tone(a) %><% elsif slot.closed? %><%= status_badge "Absent", :danger %><% else %>—<% end %></td>
+                <td><%= a&.signature_method ? Attendance::METHOD_LABELS[a.signature_method] : "—" %></td>
+                <td><%= a&.signed_at ? l(a.signed_at, format: :long) : "—" %></td>
+                <td><%= a ? hours_count(a.hours) : "—" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+          <tfoot><tr><td class="font-bold" colspan="4">Total</td><td class="font-bold"><%= hours_count e.attended_hours %> / <%= hours_count e.planned_hours %></td></tr></tfoot>
+        </table>
+      </div>
+    </section>
+  <% else %>
   <section class="panel xl:col-span-2" id="progression">
     <h2 class="border-b border-line px-5 py-3 text-lg">3. Progression et temps actif <span class="text-sm font-normal text-ink-soft">(ind. 19)</span></h2>
     <div class="table-wrap">
@@ -63,6 +86,7 @@
       </table>
     </div>
   </section>
+  <% end %>
 
   <section class="panel">
     <h2 class="border-b border-line px-5 py-3 text-lg">4. Évaluations <span class="text-sm font-normal text-ink-soft">(ind. 11)</span></h2>

@@ -110,6 +110,20 @@ Chaque étape est horodatée dans un journal en ajout seul (`activity_events`). 
 | Attestation de fin de formation avec résultats de l'évaluation | L6353-1 | PDF généré à la fin du parcours |
 | Relevé de participation (dossier de preuve) | D6313-3-1 | PDF par apprenant dans l'espace de gestion |
 
+## Formations sur site (sessions intra)
+
+Une formation peut être « à distance » ou « sur site ». Une formation sur site se décline en **sessions** organisées pour une structure cliente (intra) : dates et demi-journées, lieu, formateur et mode d'émargement.
+
+1. **Demande** : sur la fiche publique, la structure clique sur « Demander cette formation pour ma structure » et décrit son besoin. C'est l'analyse du besoin du commanditaire (ind. 4) ; elle apparaît dans Gestion › Demandes des structures.
+2. **Session** : depuis la demande, « Créer la session » pré-remplit la formation et la structure. On choisit les demi-journées, le lieu (adresse, accès, accessibilité, ind. 17), le formateur et le mode d'émargement :
+   - **photo de la feuille signée** (par défaut) : l'app génère la feuille pré-remplie, le formateur coche les présences et la photographie (dépôt possible jusqu'à 7 jours après) ;
+   - **signature au doigt** ou **confirmation « Je suis présent »** : chaque participant signe sur son téléphone (QR code affiché par le formateur) ou sur la tablette du formateur avec son code personnel à 4 chiffres. La signature n'est possible que pendant la demi-journée (avec 30 minutes de marge).
+3. **Participants** : saisis un par un ou importés en CSV (`prenom;nom;email;fonction`). Chacun reçoit une invitation (lien valable 14 jours) pour créer son mot de passe, compléter son recueil des besoins, lire le livret d'accueil et passer le positionnement.
+4. **Convocations** envoyées automatiquement à J-7, rappel à J-1 (`ConvocationJob`), avec lieu, horaires, accès et code personnel.
+5. **Le jour J** : écran « Aujourd'hui » du formateur (téléphone ou tablette). Il ouvre l'émargement, suit les signatures en direct, note absences et retards, signe et clôture la demi-journée. Une fois clôturée, la feuille est figée ; toute correction exige un motif, tracé dans le journal.
+6. **Après** : évaluation finale (ouverte dès le premier jour de la session), satisfaction des participants, questionnaire envoyé au commanditaire par lien sécurisé (ind. 30). L'attestation de fin de formation (heures suivies) est disponible dès la clôture de la dernière demi-journée. Les certificats de réalisation et les feuilles d'émargement signées se génèrent en PDF depuis la fiche de la session.
+7. **Supports** : déposés sur la session et téléchargeables par les participants pendant 1 an.
+
 ### Ce qui reste à faire par COPAS (hors code)
 
 - Rédiger les pages institutionnelles créées par `db:seed`, marquées « [À compléter] » : livret d'accueil, règlement intérieur, CGU, référents, accessibilité, procédure violences, assistance, données personnelles, mentions légales.
@@ -121,8 +135,10 @@ Chaque étape est horodatée dans un journal en ajout seul (`activity_events`). 
 ### Lots suivants envisagés
 
 - Archivage versionné de chaque fiche publiée (preuve de l'information diffusée à une date donnée, ind. 1).
+- Sessions inter (agents de structures différentes) publiées au catalogue avec inscription individuelle.
+- Grille d'observation par objectif remplie par le formateur, bilan formateur, formations mixtes (en ligne + salle).
 - Classes virtuelles avec émargement électronique horodaté par demi-journée.
 - Questionnaires adressés à l'employeur et aux intervenants (ind. 30).
-- Certificat de réalisation au modèle ministériel pour les financeurs.
+- Vérifier la mise en page du certificat de réalisation avec le dernier modèle ministériel et les exigences des OPCO.
 - Registre de veille relié aux versions des modules (ind. 23 à 25) et cartographie des risques (ind. 32).
 - Export du dossier d'audit par échantillon d'apprenants.

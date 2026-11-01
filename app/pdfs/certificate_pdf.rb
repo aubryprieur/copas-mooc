@@ -27,10 +27,17 @@ class CertificatePdf < BasePdf
     section "Action suivie"
     field "Intitulé", @course.title
     field "Nature de l'action", "Action de formation (art. L6313-1, 1° du Code du travail)"
-    field "Modalité", Course::MODALITY_LABELS[@course.modality]
-    field "Durée prévue", "#{format_hours(@course.duration_hours)} heures"
-    field "Période", "du #{date(@enrollment.started_at)} au #{date(@enrollment.completed_at)}"
-    field "Modules réalisés", "#{@enrollment.completed_lesson_ids.size} sur #{@course.lessons.size}"
+    if (session = @enrollment.course_session)
+      field "Modalité", "Présentiel#{" – #{session.location.name}" if session.location}"
+      field "Période", session.dates_label
+      field "Durée prévue", "#{format_hours(session.total_hours)} heures"
+      field "Durée suivie", "#{format_hours(@enrollment.attended_hours)} heures (feuilles d'émargement)"
+    else
+      field "Modalité", @course.modality_label
+      field "Durée prévue", "#{format_hours(@course.duration_hours)} heures"
+      field "Période", "du #{date(@enrollment.started_at)} au #{date(@enrollment.completed_at)}"
+      field "Modules réalisés", "#{@enrollment.completed_lesson_ids.size} sur #{@course.lessons.size}"
+    end
     field "Reconnaissance", @course.recognition
 
     section "Objectifs de la formation et résultats de l'évaluation des acquis"
@@ -67,5 +74,5 @@ class CertificatePdf < BasePdf
     "#{@final.objective_acquired?(objective) ? 'Acquis' : 'En cours d’acquisition'} (#{score} %)"
   end
 
-  def format_hours(value) = value.to_s.sub(/\.0\z/, "").tr(".", ",")
+  def format_hours(value) = value.to_f.round(2).to_s.sub(/\.0\z/, "").tr(".", ",")
 end

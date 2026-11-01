@@ -1,0 +1,46 @@
+<% page_title "Aujourd'hui" %>
+<%= render "admin/page_header", title: "Aujourd'hui", subtitle: l(Date.current, format: "%A %-d %B %Y").capitalize %>
+
+<% if @to_close.any? %>
+  <section class="mb-6 rounded-lg border-l-4 border-signal bg-signal-soft p-4">
+    <h2 class="mb-2 text-base">Demi-journées passées à clôturer</h2>
+    <ul class="space-y-1 text-sm">
+      <% @to_close.each do |slot| %>
+        <li><%= link_to "#{slot.label} – #{slot.course_session.course.title}", admin_session_slot_path(slot), class: "font-bold" %> · <%= slot.course_session.organization&.name %>
+          <% unless slot.photo_upload_open? %><%= status_badge "délai de dépôt dépassé", :danger %><% end %></li>
+      <% end %>
+    </ul>
+  </section>
+<% end %>
+
+<h2 class="mb-3 text-xl">Demi-journées du jour</h2>
+<% if @today.empty? %>
+  <p class="panel panel-body text-ink-soft">Aucune demi-journée de formation aujourd'hui.</p>
+<% else %>
+  <ul class="grid gap-4 md:grid-cols-2">
+    <% @today.each do |slot| %>
+      <% cs = slot.course_session %>
+      <li class="panel panel-body">
+        <p class="mb-1"><%= status_badge({ "planned" => "À ouvrir", "open" => "Émargement ouvert", "closed" => "Clôturée" }[slot.status], slot.closed? ? :neutral : (slot.open? ? :success : :warning)) %></p>
+        <p class="font-display text-2xl font-bold"><%= slot.hours_label %></p>
+        <p class="font-bold"><%= cs.course.title %></p>
+        <p class="text-sm text-ink-soft"><%= cs.organization&.name %><%= " · #{cs.location.name}" if cs.location %> · <%= pluralize(cs.participants.size, "participant") %></p>
+        <%= link_to "Ouvrir l'émargement", admin_session_slot_path(slot), class: "btn btn-primary mt-4 w-full" %>
+      </li>
+    <% end %>
+  </ul>
+<% end %>
+
+<h2 class="mt-10 mb-3 text-xl">Les 14 prochains jours</h2>
+<% if @upcoming.empty? %>
+  <p class="text-ink-soft">Rien de prévu.</p>
+<% else %>
+  <ul class="divide-y divide-line border-y border-line">
+    <% @upcoming.each do |slot| %>
+      <li class="flex flex-wrap items-center justify-between gap-2 py-3">
+        <span><strong><%= slot.label %></strong> · <%= slot.course_session.course.title %></span>
+        <%= link_to slot.course_session.organization&.name || "Session", admin_course_session_path(slot.course_session) %>
+      </li>
+    <% end %>
+  </ul>
+<% end %>

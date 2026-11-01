@@ -31,6 +31,8 @@ class Enrollment < ApplicationRecord
   belongs_to :course
   belongs_to :approved_by, class_name: "User", optional: true
   belongs_to :needs_reviewed_by, class_name: "User", optional: true
+  belongs_to :course_session, optional: true
+  has_many :attendances, dependent: :destroy
 
   has_one :needs_assessment, dependent: :destroy
   has_many :lesson_progresses, dependent: :destroy
@@ -43,8 +45,12 @@ class Enrollment < ApplicationRecord
   accepts_nested_attributes_for :needs_assessment
 
   validates :user_id, uniqueness: { scope: :course_id, message: "est déjà inscrit à cette formation" }
-  validates :needs_assessment, presence: { message: "doit être renseigné avant toute inscription" }, on: :create, unless: :legacy?
-  validates :employer_name, presence: true, if: -> { funding_employer? || funding_cnfpt? || funding_opco? }
+  # En intra, les participants sont inscrits par leur structure puis complètent eux-mêmes leur recueil des besoins.
+  validates :needs_assessment, presence: { message: "doit être renseigné avant toute inscription" }, on: :create,
+                               unless: -> { legacy? || course_session_id.present? }
+  validates :employer_name, presence: true, if: -> { course_session_id.nil? && (funding_employer? || funding_cnfpt? || funding_opco?) }
+
+  before_create -> { self.attendance_code ||= format("%04d", SecureRandom.random_number(10_000)) }, if: :course_session_id
 
   before_create { self.requested_at ||= Time.current }
 
@@ -61,7 +67,22 @@ class Enrollment < ApplicationRecord
 
   def lesson_completed?(lesson) = completed_lesson_ids.include?(lesson.id)
 
+  def onsite? = course_session_id.present?
+
+  # ---- Présence (formations sur site) ----
+
+  def attended_hours = attendances.includes(:session_slot).sum(&:hours).round(2)
+  def planned_hours = course_session&.total_hours.to_f
+
+  def attendance_percent
+    return 0 if planned_hours.zero?
+
+    (attended_hours * 100.0 / planned_hours).round
+  end
+
   def progress_percent
+    return attendance_percent if onsite?
+
     total = course.lessons.size
     return 0 if total.zero?
 
@@ -76,7 +97,7 @@ class Enrollment < ApplicationRecord
   def final_attempt = course.final_assessment && latest_attempt(course.final_assessment)
 
   def positioning_done? = positioning_attempt.present? || positioning_decision.present?
-  def final_unlocked? = active? && all_lessons_completed?
+  def final_unlocked? = active? && (onsite? ? course_session.started? : all_lessons_completed?)
   def hot_survey = survey_responses.find_by(kind: :hot)
   def cold_survey = survey_responses.find_by(kind: :cold)
 
@@ -112,6 +133,7 @@ class Enrollment < ApplicationRecord
     return if welcome_acknowledged_at
 
     update!(welcome_acknowledged_at: Time.current)
+    user.update_column(:terms_accepted_at, Time.current) if user.terms_accepted_at.nil?
     log!("welcome.acknowledged")
     if course.positioning_assessment.nil? && positioning_decision.nil?
       update!(positioning_decision: :direct_access, positioning_decided_at: Time.current,
@@ -138,6 +160,7 @@ class Enrollment < ApplicationRecord
 
   def start_if_ready!
     return unless onboarding? && welcome_acknowledged_at && positioning_decision.present?
+    return if onsite? && needs_assessment.nil?
     return if positioning_redirected?
 
     update!(status: :active, started_at: Time.current, last_activity_at: Time.current)
@@ -157,6 +180,9 @@ class Enrollment < ApplicationRecord
     update!(status: :abandoned, abandoned_at: Time.current, abandon_reason: reason)
     log!("enrollment.abandoned", user: by, metadata: { reason: reason })
   end
+
+  # Sur site, l'attestation reprend les heures émargées : elle n'est délivrée qu'une fois la session clôturée.
+  def certificate_ready? = completed? && (!onsite? || course_session.all_slots_closed?)
 
   def touch_activity!
     update_column(:last_activity_at, Time.current)

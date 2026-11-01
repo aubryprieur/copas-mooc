@@ -1,0 +1,138 @@
+<% page_title "Session #{@session.reference}" %>
+<% cs = @session %>
+<%= render "admin/page_header", title: cs.course.title, back: ["Sessions sur site", admin_course_sessions_path],
+      subtitle: "#{cs.organization&.name || 'Session inter'} · #{cs.dates_label} · #{hours_count cs.total_hours}",
+      actions: (link_to(edit_admin_course_session_path(cs), class: "btn btn-secondary") { icon("pencil") + " Modifier" } if policy(cs).update?) %>
+
+<div class="mb-6 flex flex-wrap items-center gap-3 text-sm">
+  <%= status_badge cs.status_label, cs.completed? ? :success : :info %>
+  <span class="text-ink-soft">Session <%= cs.reference %> · <%= CourseSession::FUNDING_LABELS[cs.funding_type] %><%= " · convention #{cs.convention_reference}" if cs.convention_reference.present? %> · émargement : <%= CourseSession::ATTENDANCE_LABELS[cs.attendance_mode].downcase %></span>
+</div>
+
+<div class="grid gap-6 xl:grid-cols-[1fr_22rem]">
+  <div class="min-w-0 space-y-6">
+    <section class="panel" id="presences">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-line px-5 py-3">
+        <h2 class="text-lg">Demi-journées et présences</h2>
+        <div class="flex flex-wrap gap-2">
+          <%= link_to(sheet_admin_course_session_path(cs), class: "btn btn-ghost btn-sm", target: "_blank") { icon("file") + " Feuille à imprimer" } %>
+          <%= link_to(attendance_report_admin_course_session_path(cs), class: "btn btn-ghost btn-sm", target: "_blank") { icon("download") + " Émargement signé" } %>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="table text-sm">
+          <thead><tr><th>Participant</th><% @slots.each do |slot| %><th class="text-center"><%= link_to l(slot.date, format: "%d/%m"), admin_session_slot_path(slot) %><br><span class="font-normal"><%= slot.hours_label %></span></th><% end %><th>Heures</th></tr></thead>
+          <tbody>
+            <% @participants.each do |e| %>
+              <tr>
+                <td><%= link_to e.user.full_name, admin_enrollment_path(e), class: "font-bold" %></td>
+                <% @slots.each do |slot| %>
+                  <% a = slot.attendances.find { _1.enrollment_id == e.id } %>
+                  <td class="text-center">
+                    <% if a && !a.pending? %>
+                      <% if slot.closed? && policy(a).update? %>
+                        <details class="inline-block text-left">
+                          <summary class="cursor-pointer list-none"><%= status_badge a.status_label, attendance_tone(a) %></summary>
+                          <%= form_with model: [:admin, a], class: "mt-2 w-56 space-y-2 rounded-md border border-line bg-white p-3" do |f| %>
+                            <%= f.select :status, Attendance::STATUS_LABELS.except("pending").invert, {}, class: "input", aria: { label: "Présence" } %>
+                            <%= f.text_field :correction_reason, class: "input", placeholder: "Motif de la correction", required: true, aria: { label: "Motif" } %>
+                            <%= f.submit "Corriger", class: "btn btn-secondary btn-sm" %>
+                          <% end %>
+                        </details>
+                      <% else %>
+                        <%= status_badge a.status_label, attendance_tone(a) %>
+                      <% end %>
+                    <% elsif slot.closed? %><%= status_badge "Absent", :danger %><% else %><span class="text-ink-soft">—</span><% end %>
+                  </td>
+                <% end %>
+                <td><%= hours_count e.attended_hours %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <% if @participants.empty? %><p class="px-5 py-4 text-ink-soft">Aucun participant inscrit.</p><% end %>
+    </section>
+
+    <section class="panel" id="participants">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-line px-5 py-3">
+        <h2 class="text-lg">Participants <span class="text-sm font-normal text-ink-soft">(<%= @participants.size %><%= " / #{cs.capacity}" if cs.capacity %>)</span></h2>
+        <%= link_to(new_admin_course_session_participant_path(cs), class: "btn btn-secondary btn-sm") { icon("plus") + " Inscrire des participants" } if policy(cs).manage_participants? %>
+      </div>
+      <ul class="divide-y divide-line text-sm">
+        <% @participants.each do |e| %>
+          <li class="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
+            <div><%= link_to e.user.full_name, admin_enrollment_path(e), class: "font-bold" %> <span class="text-ink-soft"><%= e.user.email %></span></div>
+            <div class="flex flex-wrap gap-1">
+              <%= status_badge(e.needs_assessment ? "Besoins ✓" : "Besoins à compléter", e.needs_assessment ? :success : :warning) %>
+              <% if e.needs_assessment && e.needs_reviewed_at.nil? %><%= link_to "Synthèse à rédiger", admin_enrollment_path(e, anchor: "besoin"), class: "badge badge-warning no-underline" %><% end %>
+              <%= status_badge(e.welcome_acknowledged_at ? "Livret ✓" : "Livret", e.welcome_acknowledged_at ? :success : :neutral) %>
+              <%= status_badge(e.positioning_done? ? "Positionnement ✓" : "Positionnement", e.positioning_done? ? :success : :neutral) %>
+              <% if e.needs_assessment&.accommodation_contact_requested %><%= status_badge "Référent handicap", :warning %><% end %>
+              <% if (f = e.final_attempt) %><%= status_badge "Éval. finale #{f.score} %", f.passed ? :success : :warning %><% end %>
+              <% if policy(cs).manage_participants? && e.attendances.none? && e.attempts.none? %>
+                <%= button_to "Retirer", admin_course_session_participant_path(cs, e), method: :delete, class: "btn btn-ghost btn-sm", form: { data: { turbo_confirm: "Retirer #{e.user.full_name} de la session ?" } } %>
+              <% end %>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    </section>
+
+    <% if cs.adapted_program.present? %>
+      <section class="panel panel-body"><h2 class="mb-2 text-lg">Adaptations du déroulé</h2><%= simple_format_text cs.adapted_program %></section>
+    <% end %>
+  </div>
+
+  <aside class="space-y-6">
+    <section class="panel panel-body text-sm">
+      <h2 class="mb-3 text-lg">Informations</h2>
+      <dl class="facts">
+        <dt>Lieu</dt><dd><%= cs.location ? safe_join([tag.strong(cs.location.name), tag.br, cs.location.address]) : "À préciser" %></dd>
+        <dt>Formateur</dt><dd><%= cs.trainer&.full_name || "—" %></dd>
+        <dt>Contact</dt><dd><%= cs.organization ? safe_join([cs.organization.contact_name, tag.br, cs.organization.contact_email].compact) : "—" %></dd>
+        <% if cs.training_request %><dt>Demande</dt><dd><%= link_to "Analyse du besoin de la structure", admin_training_request_path(cs.training_request) %></dd><% end %>
+      </dl>
+    </section>
+
+    <section class="panel panel-body text-sm">
+      <h2 class="mb-3 text-lg">Documents et envois</h2>
+      <ul class="space-y-3">
+        <li>
+          <strong>Convocations</strong><br>
+          <span class="text-ink-soft"><%= cs.convocations_sent_at ? "Envoyées le #{l(cs.convocations_sent_at, format: :long)}" : "Envoi automatique à J-7, rappel à J-1" %></span>
+          <% if policy(cs).update? && @participants.any? %><%= button_to (cs.convocations_sent_at ? "Renvoyer maintenant" : "Envoyer maintenant"), send_convocations_admin_course_session_path(cs), class: "btn btn-ghost btn-sm mt-1", form: { data: { turbo_confirm: "Envoyer la convocation à #{@participants.size} participant(s) ?" } } %><% end %>
+        </li>
+        <li>
+          <strong>Certificats de réalisation</strong><br>
+          <span class="text-ink-soft">Heures calculées sur les présences émargées.</span><br>
+          <%= link_to(completion_certificates_admin_course_session_path(cs), class: "btn btn-ghost btn-sm mt-1", target: "_blank") { icon("download") + " Générer (PDF)" } %>
+        </li>
+        <li>
+          <strong>Avis de la structure</strong> <span class="text-ink-soft">(ind. 30)</span><br>
+          <% if cs.client_survey %>
+            <span>Reçu : <%= cs.client_survey.overall_rating %>/5</span><% if cs.client_survey.comment.present? %><br><span class="text-ink-soft">« <%= cs.client_survey.comment.truncate(140) %> »</span><% end %>
+          <% else %>
+            <span class="text-ink-soft"><%= cs.client_survey_sent_at ? "Envoyé le #{l(cs.client_survey_sent_at, format: :long)}" : "À envoyer en fin de session" %></span>
+            <% if policy(cs).update? %><%= button_to "Envoyer le questionnaire", send_client_survey_admin_course_session_path(cs), class: "btn btn-ghost btn-sm mt-1" %><% end %>
+          <% end %>
+        </li>
+      </ul>
+    </section>
+
+    <section class="panel panel-body text-sm" id="supports">
+      <h2 class="mb-3 text-lg">Supports</h2>
+      <% if cs.materials.attached? %>
+        <ul class="space-y-2">
+          <% cs.materials.each do |file| %>
+            <li class="flex items-center justify-between gap-2"><span><%= file.filename %></span>
+              <%= button_to "Retirer", remove_material_admin_course_session_path(cs, attachment_id: file.id), method: :delete, class: "btn btn-ghost btn-sm" if policy(cs).update? %></li>
+          <% end %>
+        </ul>
+        <p class="mt-2 text-ink-soft">Accessibles aux participants <%= cs.materials_available_until ? "jusqu'au #{l(cs.materials_available_until, format: :long)}" : "pendant 1 an après la session" %>.</p>
+      <% else %>
+        <p class="text-ink-soft">Aucun support. Ajoutez-les depuis « Modifier ».</p>
+      <% end %>
+    </section>
+  </aside>
+</div>

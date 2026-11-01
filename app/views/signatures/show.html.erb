@@ -1,0 +1,41 @@
+<% page_title "Émargement" %>
+<section class="container-page py-8">
+  <div class="mx-auto max-w-md">
+    <p class="text-sm text-ink-soft"><%= @session.course.title %></p>
+    <h1 class="text-2xl"><%= @slot.label %></h1>
+    <p class="mt-1 text-sm text-ink-soft"><%= @session.location&.name %></p>
+
+    <% if @attendance&.attended? %>
+      <div class="mt-6 rounded-lg bg-ok-soft p-5 text-ok">
+        <p class="flex items-center gap-2 text-lg font-bold"><%= icon "check" %> Présence enregistrée</p>
+        <p class="mt-1">Le <%= l(@attendance.signed_at || @attendance.updated_at, format: :long) %>.</p>
+      </div>
+      <%= link_to "Voir ma formation", enrollment_path(@enrollment), class: "btn btn-secondary mt-6 w-full" %>
+    <% elsif !@slot.signing_window_open? %>
+      <div class="panel panel-body mt-6">
+        <% if @slot.closed? %>
+          <p>Cette demi-journée est clôturée. Si vous étiez présent(e), signalez-le au formateur.</p>
+        <% else %>
+          <p>L'émargement s'ouvre 30 minutes avant le début de la demi-journée (<%= @slot.hours_label %>).</p>
+        <% end %>
+      </div>
+    <% elsif @session.attendance_drawn? %>
+      <%= form_with url: sign_slot_path(@slot.sign_token), class: "mt-6", data: { controller: "signature-pad", action: "submit->signature-pad#submit" } do %>
+        <p class="label">Signez dans le cadre, <%= current_user.full_name %></p>
+        <canvas data-signature-pad-target="canvas" class="h-48 w-full touch-none rounded-lg border-2 border-dashed border-line bg-white" aria-label="Zone de signature"></canvas>
+        <input type="hidden" name="signature" data-signature-pad-target="input">
+        <p class="error-text" data-signature-pad-target="error" hidden>Tracez votre signature avant de valider.</p>
+        <div class="mt-4 flex gap-3">
+          <button type="button" class="btn btn-secondary" data-action="signature-pad#clear">Effacer</button>
+          <%= submit_tag "Valider ma présence", class: "btn btn-primary flex-1" %>
+        </div>
+      <% end %>
+    <% else %>
+      <%= form_with url: sign_slot_path(@slot.sign_token), class: "mt-6" do %>
+        <p class="mb-4"><%= current_user.full_name %>, confirmez votre présence à cette demi-journée.</p>
+        <%= submit_tag "Je suis présent(e)", class: "btn btn-primary w-full py-4 text-lg" %>
+      <% end %>
+    <% end %>
+    <p class="mt-6 text-xs text-ink-soft">Votre présence est enregistrée avec la date et l'heure, et sert à établir votre attestation et le certificat de réalisation.</p>
+  </div>
+</section>

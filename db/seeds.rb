@@ -191,6 +191,65 @@ if Rails.env.development? || ENV["SEED_DEMO"] == "1"
     )
     e.log!("enrollment.requested")
   end
+  puts "Formation sur site exemple…"
+  q ||= ->(assessment, prompt, choices, objective = nil, explanation = nil) do
+    assessment.questions.create!(prompt: prompt, objective: objective, explanation: explanation,
+                                 choices_attributes: choices.each_with_index.map { |(label, ok), i| { label: label, correct: ok, position: i + 1 } })
+  end
+  onsite = Course.find_or_initialize_by(slug: "budget-participatif-commune")
+  if onsite.new_record?
+    onsite.assign_attributes(
+      title: "Créer et lancer un budget participatif dans sa commune",
+      subtitle: "Du cadre politique au vote des habitants : une méthode pas à pas",
+      category: "Participation citoyenne", delivery: :onsite, default_attendance_mode: :photo, level: :initiation,
+      summary: "Une journée en salle pour concevoir un budget participatif adapté à votre commune : enveloppe et règlement, mobilisation des habitants, instruction des projets, vote et suivi.",
+      target_audience: "Élus, directeurs généraux des services, chargés de mission démocratie participative.",
+      prerequisites: "Aucun prérequis.", duration_hours: 7, duration_details: "Une journée ou deux demi-journées",
+      access_delay: "Session organisée sous 4 à 8 semaines après signature de la convention.",
+      pedagogical_methods: "Apports, études de cas de communes, atelier de construction du règlement, modèles à réutiliser.",
+      evaluation_methods: "Positionnement en ligne avant la session, évaluation finale (QCM) en fin de session, seuil de réussite 70 %.",
+      accessibility: "Salle accessible aux personnes à mobilité réduite ; aménagements possibles sur demande auprès du référent handicap.",
+      price: nil, pricing_details: "Sur devis, pour un groupe de 6 à 15 personnes.",
+      funding_options: "Budget formation de la collectivité (convention), OPCO pour les associations.",
+      digital_requirements: "Un téléphone ou un ordinateur pour répondre aux questionnaires en ligne.",
+      support_details: "Contact du formateur avant et après la session, réponse sous 2 jours ouvrés.",
+      contact_email: "formation@copas.coop", trainer: trainer, pedagogical_referent: trainer, status: :draft
+    )
+    onsite.save!
+    [ [ "Concevoir le cadre d'un budget participatif : enveloppe, règlement et calendrier", "Identifier les décisions à faire adopter avant le lancement" ],
+     [ "Mobiliser et accompagner les habitants dans le dépôt des projets", "Choisir des modes de mobilisation adaptés" ],
+     [ "Organiser l'instruction des projets, le vote et le suivi des réalisations", "Appliquer les critères de recevabilité à des projets types" ] ].each_with_index do |(d, c), i|
+      onsite.objectives.create!(position: i + 1, description: d, success_criterion: c)
+    end
+    [ [ "Comprendre le budget participatif", 60 ], [ "Construire le cadre : enveloppe, règlement, calendrier", 120 ],
+     [ "Mobiliser et accompagner les habitants", 120 ], [ "Instruire, faire voter, réaliser et rendre compte", 120 ] ].each_with_index do |(t, m), i|
+      onsite.lessons.create!(title: t, estimated_minutes: m, position: i + 1)
+    end
+    o1, o2, o3 = onsite.objectives.to_a
+    pos = onsite.assessments.create!(kind: :positioning, title: "Positionnement d'entrée")
+    fin = onsite.assessments.create!(kind: :final, title: "Évaluation finale des acquis")
+    q.(pos, "Un budget participatif finance en général des dépenses :", [ [ "D'investissement", true ], [ "De fonctionnement", false ], [ "Les deux sans distinction", false ] ], o1)
+    q.(pos, "Pour répondre aux questionnaires, vous aurez :", [ [ "Un téléphone ou un ordinateur", true ], [ "Je ne sais pas encore", false ] ])
+    q.(fin, "Avant de lancer l'appel à projets, il faut d'abord :", [ [ "Faire adopter le règlement et l'enveloppe par le conseil municipal", true ], [ "Organiser le vote", false ], [ "Désigner les lauréats", false ] ], o1)
+    q.(fin, "Pour toucher les habitants les moins habitués à participer :", [ [ "Aller à leur rencontre (marchés, écoles, centres sociaux)", true ], [ "Publier sur le site de la mairie", false ] ], o2)
+    q.(fin, "Un projet ne relève pas des compétences de la commune :", [ [ "Le déclarer non recevable en expliquant pourquoi", true ], [ "Le soumettre au vote quand même", false ] ], o3)
+    onsite.update!(status: :published)
+  end
+
+  if CourseSession.none?
+    roubaix = Organization.create!(name: "Ville de Roubaix", kind: :collectivite, contact_name: "Sophie Lefebvre", contact_email: "formation@ville-exemple.fr")
+    salle = Location.create!(name: "Hôtel de ville, salle des commissions", address: "17 Grand-Place\n59100 Roubaix", capacity: 20,
+                             access_details: "Métro ligne 2, station Grand-Place. Accueil au rez-de-chaussée.",
+                             accessibility: "Accès de plain-pied et ascenseur, toilettes adaptées.", equipment: "Vidéoprojecteur, wifi invité")
+    session = CourseSession.create!(course: onsite, organization: roubaix, location: salle, trainer: trainer, status: :confirmed,
+                                    attendance_mode: :photo, funding_type: :collectivite, convention_reference: "CONV-2026-021", capacity: 12,
+                                    slots_attributes: [ { date: Date.current, starts_at: "09:00", ends_at: "12:30" },
+                                                       { date: Date.current, starts_at: "13:30", ends_at: "17:00" } ])
+    importer = ParticipantImport.new(session, invited_by: admin)
+    importer.add(first_name: "Lucie", last_name: "Moreau", email: "lucie.moreau@exemple.fr", job_title: "Chargée de mission démocratie participative")
+    importer.add(first_name: "Thomas", last_name: "Durand", email: "thomas.durand@exemple.fr", job_title: "Directeur général adjoint")
+    User.where(email: %w[lucie.moreau@exemple.fr thomas.durand@exemple.fr]).find_each { |u| u.update!(password: ENV.fetch("SEED_PASSWORD", "CopasAcademy2026")) }
+  end
 end
 
 puts "Terminé. Connexion administrateur : #{admin.email}"

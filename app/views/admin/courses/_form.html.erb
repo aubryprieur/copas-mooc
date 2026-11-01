@@ -36,7 +36,9 @@
       <div class="field"><%= f.label :prerequisites, class: "label" %><%= f.text_area :prerequisites, class: "input", rows: 3 %><p class="hint">S'il n'y en a pas, écrivez « Aucun prérequis ».</p></div>
       <div class="field"><%= f.label :duration_hours, class: "label" %><%= f.number_field :duration_hours, step: 0.5, min: 0, class: "input" %></div>
       <div class="field"><%= f.label :duration_details, class: "label" %><%= f.text_field :duration_details, class: "input", placeholder: "Ex. : à réaliser en 3 semaines" %></div>
-      <div class="field"><%= f.label :modality, class: "label" %><%= f.select :modality, Course::MODALITY_LABELS.invert, {}, class: "input" %></div>
+      <div class="field"><%= f.label :delivery, "Format", class: "label" %><%= f.select :delivery, Course::DELIVERY_LABELS.invert, {}, class: "input" %><p class="hint">« Sur site » : sessions en salle organisées pour une structure, avec émargement.</p></div>
+      <div class="field"><%= f.label :modality, "Modalité (formations à distance)", class: "label" %><%= f.select :modality, Course::MODALITY_LABELS.except("onsite").invert, {}, class: "input" %></div>
+      <div class="field"><%= f.label :default_attendance_mode, "Émargement par défaut (sur site)", class: "label" %><%= f.select :default_attendance_mode, CourseSession::ATTENDANCE_LABELS.invert, {}, class: "input" %><p class="hint">Modifiable pour chaque session.</p></div>
       <div class="field"><%= f.label :level, "Niveau", class: "label" %><%= f.select :level, Course::LEVEL_LABELS.invert, {}, class: "input" %></div>
       <div class="field"><%= f.label :access_delay, class: "label" %><%= f.text_area :access_delay, class: "input", rows: 2, placeholder: "Ex. : accès sous 10 jours ouvrés après signature de la convention" %></div>
       <div class="field"><%= f.label :digital_requirements, class: "label" %><%= f.text_area :digital_requirements, class: "input", rows: 2 %></div>

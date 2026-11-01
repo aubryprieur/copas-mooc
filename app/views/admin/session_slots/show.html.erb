@@ -1,0 +1,113 @@
+<% page_title "Émargement – #{@slot.label}" %>
+<% cs = @session; manage = policy(@slot).manage? %>
+<div class="mx-auto max-w-3xl" <%= 'data-controller=auto-refresh data-auto-refresh-seconds-value=15' if @slot.open? && !cs.attendance_photo? %>>
+  <nav class="mb-2 text-sm"><%= link_to "Aujourd'hui", admin_today_path %> · <%= link_to cs.course.title, admin_course_session_path(cs) %></nav>
+  <h1 class="text-3xl"><%= @slot.label %></h1>
+  <p class="mt-1 text-ink-soft"><%= cs.organization&.name %><%= " · #{cs.location.name}" if cs.location %> · <%= CourseSession::ATTENDANCE_LABELS[cs.attendance_mode] %></p>
+  <p class="mt-2"><%= status_badge({ "planned" => "Émargement non ouvert", "open" => "Émargement ouvert", "closed" => "Clôturée le #{l(@slot.closed_at, format: :long) if @slot.closed_at}" }[@slot.status], @slot.closed? ? :neutral : (@slot.open? ? :success : :warning)) %></p>
+
+  <% if @slot.planned? && manage %>
+    <div class="panel panel-body mt-6">
+      <p class="mb-3"><%= cs.attendance_photo? ? "Imprimez la feuille pré-remplie et faites-la signer en début de demi-journée." : "Ouvrez l'émargement en début de demi-journée : un QR code s'affiche pour les participants." %></p>
+      <div class="flex flex-wrap gap-3">
+        <%= button_to "Ouvrir l'émargement", open_admin_session_slot_path(@slot), method: :patch, class: "btn btn-primary" %>
+        <% if cs.attendance_photo? %><%= link_to(sheet_admin_course_session_path(cs), class: "btn btn-secondary", target: "_blank") { icon("file") + " Feuille à imprimer" } %><% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @slot.open? && !cs.attendance_photo? %>
+    <section class="panel panel-body mt-6 text-center">
+      <p class="mb-3 font-bold">Les participants scannent ce code avec leur téléphone</p>
+      <div class="mx-auto w-fit rounded-lg bg-white p-3"><%= qr_code(sign_slot_url(@slot.sign_token), size: 240) %></div>
+      <p class="mt-3 break-all text-sm text-ink-soft"><%= sign_slot_url(@slot.sign_token) %></p>
+      <% if manage %><%= link_to(tablet_admin_session_slot_path(@slot), class: "btn btn-secondary mt-4") { icon("pen") + " Signature sur cette tablette (sans smartphone)" } %><% end %>
+    </section>
+  <% end %>
+
+  <section class="panel mt-6">
+    <div class="flex items-center justify-between border-b border-line px-5 py-3">
+      <h2 class="text-lg">Participants</h2>
+      <span class="text-sm text-ink-soft"><%= @attendances.values.count(&:attended?) %> présent(s) sur <%= @participants.size %></span>
+    </div>
+    <ul class="divide-y divide-line">
+      <% @participants.each do |e| %>
+        <% a = @attendances[e.id] %>
+        <li id="p-<%= e.id %>" class="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
+          <div>
+            <p class="font-bold"><%= e.user.full_name %></p>
+            <p class="text-sm text-ink-soft">
+              <% if a&.signed_at %>Signé à <%= a.signed_at.strftime("%H:%M") %> (<%= Attendance::METHOD_LABELS[a.signature_method].downcase %>)
+              <% elsif a && !a.pending? %><%= Attendance::METHOD_LABELS[a.signature_method] %>
+              <% else %>En attente<% end %>
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-1">
+            <% if a && !a.pending? %><%= status_badge a.status_label, attendance_tone(a) %><% end %>
+            <% if manage && !@slot.closed? %>
+              <% choices = cs.attendance_photo? ? { "present" => "Présent", "absent" => "Absent", "late" => "Retard", "left_early" => "Parti tôt" } : { "absent" => "Absent", "late" => "Retard", "left_early" => "Parti tôt" } %>
+              <% choices.each do |status, label| %>
+                <% next if a&.status == status %>
+                <%= button_to label, mark_admin_session_slot_path(@slot, enrollment_id: e.id, status: status), method: :patch, class: "btn #{status == 'present' ? 'btn-secondary' : 'btn-ghost'} btn-sm" %>
+              <% end %>
+            <% end %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+    <% if manage && !@slot.closed? && !cs.attendance_photo? %>
+      <p class="border-t border-line px-5 py-3 text-sm text-ink-soft">À la clôture, les participants qui n'ont pas signé sont notés absents.</p>
+    <% end %>
+  </section>
+
+  <% if cs.attendance_photo? && (manage || @slot.sheet_photos.attached?) %>
+    <section class="panel panel-body mt-6">
+      <h2 class="mb-3 text-lg">Photo de la feuille signée</h2>
+      <% if @slot.sheet_photos.attached? %>
+        <div class="mb-4 flex flex-wrap gap-3">
+          <% @slot.sheet_photos.each do |photo| %>
+            <%= link_to rails_blob_path(photo), target: "_blank", class: "block" do %>
+              <% if photo.image? && photo.variable? %><%= image_tag photo.variant(resize_to_limit: [240, 240]), alt: "Feuille d'émargement", class: "rounded-md border border-line" %><% else %><%= photo.filename %><% end %>
+            <% end %>
+          <% end %>
+        </div>
+        <p class="text-sm text-ink-soft">Déposée le <%= l(@slot.sheet_uploaded_at, format: :long) if @slot.sheet_uploaded_at %>.</p>
+      <% end %>
+      <% if manage && !@slot.closed? %>
+        <%= form_with url: photo_admin_session_slot_path(@slot), multipart: true, class: "mt-3" do %>
+          <label class="label" for="sheet_photos">Prendre ou choisir la photo (plusieurs pages possibles)</label>
+          <input type="file" id="sheet_photos" name="sheet_photos[]" accept="image/*,application/pdf" capture="environment" multiple class="text-sm" required>
+          <%= button_tag(type: "submit", class: "btn btn-primary mt-3") { icon("camera") + " Enregistrer la photo" } %>
+        <% end %>
+        <p class="mt-2 text-xs text-ink-soft">Dépôt possible jusqu'au <%= l(@slot.ends_at_time + SessionSlot::PHOTO_UPLOAD_DELAY, format: :long) %>.</p>
+      <% end %>
+    </section>
+  <% end %>
+
+  <% if manage && !@slot.planned? && !@slot.closed? %>
+    <section class="panel panel-body mt-6" id="cloture">
+      <h2 class="mb-3 text-lg">Clôturer la demi-journée</h2>
+      <% if @slot.trainer_signed_at %>
+        <p class="flex items-center gap-2 text-ok"><%= icon "check" %> Signée par le formateur le <%= l(@slot.trainer_signed_at, format: :long) %></p>
+      <% elsif cs.attendance_click? %>
+        <%= form_with url: trainer_sign_admin_session_slot_path(@slot), method: :patch do %>
+          <label class="flex items-start gap-3"><input type="checkbox" required class="checkbox mt-1"><span>Je certifie l'exactitude des présences de cette demi-journée.</span></label>
+          <%= submit_tag "Signer en tant que formateur", class: "btn btn-secondary mt-3" %>
+        <% end %>
+      <% else %>
+        <%= form_with url: trainer_sign_admin_session_slot_path(@slot), method: :patch, data: { controller: "signature-pad", action: "submit->signature-pad#submit" } do %>
+          <p class="label">Signature du formateur</p>
+          <canvas data-signature-pad-target="canvas" class="h-32 w-full touch-none rounded-lg border-2 border-dashed border-line bg-white" aria-label="Zone de signature du formateur"></canvas>
+          <input type="hidden" name="signature" data-signature-pad-target="input">
+          <p class="error-text" data-signature-pad-target="error" hidden>Tracez votre signature avant de valider.</p>
+          <div class="mt-3 flex gap-3"><button type="button" class="btn btn-ghost" data-action="signature-pad#clear">Effacer</button><%= submit_tag "Signer", class: "btn btn-secondary" %></div>
+        <% end %>
+      <% end %>
+      <% missing = @slot.missing_for_close %>
+      <% if missing.any? %>
+        <ul class="mt-4 list-disc pl-5 text-sm text-warn"><% missing.each do |m| %><li><%= m %></li><% end %></ul>
+      <% end %>
+      <%= button_to "Clôturer la demi-journée", close_admin_session_slot_path(@slot), method: :patch, class: "btn btn-primary mt-4", disabled: missing.any?, form: { data: { turbo_confirm: "Clôturer ? La feuille sera figée ; toute correction ultérieure demandera un motif." } } %>
+    </section>
+  <% end %>
+</div>

@@ -71,6 +71,7 @@ class Admin::CoursesController < Admin::BaseController
       :pedagogical_methods, :evaluation_methods, :accessibility, :price, :pricing_details, :funding_options,
       :recognition, :digital_requirements, :support_details, :contact_email, :trainer_id, :pedagogical_referent_id,
       :pass_threshold, :positioning_threshold, :inactivity_reminder_days, :inactivity_alert_days,
+      :delivery, :default_attendance_mode,
       objectives_attributes: %i[id position description success_criterion _destroy]
     )
   end

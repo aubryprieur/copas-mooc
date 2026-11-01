@@ -21,9 +21,17 @@
             <% when "requested" %>
               <p class="mt-2 text-ink-soft">Demande envoyée le <%= l(enrollment.requested_at.to_date, format: :long) %>. Nous l'étudions et revenons vers vous rapidement.</p>
             <% when "onboarding" %>
-              <p class="mt-2 text-ink-soft">Votre inscription est validée. Lisez le livret d'accueil et faites le test de positionnement pour ouvrir le parcours.</p>
+              <% if enrollment.onsite? %>
+                <p class="mt-2 text-ink-soft"><%= enrollment.course_session.dates_label.upcase_first %><%= " · #{enrollment.course_session.location.name}" if enrollment.course_session.location %>. Avant la formation : vos besoins, le livret d'accueil et un court test.</p>
+              <% else %>
+                <p class="mt-2 text-ink-soft">Votre inscription est validée. Lisez le livret d'accueil et faites le test de positionnement pour ouvrir le parcours.</p>
+              <% end %>
             <% when "active" %>
-              <div class="mt-3 max-w-md"><%= progress_bar enrollment.progress_percent %><p class="mt-1 text-sm text-ink-soft"><%= enrollment.progress_percent %> % du parcours réalisé</p></div>
+              <% if enrollment.onsite? %>
+                <p class="mt-2 text-ink-soft"><%= enrollment.course_session.dates_label.upcase_first %><%= " · #{enrollment.course_session.location.name}" if enrollment.course_session.location %></p>
+              <% else %>
+                <div class="mt-3 max-w-md"><%= progress_bar enrollment.progress_percent %><p class="mt-1 text-sm text-ink-soft"><%= enrollment.progress_percent %> % du parcours réalisé</p></div>
+              <% end %>
             <% when "completed" %>
               <p class="mt-2 text-ink-soft">Terminée le <%= l(enrollment.completed_at.to_date, format: :long) %>.</p>
             <% when "declined" %>
@@ -33,11 +41,11 @@
           <div class="flex flex-col gap-2">
             <% case enrollment.status %>
             <% when "onboarding" %>
-              <%= link_to "Commencer l'accueil", welcome_enrollment_path(enrollment), class: "btn btn-primary" %>
+              <%= link_to "Préparer ma formation", enrollment_path(enrollment), class: "btn btn-primary" %>
             <% when "active" %>
-              <%= link_to "Reprendre", enrollment_path(enrollment), class: "btn btn-primary" %>
+              <%= link_to (enrollment.onsite? ? "Ma formation" : "Reprendre"), enrollment_path(enrollment), class: "btn btn-primary" %>
             <% when "completed" %>
-              <%= link_to certificate_enrollment_path(enrollment), class: "btn btn-secondary", target: "_blank" do %><%= icon "download" %> Mon attestation<% end %>
+              <% if enrollment.certificate_ready? %><%= link_to certificate_enrollment_path(enrollment), class: "btn btn-secondary", target: "_blank" do %><%= icon "download" %> Mon attestation<% end %><% end %>
               <%= link_to "Revoir le parcours", enrollment_path(enrollment), class: "btn btn-ghost" %>
             <% end %>
           </div>

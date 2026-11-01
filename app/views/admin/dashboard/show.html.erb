@@ -8,6 +8,31 @@
   <div class="panel p-4"><dt class="text-sm text-ink-soft">Satisfaction à chaud (12 mois)</dt><dd class="m-0 font-display text-3xl font-bold"><%= @satisfaction ? "#{@satisfaction}/5" : "—" %></dd></div>
 </dl>
 
+<% if @training_requests.any? || @slots_to_close.any? %>
+  <div class="mb-6 grid gap-6 xl:grid-cols-2">
+    <% if @training_requests.any? %>
+      <section class="panel">
+        <h2 class="border-b border-line px-5 py-3 text-lg">Demandes de structures à étudier</h2>
+        <ul class="divide-y divide-line">
+          <% @training_requests.each do |r| %>
+            <li class="px-5 py-3"><%= link_to r.organization_name, admin_training_request_path(r), class: "font-bold" %><p class="text-sm text-ink-soft"><%= r.course.title %> · <%= time_ago_in_words(r.created_at) %></p></li>
+          <% end %>
+        </ul>
+      </section>
+    <% end %>
+    <% if @slots_to_close.any? %>
+      <section class="panel">
+        <h2 class="border-b border-line px-5 py-3 text-lg">Émargements à clôturer</h2>
+        <ul class="divide-y divide-line">
+          <% @slots_to_close.each do |slot| %>
+            <li class="px-5 py-3"><%= link_to slot.label, admin_session_slot_path(slot), class: "font-bold" %><p class="text-sm text-ink-soft"><%= slot.course_session.course.title %> · <%= slot.course_session.organization&.name %></p></li>
+          <% end %>
+        </ul>
+      </section>
+    <% end %>
+  </div>
+<% end %>
+
 <div class="grid gap-6 xl:grid-cols-2">
   <section class="panel">
     <h2 class="border-b border-line px-5 py-3 text-lg">Demandes d'inscription à étudier</h2>

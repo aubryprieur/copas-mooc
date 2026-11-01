@@ -34,8 +34,8 @@
       </section>
 
       <section aria-labelledby="programme">
-        <h2 id="programme" class="mb-1">Programme</h2>
-        <p class="mb-4 text-ink-soft">Durée moyenne de chaque activité à distance, telle que nous l'avons mesurée.</p>
+        <h2 id="programme" class="mb-1"><%= @course.onsite? ? "Déroulé" : "Programme" %></h2>
+        <p class="mb-4 text-ink-soft"><%= @course.onsite? ? "Durée indicative de chaque séquence. Le déroulé est ajusté aux besoins de votre structure." : "Durée moyenne de chaque activité à distance, telle que nous l'avons mesurée." %></p>
         <ol class="divide-y divide-line border-y border-line">
           <% @course.lessons.each_with_index do |lesson, i| %>
             <li class="flex items-start justify-between gap-4 py-3">
@@ -93,14 +93,17 @@
         <% if @course.pricing_details.present? %><p class="text-sm text-ink-soft"><%= @course.pricing_details %></p><% end %>
         <dl class="facts mt-5 text-sm">
           <dt>Durée</dt><dd><%= hours_label @course.duration_hours %><%= " – #{@course.duration_details}" if @course.duration_details.present? %></dd>
-          <dt>Format</dt><dd><%= Course::MODALITY_LABELS[@course.modality] %></dd>
+          <dt>Format</dt><dd><%= @course.modality_label %></dd>
           <dt>Niveau</dt><dd><%= Course::LEVEL_LABELS[@course.level] %></dd>
           <dt>Délai d'accès</dt><dd><%= @course.access_delay %></dd>
           <dt>Financement</dt><dd><%= simple_format_text @course.funding_options %></dd>
           <dt>Contact</dt><dd><%= mail_to @course.contact_email %></dd>
         </dl>
         <div class="mt-6">
-          <% if @enrollment %>
+          <% if @course.onsite? && @enrollment.nil? %>
+            <%= link_to "Demander cette formation pour ma structure", new_course_training_request_path(@course), class: "btn btn-primary w-full" %>
+            <p class="mt-3 text-sm text-ink-soft">Formation organisée pour un groupe de votre collectivité ou de votre association, dans vos locaux ou les nôtres. Nous vous proposons des dates et une convention.</p>
+          <% elsif @enrollment %>
             <p class="mb-3"><%= status_badge @enrollment.status_label, enrollment_tone(@enrollment) %></p>
             <%= link_to "Accéder à mon parcours", enrollment_path(@enrollment), class: "btn btn-primary w-full" unless @enrollment.requested? || @enrollment.declined? %>
             <%= link_to "Voir ma demande", dashboard_path, class: "btn btn-secondary w-full" if @enrollment.requested? %>

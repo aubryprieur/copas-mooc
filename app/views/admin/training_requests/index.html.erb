@@ -1,0 +1,20 @@
+<% page_title "Demandes des structures" %>
+<%= render "admin/page_header", title: "Demandes des structures", subtitle: "Demandes de formation sur site reçues depuis les fiches du catalogue (analyse du besoin du commanditaire, indicateur 4)." %>
+<div class="panel table-wrap">
+  <table class="table">
+    <thead><tr><th>Structure</th><th>Formation</th><th>Participants</th><th>Reçue le</th><th>Statut</th></tr></thead>
+    <tbody>
+      <% @requests.each do |r| %>
+        <tr>
+          <td><%= link_to r.organization_name, admin_training_request_path(r), class: "font-bold" %><p class="text-sm text-ink-soft"><%= r.contact_name %></p></td>
+          <td class="text-sm"><%= r.course.title %></td>
+          <td class="text-sm"><%= r.participants_count || "—" %></td>
+          <td class="text-sm"><%= l(r.created_at.to_date, format: :long) %></td>
+          <td><%= status_badge r.status_label, r.received? ? :warning : (r.converted? ? :success : :neutral) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+<% if @requests.empty? %><p class="mt-4 text-ink-soft">Aucune demande pour l'instant.</p><% end %>
+<%== pagy_nav(@pagy) if @pagy.pages > 1 %>
