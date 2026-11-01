@@ -10,59 +10,16 @@
   <% if e.completed? %><%= link_to "Attestation", certificate_enrollment_path(e), class: "btn btn-ghost btn-sm", target: "_blank" %><% end %>
 </div>
 
-<% if e.requested? && can_edit? %>
-  <section class="panel mb-6 border-l-4 border-l-signal">
-    <div class="panel-body">
-      <h2 class="mb-1 text-lg">Valider la demande</h2>
-      <p class="mb-4 text-sm text-ink-soft">Rédigez d'abord la synthèse de l'analyse du besoin ci-dessous : c'est la preuve qu'elle a été exploitée (ind. 4).</p>
-      <div class="grid gap-6 md:grid-cols-2">
-        <%= form_with url: approve_admin_enrollment_path(e), method: :patch do %>
-          <div class="field"><%= label_tag :convention_reference, "Référence de la convention ou du devis", class: "label" %><%= text_field_tag :convention_reference, e.convention_reference, class: "input" %></div>
-          <div class="field"><%= label_tag :admin_note, "Note interne (facultatif)", class: "label" %><%= text_area_tag :admin_note, e.admin_note, class: "input", rows: 2 %></div>
-          <%= submit_tag "Valider l'inscription", class: "btn btn-primary", disabled: e.needs_reviewed_at.nil?, title: ("Analysez d'abord le besoin" if e.needs_reviewed_at.nil?) %>
-        <% end %>
-        <%= form_with url: decline_admin_enrollment_path(e), method: :patch do %>
-          <div class="field"><%= label_tag :decline_note, "Motif du refus (envoyé à l'apprenant)", class: "label" %><%= text_area_tag :admin_note, nil, id: "decline_note", class: "input", rows: 4 %></div>
-          <%= submit_tag "Refuser la demande", class: "btn btn-danger", data: { turbo_confirm: "Refuser cette demande ?" } %>
-        <% end %>
-      </div>
-    </div>
-  </section>
+<% if e.requested? %>
+  <%# Demande à étudier : l'analyse du besoin d'abord, puis la validation (ordre de travail, ind. 4) %>
+  <div class="mb-6"><%= render "admin/enrollments/needs_section", e: e, needs: needs %></div>
+  <% if can_edit? %><%= render "admin/enrollments/validation_section", e: e %><% end %>
 <% end %>
 
 <div class="grid gap-6 xl:grid-cols-2">
-  <section class="panel" id="besoin">
-    <h2 class="border-b border-line px-5 py-3 text-lg">1. Analyse du besoin <span class="text-sm font-normal text-ink-soft">(ind. 4)</span></h2>
-    <div class="panel-body text-sm">
-      <% if needs %>
-        <dl class="facts">
-          <dt>Fonction</dt><dd><%= needs.job_title %></dd>
-          <dt>Situations de travail</dt><dd><%= simple_format_text needs.work_situations %></dd>
-          <dt>Attentes</dt><dd><%= simple_format_text needs.expectations %></dd>
-          <dt>Acquis déclarés</dt><dd><%= simple_format_text needs.prior_experience.presence || "—" %></dd>
-          <dt>Question</dt><dd><%= simple_format_text needs.questions.presence || "—" %></dd>
-          <% if e.employer_objectives.present? %><dt>Objectifs employeur</dt><dd><%= simple_format_text e.employer_objectives %></dd><% end %>
-          <dt>Référent handicap</dt><dd><%= needs.accommodation_contact_requested ? status_badge("Contact demandé", :warning) : "Non demandé" %></dd>
-        </dl>
-      <% else %>
-        <p class="text-ink-soft">Inscription reprise de l'ancienne plateforme : pas de recueil des besoins.</p>
-      <% end %>
-      <div class="mt-5 border-t border-line pt-4">
-        <% if e.needs_reviewed_at %>
-          <p class="font-bold">Synthèse de l'équipe pédagogique</p>
-          <div class="mt-1"><%= simple_format_text e.needs_synthesis %></div>
-          <p class="mt-1 text-ink-soft">Le <%= l(e.needs_reviewed_at, format: :long) %> par <%= e.needs_reviewed_by&.full_name %></p>
-        <% end %>
-        <% if can_edit? %>
-          <%= form_with url: review_needs_admin_enrollment_path(e), method: :patch, class: "mt-3" do %>
-            <%= label_tag :needs_synthesis, e.needs_reviewed_at ? "Mettre à jour la synthèse" : "Synthèse et adaptations prévues", class: "label" %>
-            <%= text_area_tag :needs_synthesis, e.needs_synthesis, class: "input", rows: 4, placeholder: "Ex. : besoin cohérent avec les objectifs ; insister sur le module 3 (procédure de surendettement) ; pas d'aménagement nécessaire." %>
-            <%= submit_tag "Enregistrer l'analyse", class: "btn btn-secondary btn-sm mt-2" %>
-          <% end %>
-        <% end %>
-      </div>
-    </div>
-  </section>
+  <% unless e.requested? %>
+    <%= render "admin/enrollments/needs_section", e: e, needs: needs %>
+  <% end %>
 
   <section class="panel" id="positionnement">
     <h2 class="border-b border-line px-5 py-3 text-lg">2. Accueil et positionnement <span class="text-sm font-normal text-ink-soft">(ind. 8 et 9)</span></h2>

@@ -1,0 +1,32 @@
+<section class="panel" id="besoin">
+  <h2 class="border-b border-line px-5 py-3 text-lg">1. Analyse du besoin <span class="text-sm font-normal text-ink-soft">(ind. 4)</span></h2>
+  <div class="panel-body text-sm">
+    <% if needs %>
+      <dl class="facts">
+        <dt>Fonction</dt><dd><%= needs.job_title %></dd>
+        <dt>Situations de travail</dt><dd><%= simple_format_text needs.work_situations %></dd>
+        <dt>Attentes</dt><dd><%= simple_format_text needs.expectations %></dd>
+        <dt>Acquis déclarés</dt><dd><%= simple_format_text needs.prior_experience.presence || "—" %></dd>
+        <dt>Question</dt><dd><%= simple_format_text needs.questions.presence || "—" %></dd>
+        <% if e.employer_objectives.present? %><dt>Objectifs employeur</dt><dd><%= simple_format_text e.employer_objectives %></dd><% end %>
+        <dt>Référent handicap</dt><dd><%= needs.accommodation_contact_requested ? status_badge("Contact demandé", :warning) : "Non demandé" %></dd>
+      </dl>
+    <% else %>
+      <p class="text-ink-soft">Inscription reprise de l'ancienne plateforme : pas de recueil des besoins.</p>
+    <% end %>
+    <div class="mt-5 border-t border-line pt-4">
+      <% if e.needs_reviewed_at %>
+        <p class="font-bold">Synthèse de l'équipe pédagogique</p>
+        <div class="mt-1"><%= simple_format_text e.needs_synthesis %></div>
+        <p class="mt-1 text-ink-soft">Le <%= l(e.needs_reviewed_at, format: :long) %> par <%= e.needs_reviewed_by&.full_name %></p>
+      <% end %>
+      <% if can_edit? %>
+        <%= form_with url: review_needs_admin_enrollment_path(e), method: :patch, class: "mt-3" do %>
+          <%= label_tag :needs_synthesis, e.needs_reviewed_at ? "Mettre à jour la synthèse" : "Synthèse et adaptations prévues", class: "label" %>
+          <%= text_area_tag :needs_synthesis, e.needs_synthesis, class: "input", rows: 4, placeholder: "Ex. : besoin cohérent avec les objectifs ; insister sur le module 3 (procédure de surendettement) ; pas d'aménagement nécessaire." %>
+          <%= submit_tag "Enregistrer l'analyse", class: "btn btn-secondary btn-sm mt-2" %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</section>

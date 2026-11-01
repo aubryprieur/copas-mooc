@@ -1,0 +1,26 @@
+<section class="panel mb-6 border-l-4 border-l-signal" id="validation">
+  <div class="panel-body">
+    <h2 class="mb-1 text-lg">Valider la demande</h2>
+    <% if e.needs_reviewed_at %>
+      <p class="mb-4 text-sm text-ink-soft">Analyse du besoin enregistrée le <%= l(e.needs_reviewed_at, format: :long) %> : vous pouvez valider ou refuser la demande.</p>
+    <% else %>
+      <p class="mb-4 text-sm text-ink-soft">Étape 1 : rédigez et enregistrez la synthèse de l'analyse du besoin, juste au-dessus. Étape 2 : validez ou refusez la demande ici.</p>
+    <% end %>
+    <div class="grid gap-6 md:grid-cols-2">
+      <%= form_with url: approve_admin_enrollment_path(e), method: :patch do %>
+        <div class="field"><%= label_tag :convention_reference, "Référence de la convention ou du devis", class: "label" %><%= text_field_tag :convention_reference, e.convention_reference, class: "input" %></div>
+        <div class="field"><%= label_tag :admin_note, "Note interne (facultatif)", class: "label" %><%= text_area_tag :admin_note, e.admin_note, class: "input", rows: 2 %></div>
+        <%= submit_tag "Valider l'inscription", class: "btn btn-primary", disabled: e.needs_reviewed_at.nil?, aria: { describedby: ("validation-bloquee" if e.needs_reviewed_at.nil?) } %>
+        <% if e.needs_reviewed_at.nil? %>
+          <p id="validation-bloquee" class="mt-2 text-sm font-bold text-warn">
+            Validation possible une fois l'analyse du besoin enregistrée. <a href="#needs_synthesis">Rédiger la synthèse</a>
+          </p>
+        <% end %>
+      <% end %>
+      <%= form_with url: decline_admin_enrollment_path(e), method: :patch do %>
+        <div class="field"><%= label_tag :decline_note, "Motif du refus (envoyé à l'apprenant)", class: "label" %><%= text_area_tag :admin_note, nil, id: "decline_note", class: "input", rows: 4 %></div>
+        <%= submit_tag "Refuser la demande", class: "btn btn-danger", data: { turbo_confirm: "Refuser cette demande ?" } %>
+      <% end %>
+    </div>
+  </div>
+</section>

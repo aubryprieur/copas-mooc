@@ -44,7 +44,11 @@ class Admin::EnrollmentsController < Admin::BaseController
     end
 
     @enrollment.review_needs!(by: current_user, synthesis: params[:needs_synthesis])
-    redirect_to admin_enrollment_path(@enrollment, anchor: "besoin"), notice: "Analyse du besoin enregistrée."
+    if @enrollment.requested?
+      redirect_to admin_enrollment_path(@enrollment, anchor: "validation"), notice: "Analyse du besoin enregistrée : vous pouvez maintenant valider la demande."
+    else
+      redirect_to admin_enrollment_path(@enrollment, anchor: "besoin"), notice: "Analyse du besoin enregistrée."
+    end
   end
 
   def positioning
