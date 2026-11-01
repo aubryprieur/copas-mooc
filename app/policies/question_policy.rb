@@ -1,0 +1,1 @@
+class QuestionPolicy < BackofficePolicy; end

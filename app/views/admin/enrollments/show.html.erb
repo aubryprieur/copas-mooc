@@ -1,0 +1,128 @@
+<% page_title "Dossier – #{@enrollment.user.full_name}" %>
+<% e = @enrollment; course = e.course; needs = e.needs_assessment %>
+<%= render "admin/page_header", title: e.user.full_name, back: ["Inscriptions", admin_enrollments_path],
+      subtitle: "#{course.title} · #{e.user.email}",
+      actions: link_to(dossier_admin_enrollment_path(e), class: "btn btn-secondary", target: "_blank") { icon("download") + " Relevé de participation (PDF)" } %>
+
+<div class="mb-6 flex flex-wrap items-center gap-3">
+  <%= status_badge e.status_label, enrollment_tone(e) %>
+  <span class="text-sm text-ink-soft">Financement : <%= Enrollment::FUNDING_LABELS[e.funding_type] %><%= " – #{e.employer_name}" if e.employer_name.present? %><%= " · convention #{e.convention_reference}" if e.convention_reference.present? %></span>
+  <% if e.completed? %><%= link_to "Attestation", certificate_enrollment_path(e), class: "btn btn-ghost btn-sm", target: "_blank" %><% end %>
+</div>
+
+<% if e.requested? %>
+  <%# Demande à étudier : l'analyse du besoin d'abord, puis la validation (ordre de travail, ind. 4) %>
+  <div class="mb-6"><%= render "admin/enrollments/needs_section", e: e, needs: needs %></div>
+  <% if can_edit? %><%= render "admin/enrollments/validation_section", e: e %><% end %>
+<% end %>
+
+<div class="grid gap-6 xl:grid-cols-2">
+  <% unless e.requested? %>
+    <%= render "admin/enrollments/needs_section", e: e, needs: needs %>
+  <% end %>
+
+  <section class="panel" id="positionnement">
+    <h2 class="border-b border-line px-5 py-3 text-lg">2. Accueil et positionnement <span class="text-sm font-normal text-ink-soft">(ind. 8 et 9)</span></h2>
+    <div class="panel-body text-sm">
+      <dl class="facts">
+        <dt>Livret d'accueil lu</dt><dd><%= e.welcome_acknowledged_at ? l(e.welcome_acknowledged_at, format: :long) : "—" %></dd>
+        <dt>Test d'entrée</dt><dd><% if (p = e.positioning_attempt) %><%= p.score %> % le <%= l(p.submitted_at, format: :long) %><% else %>—<% end %></dd>
+        <dt>Décision</dt><dd><%= Enrollment::POSITIONING_LABELS[e.positioning_decision] || "—" %></dd>
+        <dt>Motif</dt><dd><%= e.positioning_note.presence || "—" %></dd>
+      </dl>
+      <% if can_edit? && (e.onboarding? || e.active?) %>
+        <%= form_with url: positioning_admin_enrollment_path(e), method: :patch, class: "mt-5 border-t border-line pt-4" do %>
+          <p class="label">Ajuster la décision après échange avec l'apprenant</p>
+          <%= select_tag :positioning_decision, options_for_select(Enrollment::POSITIONING_LABELS.invert, e.positioning_decision), class: "input", aria: { label: "Décision" } %>
+          <%= text_area_tag :positioning_note, nil, class: "input mt-2", rows: 2, placeholder: "Motif (obligatoire)", aria: { label: "Motif" } %>
+          <%= submit_tag "Enregistrer la décision", class: "btn btn-secondary btn-sm mt-2" %>
+        <% end %>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="panel xl:col-span-2" id="progression">
+    <h2 class="border-b border-line px-5 py-3 text-lg">3. Progression et temps actif <span class="text-sm font-normal text-ink-soft">(ind. 19)</span></h2>
+    <div class="table-wrap">
+      <table class="table text-sm">
+        <thead><tr><th>Module</th><th>Durée prévue</th><th>1re consultation</th><th>Terminé le</th><th>Temps actif mesuré</th></tr></thead>
+        <tbody>
+          <% course.lessons.each_with_index do |lesson, i| %>
+            <% pr = @progresses[lesson.id] %>
+            <tr>
+              <td><%= i + 1 %>. <%= lesson.title %></td>
+              <td><%= minutes_label lesson.estimated_minutes %></td>
+              <td><%= pr&.first_viewed_at ? l(pr.first_viewed_at, format: :long) : "—" %></td>
+              <td><%= pr&.completed_at ? l(pr.completed_at, format: :long) : "—" %></td>
+              <td><%= pr ? seconds_label(pr.active_seconds) : "—" %>
+                <% if pr&.completed_at && pr.active_seconds < lesson.estimated_minutes * 60 / 4 %><br><%= status_badge "Temps très inférieur à la durée prévue", :warning %><% end %></td>
+            </tr>
+          <% end %>
+        </tbody>
+        <tfoot><tr><td class="font-bold">Total</td><td><%= minutes_label course.total_estimated_minutes %></td><td></td><td><%= e.progress_percent %> %</td><td class="font-bold"><%= seconds_label e.total_active_seconds %></td></tr></tfoot>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2 class="border-b border-line px-5 py-3 text-lg">4. Évaluations <span class="text-sm font-normal text-ink-soft">(ind. 11)</span></h2>
+    <% if @attempts.empty? %>
+      <p class="panel-body text-sm text-ink-soft">Aucune évaluation rendue.</p>
+    <% else %>
+      <ul class="divide-y divide-line text-sm">
+        <% @attempts.each do |a| %>
+          <li class="flex items-center justify-between gap-3 px-5 py-3">
+            <div><p class="font-bold"><%= a.assessment.title %></p><p class="text-ink-soft"><%= l(a.submitted_at, format: :long) %></p></div>
+            <%= status_badge "#{a.score} %", a.passed ? :success : :warning %>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </section>
+
+  <section class="panel" id="relances">
+    <h2 class="border-b border-line px-5 py-3 text-lg">5. Relances et accompagnement <span class="text-sm font-normal text-ink-soft">(ind. 10, 12, 19)</span></h2>
+    <div class="panel-body text-sm">
+      <% if @reminders.any? %>
+        <ul class="mb-4 space-y-2">
+          <% @reminders.each do |r| %>
+            <li><strong><%= r.kind_label %></strong> · <%= l(r.sent_at, format: :long) %><%= " · #{r.sent_by.full_name}" if r.sent_by %><br><span class="text-ink-soft"><%= r.message.to_s.truncate(160) %></span></li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="mb-4 text-ink-soft">Aucune relance.</p>
+      <% end %>
+      <% @threads.each do |t| %>
+        <p><%= link_to t.subject, admin_support_thread_path(t) %> · <%= pluralize(t.messages.size, "message") %> · <%= t.status_label %></p>
+      <% end %>
+      <% if policy(e).remind? %>
+        <%= form_with url: admin_enrollment_reminders_path(e), scope: :reminder, class: "mt-4 border-t border-line pt-4" do |f| %>
+          <%= f.label :message, "Écrire à l'apprenant (relance tracée)", class: "label" %>
+          <%= f.text_area :message, class: "input", rows: 3, value: "Bonjour #{e.user.first_name},\n\nJe vois que vous n'avez pas avancé sur la formation ces derniers jours. Puis-je vous aider ?" %>
+          <%= f.submit "Envoyer la relance", class: "btn btn-secondary btn-sm mt-2" %>
+        <% end %>
+      <% end %>
+      <% if can_edit? && (e.active? || e.onboarding?) %>
+        <details class="mt-4 border-t border-line pt-4">
+          <summary class="cursor-pointer font-bold">Enregistrer un abandon</summary>
+          <%= form_with url: abandon_admin_enrollment_path(e), method: :patch, class: "mt-2" do %>
+            <%= text_area_tag :abandon_reason, nil, class: "input", rows: 2, placeholder: "Cause de l'abandon (analysée au titre de l'amélioration continue)", aria: { label: "Cause de l'abandon" } %>
+            <%= submit_tag "Enregistrer l'abandon", class: "btn btn-danger btn-sm mt-2", data: { turbo_confirm: "Confirmer l'abandon ?" } %>
+          <% end %>
+        </details>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="panel xl:col-span-2">
+    <h2 class="border-b border-line px-5 py-3 text-lg">Journal horodaté</h2>
+    <ol class="divide-y divide-line text-sm">
+      <% @events.each do |event| %>
+        <li class="flex flex-wrap justify-between gap-2 px-5 py-2">
+          <span><%= event.label %><%= " · #{event.subject.try(:title)}" if event.subject.respond_to?(:title) %><%= " · par #{event.user.full_name}" if event.user && event.user != e.user %></span>
+          <time class="text-ink-soft" datetime="<%= event.occurred_at.iso8601 %>"><%= l(event.occurred_at, format: :long) %></time>
+        </li>
+      <% end %>
+    </ol>
+  </section>
+</div>

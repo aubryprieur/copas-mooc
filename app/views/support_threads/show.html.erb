@@ -1,0 +1,20 @@
+<% page_title @thread.subject %>
+<section class="container-page py-10">
+  <nav class="mb-4 text-sm"><%= link_to "Assistance", support_threads_path %></nav>
+  <div class="measure">
+    <p class="mb-2"><%= status_badge @thread.category_label, :info %> <%= status_badge @thread.status_label, @thread.open? ? :warning : :neutral %></p>
+    <h1 class="text-3xl"><%= @thread.subject %></h1>
+    <% if @thread.enrollment %><p class="mt-1 text-ink-soft"><%= @thread.enrollment.course.title %><%= " · #{@thread.lesson.title}" if @thread.lesson %></p><% end %>
+    <div class="mt-8"><%= render "support_threads/messages", thread: @thread, viewer_is_staff: false %></div>
+    <% unless @thread.closed? %>
+      <%= form_with model: @message, url: support_thread_support_messages_path(@thread), class: "mt-8" do |f| %>
+        <%= f.label :body, "Votre message", class: "label" %>
+        <%= f.text_area :body, class: "input", required: true, rows: 5 %>
+        <div class="mt-3 flex flex-wrap gap-3">
+          <%= f.submit "Envoyer", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+      <%= button_to "Ma question est réglée, clore l'échange", close_support_thread_path(@thread), method: :patch, class: "btn btn-ghost btn-sm mt-4" %>
+    <% end %>
+  </div>
+</section>

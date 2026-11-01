@@ -1,0 +1,34 @@
+<% page_title "Inscriptions et suivi" %>
+<%= render "admin/page_header", title: "Inscriptions et suivi", subtitle: "Tableau de suivi de l'activité des apprenants : progression, dernière activité, résultats." %>
+
+<%= form_with url: admin_enrollments_path, method: :get, class: "mb-6 flex flex-wrap items-end gap-3" do %>
+  <div><%= label_tag :q, "Rechercher", class: "label" %><%= search_field_tag :q, params[:q], class: "input", placeholder: "Nom, courriel, employeur" %></div>
+  <div><%= label_tag :statut, "Statut", class: "label" %><%= select_tag :statut, options_for_select(Enrollment::STATUS_LABELS.invert, params[:statut]), include_blank: "Tous", class: "input" %></div>
+  <div><%= label_tag :formation, "Formation", class: "label" %><%= select_tag :formation, options_from_collection_for_select(@courses, :slug, :title, params[:formation]), include_blank: "Toutes", class: "input" %></div>
+  <%= submit_tag "Filtrer", class: "btn btn-secondary", name: nil %>
+<% end %>
+
+<div class="panel table-wrap">
+  <table class="table">
+    <thead><tr><th>Apprenant</th><th>Formation</th><th>Statut</th><th>Progression</th><th>Dernière activité</th><th>Éval. finale</th></tr></thead>
+    <tbody>
+      <% @enrollments.each do |e| %>
+        <% days = e.days_inactive %>
+        <tr>
+          <td><%= link_to e.user.full_name, admin_enrollment_path(e), class: "font-bold" %><p class="text-sm text-ink-soft"><%= e.employer_name || e.user.organization_name %></p></td>
+          <td class="text-sm"><%= e.course.title %></td>
+          <td><%= status_badge e.status_label, enrollment_tone(e) %></td>
+          <td class="min-w-32"><%= progress_bar e.progress_percent %><span class="text-sm text-ink-soft"><%= e.progress_percent %> %</span></td>
+          <td class="text-sm">
+            <% if e.last_activity_at %>
+              <%= l(e.last_activity_at.to_date, format: :long) %>
+              <% if e.active? && days && days >= e.course.inactivity_alert_days %><br><%= status_badge "#{days} j", :danger %><% elsif e.active? && days && days >= e.course.inactivity_reminder_days %><br><%= status_badge "#{days} j", :warning %><% end %>
+            <% else %>—<% end %>
+          </td>
+          <td class="text-sm"><% if (f = e.final_attempt) %><%= f.score %> %<% else %>—<% end %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+<%== pagy_nav(@pagy) if @pagy.pages > 1 %>

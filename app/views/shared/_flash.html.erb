@@ -1,0 +1,10 @@
+<% if notice.present? || alert.present? %>
+  <div class="container-page mt-4 space-y-2">
+    <% if notice.present? %>
+      <div class="flash flash-notice" role="status"><%= icon "check" %><span><%= notice %></span></div>
+    <% end %>
+    <% if alert.present? %>
+      <div class="flash flash-alert" role="alert"><%= icon "alert" %><span><%= alert %></span></div>
+    <% end %>
+  </div>
+<% end %>

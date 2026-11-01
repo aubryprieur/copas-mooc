@@ -1,0 +1,31 @@
+<%= form_with model: [:admin, @course, @lesson], class: "space-y-6" do |f| %>
+  <%= render "shared/form_errors", record: @lesson %>
+  <div class="panel panel-body">
+    <div class="grid gap-x-6 md:grid-cols-[1fr_12rem]">
+      <div class="field"><%= f.label :title, class: "label" %><%= f.text_field :title, class: "input", required: true %></div>
+      <div class="field"><%= f.label :estimated_minutes, "Durée moyenne (minutes)", class: "label" %><%= f.number_field :estimated_minutes, class: "input", min: 1 %></div>
+    </div>
+    <div class="field"><%= f.label :summary, "Résumé (affiché dans le programme public)", class: "label" %><%= f.text_area :summary, class: "input", rows: 2 %></div>
+    <% if @course.objectives.any? %>
+      <fieldset class="field">
+        <legend class="label">Objectifs travaillés dans ce module</legend>
+        <%= f.collection_check_boxes :objective_ids, @course.objectives, :id, :label do |b| %>
+          <label class="mb-1 flex items-start gap-2"><%= b.check_box(class: "checkbox mt-1") %><span><%= b.text %></span></label>
+        <% end %>
+      </fieldset>
+    <% end %>
+    <div class="field"><%= f.label :content, "Contenu", class: "label" %><%= f.rich_text_area :content, class: "input" %><p class="hint">Si le module contient une vidéo, mettez sa transcription ici (accessibilité).</p></div>
+  </div>
+  <div class="panel panel-body grid gap-x-6 md:grid-cols-3">
+    <div class="field"><%= f.label :video, "Vidéo (MP4)", class: "label" %><%= f.file_field :video, accept: "video/mp4,video/webm", class: "text-sm" %><% if @lesson.video.attached? %><p class="hint">Actuelle : <%= @lesson.video.filename %></p><% end %></div>
+    <div class="field"><%= f.label :captions, "Sous-titres (.vtt)", class: "label" %><%= f.file_field :captions, accept: ".vtt,text/vtt", class: "text-sm" %><% if @lesson.captions.attached? %><p class="hint">Actuels : <%= @lesson.captions.filename %></p><% end %></div>
+    <div class="field"><%= f.label :resources, "Ressources à télécharger", class: "label" %><%= f.file_field :resources, multiple: true, class: "text-sm" %><% if @lesson.resources.attached? %><p class="hint"><%= @lesson.resources.map(&:filename).join(", ") %></p><% end %></div>
+  </div>
+  <div class="flex flex-wrap gap-3">
+    <%= f.submit "Enregistrer le module", class: "btn btn-primary" %>
+    <%= link_to "Annuler", admin_course_path(@course, anchor: "modules"), class: "btn btn-ghost" %>
+  </div>
+<% end %>
+<% if @lesson.persisted? && policy(@lesson).destroy? %>
+  <%= button_to "Supprimer ce module", admin_course_lesson_path(@course, @lesson), method: :delete, class: "btn btn-danger mt-8", form: { data: { turbo_confirm: "Supprimer ce module et la progression associée ?" } } %>
+<% end %>

@@ -1,0 +1,87 @@
+<% page_title "Tableau de bord" %>
+<%= render "admin/page_header", title: "Tableau de bord", subtitle: "Ce qui demande une action aujourd'hui." %>
+
+<dl class="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  <div class="panel p-4"><dt class="text-sm text-ink-soft">Demandes à étudier</dt><dd class="m-0 font-display text-3xl font-bold"><%= @pending_requests.size %></dd></div>
+  <div class="panel p-4"><dt class="text-sm text-ink-soft">En accueil / en formation</dt><dd class="m-0 font-display text-3xl font-bold"><%= @onboarding %> / <%= @active %></dd></div>
+  <div class="panel p-4"><dt class="text-sm text-ink-soft">Alertes de décrochage</dt><dd class="m-0 font-display text-3xl font-bold <%= 'text-danger' if @dropouts.any? %>"><%= @dropouts.size %></dd></div>
+  <div class="panel p-4"><dt class="text-sm text-ink-soft">Satisfaction à chaud (12 mois)</dt><dd class="m-0 font-display text-3xl font-bold"><%= @satisfaction ? "#{@satisfaction}/5" : "—" %></dd></div>
+</dl>
+
+<div class="grid gap-6 xl:grid-cols-2">
+  <section class="panel">
+    <h2 class="border-b border-line px-5 py-3 text-lg">Demandes d'inscription à étudier</h2>
+    <% if @pending_requests.empty? %>
+      <p class="px-5 py-4 text-ink-soft">Aucune demande en attente.</p>
+    <% else %>
+      <ul class="divide-y divide-line">
+        <% @pending_requests.each do |e| %>
+          <li class="flex items-center justify-between gap-3 px-5 py-3">
+            <div><%= link_to e.user.full_name, admin_enrollment_path(e), class: "font-bold" %><p class="text-sm text-ink-soft"><%= e.course.title %> · <%= time_ago_in_words(e.requested_at) %></p></div>
+            <% if e.needs_assessment&.accommodation_contact_requested %><%= status_badge "Référent handicap", :warning %><% end %>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </section>
+
+  <section class="panel">
+    <h2 class="border-b border-line px-5 py-3 text-lg">Alertes de décrochage</h2>
+    <% if @dropouts.empty? %>
+      <p class="px-5 py-4 text-ink-soft">Aucun apprenant au-delà du seuil d'inactivité.</p>
+    <% else %>
+      <ul class="divide-y divide-line">
+        <% @dropouts.each do |e| %>
+          <li class="flex items-center justify-between gap-3 px-5 py-3">
+            <div><%= link_to e.user.full_name, admin_enrollment_path(e, anchor: "relances"), class: "font-bold" %><p class="text-sm text-ink-soft"><%= e.course.title %> · <%= e.progress_percent %> %</p></div>
+            <%= status_badge "#{e.days_inactive} j sans activité", :danger %>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </section>
+
+  <section class="panel">
+    <h2 class="border-b border-line px-5 py-3 text-lg">Questions en attente de réponse</h2>
+    <% if @open_threads.empty? %>
+      <p class="px-5 py-4 text-ink-soft">Toutes les questions ont reçu une réponse.</p>
+    <% else %>
+      <ul class="divide-y divide-line">
+        <% @open_threads.each do |t| %>
+          <li class="flex items-center justify-between gap-3 px-5 py-3">
+            <div><%= link_to t.subject, admin_support_thread_path(t), class: "font-bold" %><p class="text-sm text-ink-soft"><%= t.user.full_name %> · <%= t.category_label %></p></div>
+            <span class="text-sm text-ink-soft">depuis <%= time_ago_in_words(t.updated_at) %></span>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </section>
+
+  <section class="panel">
+    <h2 class="border-b border-line px-5 py-3 text-lg">Réclamations ouvertes</h2>
+    <% if @open_complaints.empty? %>
+      <p class="px-5 py-4 text-ink-soft">Aucune réclamation en cours.</p>
+    <% else %>
+      <ul class="divide-y divide-line">
+        <% @open_complaints.each do |c| %>
+          <li class="flex items-center justify-between gap-3 px-5 py-3">
+            <div><%= link_to c.reference, admin_complaint_path(c), class: "font-bold" %><p class="text-sm text-ink-soft"><%= c.category_label %></p></div>
+            <%= status_badge c.status_label, :warning %>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </section>
+</div>
+
+<section class="mt-8">
+  <h2 class="mb-3 text-lg">Activité récente</h2>
+  <ul class="divide-y divide-line border-y border-line text-sm">
+    <% @recent_events.each do |event| %>
+      <li class="flex flex-wrap justify-between gap-2 py-2">
+        <span><strong><%= event.user&.full_name %></strong> · <%= event.label %><%= " · #{event.enrollment.course.title}" if event.enrollment %></span>
+        <time class="text-ink-soft" datetime="<%= event.occurred_at.iso8601 %>"><%= l(event.occurred_at, format: :long) %></time>
+      </li>
+    <% end %>
+  </ul>
+</section>

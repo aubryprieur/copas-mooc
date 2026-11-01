@@ -1,67 +1,68 @@
-class Admin::QuestionsController < ApplicationController
- before_action :authenticate_admin!
+class Admin::QuestionsController < Admin::BaseController
+  before_action :set_assessment
+  before_action :set_question, only: %i[edit update destroy]
 
- layout "admin"
-
- def show
-  @question = Question.find(params[:id])
- end
-
- def index
-  @questions = Question.all
- end
-
- def new
-  @workshop = Workshop.find(params[:workshop_id])
-  @question = Question.new
- end
-
- def edit
-  @workshop = Workshop.find(params[:workshop_id])
-  @question = Question.find(params[:id])
- end
-
- def update
-  @question = Question.find(params[:id])
-  if @question.update_attributes(admin_question_params)
-   flash[:notice] = 'Changes updated successfully!'
-   redirect_back(fallback_location: root_path)
-  else
-   flash[:notice] = 'Could not update, Please try again'
-   render :edit, alert: "Could not update, Please try again"
+  def new
+    @question = @assessment.questions.new
+    4.times { |i| @question.choices.build(position: i + 1) }
+    authorize @question
   end
- end
 
- def create
-  @workshop = Workshop.find(params[:workshop_id])
-  @question = Question.new(admin_question_params)
-
-  respond_to do |format|
-   if @question.save
-    format.html { redirect_to edit_admin_workshop_url(@workshop), notice: 'Question was successfully created.' }
-    format.json { render json: @question, status: :created, location: [:admin,@question] }
-   else
-    format.html { render action: "new" }
-    format.json { render json: @question.errors, status: :unprocessable_entity }
-   end
+  def create
+    @question = @assessment.questions.new(question_params)
+    authorize @question
+    if @question.save
+      redirect_to admin_course_assessment_path(@course, @assessment), notice: "Question ajoutée."
+    else
+      fill_choices
+      render :new, status: :unprocessable_entity
+    end
   end
- end
 
- def destroy
-  @workshop = Workshop.find(params[:workshop_id])
-  @question = Question.find(params[:id])
-  @Question.destroy
-  redirect_to edit_admin_workshop_url(@workshop), notice: "Successfully deleted the question"
- end
+  def edit
+    authorize @question
+    fill_choices
+  end
 
- private
+  def update
+    authorize @question
+    if @question.update(question_params)
+      redirect_to admin_course_assessment_path(@course, @assessment), notice: "Question enregistrée."
+    else
+      fill_choices
+      render :edit, status: :unprocessable_entity
+    end
+  end
 
- def set_question
-  @question = current_question
- end
+  def destroy
+    authorize @question
+    if @question.attempt_answers.exists?
+      redirect_to admin_course_assessment_path(@course, @assessment), alert: "Des apprenants ont déjà répondu : la question est conservée comme preuve."
+    else
+      @question.destroy
+      redirect_to admin_course_assessment_path(@course, @assessment), notice: "Question supprimée."
+    end
+  end
 
- def admin_question_params
-  params.require(:question).permit(:question, :answer, :distractor_1, :distractor_2, :distractor_3, :workshop_id)
- end
+  private
 
+  def set_assessment
+    @course = Course.find_by!(slug: params[:course_id])
+    @assessment = @course.assessments.find(params[:assessment_id])
+  end
+
+  def set_question = @question = @assessment.questions.find(params[:id])
+
+  def fill_choices
+    (4 - @question.choices.size).times { |i| @question.choices.build(position: @question.choices.size + i + 1) }
+  end
+
+  # La bonne réponse est transmise par un bouton radio commun (index du choix) puis répercutée.
+  def question_params
+    permitted = params.require(:question).permit(:prompt, :explanation, :objective_id,
+                                                 choices_attributes: %i[id label position _destroy])
+    correct_index = params.dig(:question, :correct_index).to_s
+    permitted[:choices_attributes]&.each { |index, attrs| attrs[:correct] = (index.to_s == correct_index) }
+    permitted
+  end
 end

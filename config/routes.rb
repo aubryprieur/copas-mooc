@@ -1,79 +1,78 @@
 Rails.application.routes.draw do
-  devise_for :admins, :path => '', :path_names => {:sign_in => 'signin_as_admin', :sign_out => 'signout_as_admin'}, controllers: { sessions: 'admin/sessions' }
-  devise_for :users, controllers: { sessions: 'users/sessions' }
-  devise_scope :user do
-    get '/users/sign_out' => 'devise/sessions#destroy'
+  devise_for :users, path: "compte",
+             path_names: { sign_in: "connexion", sign_out: "deconnexion", sign_up: "inscription", edit: "parametres" },
+             controllers: { registrations: "users/registrations" }
+
+  root "courses#index"
+
+  # Catalogue public (indicateurs 1 et 2)
+  resources :courses, only: %i[index show], path: "formations" do
+    resource :enrollment_request, only: %i[new create], path: "demande-inscription"
   end
+  get "p/:slug", to: "pages#show", as: :page
 
-  devise_scope :admin do
-    get '/signout_as_admin' => 'devise/sessions#destroy'
-  end
+  # Réclamations, difficultés, aléas, signalements (ind. 31 et 12) : accessibles à tous
+  resources :complaints, only: %i[new create], path: "reclamations"
 
-  get "/edit_profile", to: "users#profile"
-  get "/edit_avatar", to: "users#avatar"
+  # Espace apprenant
+  get "mon-espace", to: "dashboard#show", as: :dashboard
+  resource :profile, only: %i[edit update], path: "mon-profil"
 
-  resources :complete_lessons, only: [:create, :destroy]
-
-  root "workshops#index"
-
-  get 'payment-complete', :to => 'purchases#payment_complete', as: 'payment_complete'
-
-  resource :purchase
-
-  resources :users
-  resources :workshops do
-    resources :lessons
-  end
-  resources :lessons do
-    collection do
-      patch :sort
+  resources :enrollments, only: :show, path: "parcours" do
+    member do
+      get :welcome, path: "accueil"
+      post :acknowledge_welcome
+      get :certificate, path: "attestation"
     end
-  end
-
-  resources :workshops do
-    resources :questions
-  end
-  resources :questions do
-    collection do
-      patch :sort
+    resources :lessons, only: :show, path: "modules" do
+      member do
+        post :complete
+        post :heartbeat
+      end
     end
-  end
-
-  resources :questions do
-    resources :answers
-  end
-
-  resources :lessons do
-    resources :comments
-  end
-
-  resources :users do
-    resources :comments
-  end
-
-  resources :workshops do
-    resources :enrollments
-  end
-
-  resources :workshops do
-    get '/results', to: 'results#results'
-  end
-
-  resources :enrollments, only: [:index]
-
-  namespace :admin do
-    root "static_pages#dashboard"
-    resources :static_pages
-    resources :users
-    resources :workshops
-    resources :lessons
-    resources :questions
-    resources :workshops do
-      resources :lessons
+    resources :assessments, only: :show, path: "evaluations" do
+      resources :attempts, only: %i[create show], path: "copies"
     end
-    resources :workshops do
-      resources :questions
-    end
+    resources :surveys, only: %i[new create], path: "questionnaires"
   end
 
+  resources :support_threads, only: %i[index show new create], path: "assistance" do
+    resources :support_messages, only: :create, path: "messages"
+    patch :close, on: :member
+  end
+
+  # Espace de gestion (formateurs, administrateurs ; auditeur en lecture seule)
+  namespace :admin, path: "gestion" do
+    root "dashboard#show"
+    resources :courses, path: "formations" do
+      resources :lessons, except: %i[index show], path: "modules" do
+        patch :move, on: :member
+      end
+      resources :assessments, except: :index, path: "evaluations" do
+        resources :questions, except: %i[index show]
+      end
+      get :indicators, on: :member, path: "indicateurs"
+    end
+    resources :enrollments, only: %i[index show], path: "inscriptions" do
+      member do
+        patch :approve
+        patch :decline
+        patch :review_needs
+        patch :positioning
+        patch :abandon
+        get :dossier
+      end
+      resources :reminders, only: :create
+    end
+    resources :support_threads, only: %i[index show], path: "assistance" do
+      resources :support_messages, only: :create, path: "messages"
+    end
+    resources :complaints, only: %i[index show update], path: "reclamations"
+    resources :surveys, only: :index, path: "satisfaction"
+    resources :pages, only: %i[index edit update], path: "pages"
+    resources :users, except: :show, path: "utilisateurs"
+  end
+
+  get "up" => "rails/health#show", as: :rails_health_check
+  mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
 end

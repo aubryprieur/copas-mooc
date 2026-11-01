@@ -1,20 +1,38 @@
 class EnrollmentsController < ApplicationController
-  before_action :authenticate_user!
+  include LearnerEnrollment
+  before_action :set_enrollment
 
-  def create
-    @workshop = Workshop.find(params[:workshop_id])
-    if current_user.already_enrolled?(@workshop)
-      redirect_to @workshop
-      flash[:alert] = "Vous êtes déjà inscrit à la formation."
+  # Vue « parcours » : étapes, modules, évaluations, attestation
+  def show
+    authorize @enrollment, :owner?
+    redirect_to welcome_enrollment_path(@enrollment) if @enrollment.onboarding? && !@enrollment.welcome_acknowledged_at
+  end
+
+  # Indicateur 9 : livret d'accueil, règlement intérieur, assistance, référents
+  def welcome
+    authorize @enrollment, :owner?
+    @welcome = Page.fetch("livret-accueil")
+  end
+
+  def acknowledge_welcome
+    authorize @enrollment, :onboard?
+    if params[:confirm] == "1"
+      @enrollment.acknowledge_welcome!
+      if @enrollment.reload.onboarding? && @course.positioning_assessment && !@enrollment.positioning_done?
+        redirect_to enrollment_assessment_path(@enrollment, @course.positioning_assessment),
+                    notice: "Merci. Étape suivante : le positionnement d'entrée."
+      else
+        redirect_to enrollment_path(@enrollment), notice: "Merci, votre lecture est enregistrée."
+      end
     else
-      @enrollment = current_user.enrollments.create(user_id: params[:enrollment][:user_id], workshop_id: params[:enrollment][:workshop_id])
-      redirect_to @workshop
-      flash[:success] = "Vous êtes maintenant inscrit à la formation."
+      redirect_to welcome_enrollment_path(@enrollment), alert: "Cochez la case pour confirmer votre lecture."
     end
   end
 
-  def index
-    @user_enrollments = current_user.enrolled_workshops
+  # Attestation de fin de formation (art. L6353-1)
+  def certificate
+    authorize @enrollment, :certificate?
+    pdf = CertificatePdf.new(@enrollment).render
+    send_data pdf, filename: "attestation-#{@enrollment.certificate_number}.pdf", type: "application/pdf", disposition: "inline"
   end
-
 end

@@ -1,44 +1,26 @@
-<div class="row">
-  <%= render partial: 'shared/admin_sidebar' %>
-  <div class="col-12 col-lg-10">
-    <div class="card">
-      <div class="card-header">Gérer les utilisateurs</div>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>User ID</th>
-            <th>Prénom</th>
-            <th>Nom</th>
-            <th>Email</th>
-            <th>Confirmé?</th>
-            <th><i class="fa fa-pencil" aria-hidden="true"></i></th>
-            <th><i class="fa fa-trash" aria-hidden="true"></i></th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @users.each_with_index do |user, i| %>
-            <tr>
-              <th scope="row"><%= i+1 %></th>
-              <td><%= user.id %></td>
-              <td><%= user.first_name %></td>
-              <td><%= user.last_name %></td>
-              <td><%= user.email %></td>
-              <td><% if user.confirmed_at.present? %><%= time_ago_in_words(user.confirmed_at.localtime) %> ago<% else %>Pas encore<% end %></td>
-              <td>
-                <%= link_to edit_admin_user_path(user) do %>
-                  <i class="fa fa-pencil" aria-hidden="true"></i>
-                <% end %>
-              </td>
-              <td>
-                <%= link_to admin_user_path(user), method: :delete, data: { confirm: "You sure?" } do %>
-                  <i class="fa fa-trash" aria-hidden="true"></i>
-                <% end %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-  </div>
+<% page_title "Comptes" %>
+<%= render "admin/page_header", title: "Comptes",
+      actions: (link_to(new_admin_user_path, class: "btn btn-primary") { icon("plus") + " Créer un compte" } if policy(User).create?) %>
+<%= form_with url: admin_users_path, method: :get, class: "mb-6 flex flex-wrap items-end gap-3" do %>
+  <div><%= label_tag :q, "Rechercher", class: "label" %><%= search_field_tag :q, params[:q], class: "input" %></div>
+  <div><%= label_tag :role, "Rôle", class: "label" %><%= select_tag :role, options_for_select({ "Apprenants" => "learner", "Formateurs" => "trainer", "Administrateurs" => "admin", "Auditeurs" => "auditor" }, params[:role]), include_blank: "Tous", class: "input" %></div>
+  <%= submit_tag "Filtrer", class: "btn btn-secondary", name: nil %>
+<% end %>
+<div class="panel table-wrap">
+  <table class="table">
+    <thead><tr><th>Nom</th><th>Courriel</th><th>Structure</th><th>Rôle</th><th>Dernière connexion</th><th></th></tr></thead>
+    <tbody>
+      <% @users.each do |u| %>
+        <tr>
+          <td class="font-bold"><%= u.full_name %><%= status_badge("Référent signalements", :info) if u.reports_referent? %></td>
+          <td class="text-sm"><%= u.email %></td>
+          <td class="text-sm"><%= u.organization_name %></td>
+          <td class="text-sm"><%= { "learner" => "Apprenant", "trainer" => "Formateur", "admin" => "Administrateur", "auditor" => "Auditeur" }[u.role] %></td>
+          <td class="text-sm"><%= u.last_sign_in_at ? l(u.last_sign_in_at.to_date, format: :long) : "—" %><%= status_badge("Bloqué", :danger) if u.access_locked? %></td>
+          <td class="text-right"><%= link_to "Modifier", edit_admin_user_path(u), class: "btn btn-ghost btn-sm" if policy(u).update? %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 </div>
+<%== pagy_nav(@pagy) if @pagy.pages > 1 %>

@@ -1,36 +1,29 @@
-<footer class="pt-4 my-md-5 pt-md-5 border-top text-center">
- <div class="row">
-  <div class="col-6 col-md">
-   <h5>Notre société</h5>
-   <ul class="list-unstyled text-small">
-    <li><a class="text-muted" href="#">A propos</a></li>
-    <li><a class="text-muted" href="#">Salle de presse</a></li>
-    <li><a class="text-muted" href="#">Carrière</a></li>
-   </ul>
+<footer class="mt-16 border-t border-line bg-white">
+  <div class="container-page grid gap-8 py-10 text-sm sm:grid-cols-3">
+    <div>
+      <%= render "shared/brand" %>
+      <p class="mt-3 text-ink-soft measure">Formations à distance pour les professionnels des collectivités et des associations, conçues par <%= link_to "COPAS", org[:website] %>.</p>
+    </div>
+    <nav aria-label="Informations">
+      <h2 class="mb-2 text-base">Se former avec nous</h2>
+      <ul class="space-y-1">
+        <li><%= link_to "Équipe et référents", page_path("referents") %></li>
+        <li><%= link_to "Assistance technique et pédagogique", page_path("assistance") %></li>
+        <li><%= link_to "Accessibilité et handicap", page_path("accessibilite") %></li>
+        <li><%= link_to "Nos indicateurs de résultats", page_path("indicateurs") %></li>
+      </ul>
+    </nav>
+    <nav aria-label="Engagements">
+      <h2 class="mb-2 text-base">Nos engagements</h2>
+      <ul class="space-y-1">
+        <li><%= link_to "Faire une réclamation", new_complaint_path %></li>
+        <li><%= link_to "Signaler une situation de violence ou de harcèlement", new_complaint_path(categorie: "report") %></li>
+        <li><%= link_to "Règlement intérieur", page_path("reglement-interieur") %></li>
+        <li><%= link_to "Conditions générales", page_path("cgu") %></li>
+        <li><%= link_to "Données personnelles", page_path("confidentialite") %></li>
+        <li><%= link_to "Mentions légales", page_path("mentions-legales") %></li>
+      </ul>
+    </nav>
   </div>
-  <div class="col-6 col-md">
-   <h5>Apprendre</h5>
-   <ul class="list-unstyled text-small">
-    <li><a class="text-muted" href="#">Ateliers</a></li>
-    <li><a class="text-muted" href="#">Tarifs</a></li>
-   </ul>
-  </div>
-  <div class="col-6 col-md">
-   <h5>Enseigner</h5>
-   <ul class="list-unstyled text-small">
-    <li><a class="text-muted" href="#">Comment faire</a></li>
-    <li><a class="text-muted" href="#">Exemples</a></li>
-   </ul>
-  </div>
-  <div class="col-6 col-md">
-   <h5>Communauté</h5>
-   <ul class="list-unstyled text-small">
-    <li><a class="text-muted" href="#">Blog</a></li>
-    <li><a class="text-muted" href="#">Aide</a></li>
-   </ul>
-  </div>
- </div>
- <div class="container">
-  <span class="text-muted">Copas 2020</span>
- </div>
+  <p class="container-page pb-8 text-sm text-ink-soft"><%= org[:name] %> – organisme de formation, déclaration d'activité n° <%= org[:nda] %>.</p>
 </footer>

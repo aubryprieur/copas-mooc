@@ -1,0 +1,10 @@
+<%= form_with model: [:admin, @course, @assessment], class: "panel panel-body measure" do |f| %>
+  <%= render "shared/form_errors", record: @assessment %>
+  <div class="field"><%= f.label :title, "Titre", class: "label" %><%= f.text_field :title, class: "input", required: true %></div>
+  <% if @assessment.new_record? || @assessment.checkpoint? %>
+    <%= f.hidden_field :kind, value: "checkpoint" %>
+    <div class="field"><%= f.label :lesson_id, "Module", class: "label" %><%= f.collection_select :lesson_id, @course.lessons, :id, :title, {}, class: "input" %></div>
+  <% end %>
+  <div class="field"><%= f.label :instructions, "Consignes", class: "label" %><%= f.text_area :instructions, class: "input", rows: 3 %></div>
+  <%= f.submit "Enregistrer", class: "btn btn-primary" %>
+<% end %>

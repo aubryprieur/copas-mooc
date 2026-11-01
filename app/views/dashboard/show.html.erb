@@ -1,0 +1,75 @@
+<% page_title "Mon espace" %>
+<section class="container-page py-10">
+  <h1>Bonjour <%= current_user.first_name %></h1>
+
+  <% if @enrollments.empty? %>
+    <div class="panel panel-body mt-8 measure">
+      <h2 class="mb-2">Vous n'êtes inscrit à aucune formation</h2>
+      <p class="text-ink-soft">Choisissez une formation dans le catalogue et décrivez vos besoins : nous revenons vers vous avec une proposition.</p>
+      <%= link_to "Parcourir le catalogue", courses_path, class: "btn btn-primary mt-5" %>
+    </div>
+  <% else %>
+    <h2 class="mt-8 mb-4">Mes formations</h2>
+    <ul class="space-y-4">
+      <% @enrollments.each do |enrollment| %>
+        <% course = enrollment.course %>
+        <li class="panel panel-body grid gap-4 md:grid-cols-[1fr_16rem] md:items-center">
+          <div>
+            <p class="mb-2"><%= status_badge enrollment.status_label, enrollment_tone(enrollment) %></p>
+            <h3 class="text-xl"><%= course.title %></h3>
+            <% case enrollment.status %>
+            <% when "requested" %>
+              <p class="mt-2 text-ink-soft">Demande envoyée le <%= l(enrollment.requested_at.to_date, format: :long) %>. Nous l'étudions et revenons vers vous rapidement.</p>
+            <% when "onboarding" %>
+              <p class="mt-2 text-ink-soft">Votre inscription est validée. Lisez le livret d'accueil et faites le test de positionnement pour ouvrir le parcours.</p>
+            <% when "active" %>
+              <div class="mt-3 max-w-md"><%= progress_bar enrollment.progress_percent %><p class="mt-1 text-sm text-ink-soft"><%= enrollment.progress_percent %> % du parcours réalisé</p></div>
+            <% when "completed" %>
+              <p class="mt-2 text-ink-soft">Terminée le <%= l(enrollment.completed_at.to_date, format: :long) %>.</p>
+            <% when "declined" %>
+              <p class="mt-2 text-ink-soft"><%= enrollment.admin_note %></p>
+            <% end %>
+          </div>
+          <div class="flex flex-col gap-2">
+            <% case enrollment.status %>
+            <% when "onboarding" %>
+              <%= link_to "Commencer l'accueil", welcome_enrollment_path(enrollment), class: "btn btn-primary" %>
+            <% when "active" %>
+              <%= link_to "Reprendre", enrollment_path(enrollment), class: "btn btn-primary" %>
+            <% when "completed" %>
+              <%= link_to certificate_enrollment_path(enrollment), class: "btn btn-secondary", target: "_blank" do %><%= icon "download" %> Mon attestation<% end %>
+              <%= link_to "Revoir le parcours", enrollment_path(enrollment), class: "btn btn-ghost" %>
+            <% end %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <section class="mt-12 grid gap-6 md:grid-cols-2">
+    <div>
+      <h2 class="mb-3">Mes échanges avec l'équipe</h2>
+      <% if @threads.any? %>
+        <ul class="divide-y divide-line border-y border-line">
+          <% @threads.each do |t| %>
+            <li class="flex items-center justify-between gap-3 py-3">
+              <%= link_to t.subject, support_thread_path(t) %>
+              <%= status_badge t.status_label, t.open? ? :warning : :neutral %>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="text-ink-soft">Une question sur un contenu ou un souci technique ? Écrivez-nous.</p>
+      <% end %>
+      <%= link_to "Poser une question", new_support_thread_path, class: "btn btn-secondary mt-4" %>
+    </div>
+    <div class="panel-tint p-6">
+      <h2 class="mb-2 text-lg">Besoin d'aide autrement ?</h2>
+      <ul class="space-y-1">
+        <li><%= link_to "Horaires et délais de l'assistance", page_path("assistance") %></li>
+        <li><%= link_to "Vos référents", page_path("referents") %></li>
+        <li><%= link_to "Faire une réclamation", new_complaint_path %></li>
+      </ul>
+    </div>
+  </section>
+</section>

@@ -1,0 +1,38 @@
+<% page_title @assessment.title %>
+<%= render "admin/page_header", title: @assessment.title, back: [@course.title, admin_course_path(@course, anchor: "evaluations")],
+      subtitle: "#{@assessment.kind_label} · seuil #{@assessment.threshold} %#{" · #{@assessment.lesson.title}" if @assessment.lesson}",
+      actions: (safe_join([link_to("Modifier", edit_admin_course_assessment_path(@course, @assessment), class: "btn btn-secondary"),
+                           link_to(new_admin_course_assessment_question_path(@course, @assessment), class: "btn btn-primary") { icon("plus") + " Ajouter une question" }]) if can_edit?) %>
+<% if @assessment.positioning? %>
+  <p class="mb-6 panel-tint p-4 text-sm measure">Le positionnement doit porter sur les objectifs de la formation <strong>et</strong> sur les compétences numériques nécessaires (ind. 8, guide V10). Ajoutez au moins une question sur l'usage des outils numériques.</p>
+<% end %>
+<% uncovered = @course.objectives.reject { |o| @questions.any? { |q| q.objective_id == o.id } } %>
+<% if @assessment.final? && uncovered.any? %>
+  <p class="mb-6 rounded-lg border-l-4 border-signal bg-signal-soft p-4 text-sm">Objectifs sans question dans l'évaluation finale : <%= uncovered.map(&:position).join(", ") %>. L'attestation les indiquera comme « évalués globalement ».</p>
+<% end %>
+<% if @questions.empty? %>
+  <p class="panel panel-body text-ink-soft">Aucune question pour l'instant.</p>
+<% else %>
+  <ol class="space-y-4">
+    <% @questions.each_with_index do |q, i| %>
+      <li class="panel panel-body">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <p class="font-bold"><%= i + 1 %>. <%= q.prompt %></p>
+          <% if can_edit? %>
+            <div class="flex gap-1">
+              <%= link_to "Modifier", edit_admin_course_assessment_question_path(@course, @assessment, q), class: "btn btn-ghost btn-sm" %>
+              <%= button_to "Supprimer", admin_course_assessment_question_path(@course, @assessment, q), method: :delete, class: "btn btn-ghost btn-sm", form: { data: { turbo_confirm: "Supprimer cette question ?" } } %>
+            </div>
+          <% end %>
+        </div>
+        <ul class="mt-2 space-y-1 text-sm">
+          <% q.choices.each do |c| %><li class="<%= c.correct? ? 'font-bold text-ok' : 'text-ink-soft' %>"><%= c.correct? ? "✓" : "–" %> <%= c.label %></li><% end %>
+        </ul>
+        <p class="mt-2 text-sm text-ink-soft">Objectif : <%= q.objective&.label || "aucun" %></p>
+      </li>
+    <% end %>
+  </ol>
+<% end %>
+<% if can_edit? && @assessment.checkpoint? %>
+  <%= button_to "Supprimer ce quiz", admin_course_assessment_path(@course, @assessment), method: :delete, class: "btn btn-danger mt-8", form: { data: { turbo_confirm: "Supprimer ce quiz ?" } } %>
+<% end %>

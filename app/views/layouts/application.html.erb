@@ -1,19 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
   <head>
-    <title>CopasMooc</title>
+    <title><%= page_title %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="<%= content_for?(:description) ? yield(:description) : "Formations à distance pour les professionnels des collectivités et des associations, par COPAS." %>">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
-    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
-    <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <%= yield :head %>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
   </head>
-
-  <body>
-    <%= render 'shared/header' %>
-    <%= render 'shared/alert_messages' %>
-    <%= yield %>
-    <%= render 'shared/footer' %>
+  <body class="flex min-h-screen flex-col">
+    <a href="#contenu" class="skip-link">Aller au contenu</a>
+    <%= render "shared/header" %>
+    <main id="contenu" class="flex-1" tabindex="-1">
+      <%= render "shared/flash" %>
+      <%= yield %>
+    </main>
+    <%= render "shared/footer" %>
   </body>
 </html>

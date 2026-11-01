@@ -1,0 +1,25 @@
+<% page_title "Assistance" %>
+<section class="container-page py-10">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h1>Assistance</h1>
+      <p class="mt-2 text-ink-soft measure">Vos questions à l'équipe pédagogique et vos demandes d'aide technique. Nous répondons sous 2 jours ouvrés. <%= link_to "Horaires et canaux", page_path("assistance") %></p>
+    </div>
+    <%= link_to new_support_thread_path, class: "btn btn-primary" do %><%= icon "plus" %> Nouvelle demande<% end %>
+  </div>
+  <% if @threads.empty? %>
+    <p class="panel panel-body mt-8 text-ink-soft">Aucune demande pour l'instant.</p>
+  <% else %>
+    <ul class="mt-8 divide-y divide-line border-y border-line">
+      <% @threads.each do |t| %>
+        <li class="flex flex-wrap items-center justify-between gap-3 py-4">
+          <div>
+            <%= link_to t.subject, support_thread_path(t), class: "font-bold" %>
+            <p class="text-sm text-ink-soft"><%= t.category_label %><%= " · #{t.enrollment.course.title}" if t.enrollment %> · mis à jour le <%= l(t.updated_at.to_date, format: :long) %></p>
+          </div>
+          <%= status_badge t.status_label, t.open? ? :warning : (t.answered? ? :success : :neutral) %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</section>

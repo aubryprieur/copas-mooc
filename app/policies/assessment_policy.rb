@@ -1,0 +1,1 @@
+class AssessmentPolicy < BackofficePolicy; end

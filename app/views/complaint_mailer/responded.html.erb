@@ -1,0 +1,4 @@
+<p>Bonjour <%= @complaint.name %>,</p>
+<p>Voici notre réponse à votre demande n° <strong><%= @complaint.reference %></strong> :</p>
+<blockquote style="border-left:3px solid #F6B92B;margin:0;padding-left:12px"><%= simple_format h(@complaint.response) %></blockquote>
+<p>Si cette réponse ne vous satisfait pas, répondez à ce courriel : votre demande sera réexaminée par la direction de COPAS.</p>

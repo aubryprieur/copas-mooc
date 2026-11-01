@@ -1,44 +1,30 @@
-<div class="container my-2">
-  <div class="col-12 col-lg-6 mx-auto">
-    <div class="card">
-      <div class="card-block" style="padding: 2rem;">
-        <h2>S'inscrire</h2>
-        <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
-          <%= devise_error_messages! %>
-          <div class="field">
-            <%= f.label :"Prénom" %><br />
-            <%= f.text_field :first_name, class: 'form-control', autofocus: true, autocomplete: "first_name" %>
-          </div>
-          <div class="field">
-            <%= f.label :"Nom" %><br />
-            <%= f.text_field :last_name, class: 'form-control', autofocus: true, autocomplete: "last_name" %>
-          </div>
-          <div class="field">
-            <%= f.label :email %><br />
-            <%= f.email_field :email, class: 'form-control', autofocus: true, autocomplete: "email" %>
-          </div>
-          <div class="field">
-            <%= f.label :"Mot de passe" %>
-            <% if @minimum_password_length %>
-            <em>(<%= @minimum_password_length %> caractères minimum)</em>
-            <% end %><br />
-            <%= f.password_field :password, class: 'form-control', autocomplete: "off" %>
-          </div>
-          <div class="field">
-            <%= f.label :"Confirmation du mot de passe" %><br />
-            <%= f.password_field :password_confirmation, class: 'form-control', autocomplete: "off" %>
-          </div>
-          <br>
-          <div class="actions">
-            <%= f.submit "S'inscrire", class: 'btn btn-primary btn-block' %>
-          </div>
-        <% end %>
-        <div class="text-center mx-auto">
-          <small>
-            <%= render "devise/shared/links" %>
-          </small>
-        </div>
-      </div>
+<% page_title "Créer un compte" %>
+<%= render layout: "devise/shared/auth" do %>
+  <h1 class="text-3xl">Créer un compte</h1>
+  <p class="mt-2 text-ink-soft">Votre nom figurera sur vos attestations de formation.</p>
+  <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "mt-8 max-w-lg" }) do |f| %>
+    <%= render "devise/shared/error_messages", resource: resource %>
+    <div class="grid gap-x-4 sm:grid-cols-2">
+      <div class="field"><%= f.label :first_name, "Prénom", class: "label" %><%= f.text_field :first_name, class: "input", required: true, autocomplete: "given-name" %></div>
+      <div class="field"><%= f.label :last_name, "Nom", class: "label" %><%= f.text_field :last_name, class: "input", required: true, autocomplete: "family-name" %></div>
     </div>
-  </div>
-</div>
+    <div class="field"><%= f.label :email, "Courriel professionnel", class: "label" %><%= f.email_field :email, autocomplete: "email", class: "input", required: true %></div>
+    <div class="grid gap-x-4 sm:grid-cols-2">
+      <div class="field"><%= f.label :organization_name, "Structure", class: "label" %><%= f.text_field :organization_name, class: "input", autocomplete: "organization" %></div>
+      <div class="field"><%= f.label :organization_type, "Type de structure", class: "label" %><%= f.select :organization_type, User::ORGANIZATION_TYPE_LABELS.invert, { include_blank: true }, class: "input" %></div>
+    </div>
+    <div class="field"><%= f.label :job_title, "Fonction", class: "label" %><%= f.text_field :job_title, class: "input", autocomplete: "organization-title" %></div>
+    <div class="field">
+      <%= f.label :password, "Mot de passe", class: "label" %>
+      <%= f.password_field :password, autocomplete: "new-password", class: "input", required: true, aria: { describedby: "password-hint" } %>
+      <p id="password-hint" class="hint">12 caractères minimum, avec une majuscule, une minuscule et un chiffre.</p>
+    </div>
+    <div class="field"><%= f.label :password_confirmation, "Confirmer le mot de passe", class: "label" %><%= f.password_field :password_confirmation, autocomplete: "new-password", class: "input", required: true %></div>
+    <label class="field flex items-start gap-3">
+      <%= f.check_box :accept_terms, class: "checkbox mt-1", required: true %>
+      <span>J'accepte les <%= link_to "conditions générales", page_path("cgu"), target: "_blank" %> et j'ai lu la <%= link_to "politique de données personnelles", page_path("confidentialite"), target: "_blank" %>.</span>
+    </label>
+    <%= f.submit "Créer mon compte", class: "btn btn-primary" %>
+  <% end %>
+  <%= render "devise/shared/links" %>
+<% end %>

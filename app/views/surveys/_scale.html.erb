@@ -1,0 +1,9 @@
+<fieldset class="field">
+  <legend class="label"><%= legend %></legend>
+  <div class="scale">
+    <% range.each do |value| %>
+      <label><%= f.radio_button field, value, required: required %><span><%= value %></span></label>
+    <% end %>
+  </div>
+  <% if hint %><p class="hint"><%= hint %></p><% end %>
+</fieldset>

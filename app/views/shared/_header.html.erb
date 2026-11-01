@@ -1,32 +1,28 @@
-<!-- Fixed navbar (Start) -->
-<div class="d-flex sticky-top flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
-  <%= link_to root_path, class: 'my-0 mr-md-auto' do %>
-    <%= image_tag('mooc.png', height: 35, alt: "COPAS Formation") %>
-  <% end %>
-  <nav class="my-2 my-md-0 mr-md-3">
-    <a class="p-2 text-dark" href="#">Pour les entreprises</a>
-    <a class="p-2 text-dark" href="#">Devenir formateur</a>
-  </nav>
-  <nav class="my-2 my-md-0 mr-md-3">
-  <% if user_signed_in? %>
-   <div class="dropdown">
-    <a class="btn btn-white dropdown-toggle" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-     <%= current_user.first_name %>
-    </a>
-    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-     <%= link_to "Mes formations", enrollments_path, class: 'dropdown-item' %>
-      <div class="dropdown-divider"></div>
-     <%= link_to "Paramètres", edit_user_registration_path, class: 'dropdown-item' %>
-     <%= link_to "Editer mon profil", edit_profile_path, class: 'dropdown-item' %>
-      <%= link_to "Editer mon avatar", edit_avatar_path, class: 'dropdown-item' %>
-     <div class="dropdown-divider"></div>
-     <%= link_to destroy_user_session_url, :method => :delete, class: "dropdown-item" do %>Se déconnecter<% end %>
-    </div>
-   </div>
-  <% else %>
-   <%= link_to 'Se connecter', new_user_session_path, class: 'btn btn-outline-primary' %>
-   <%= link_to "S'inscrire", new_user_registration_path, class: 'btn btn-primary' %>
-  <% end %>
-  </nav>
-</div>
-<!-- Fixed navbar (End) -->
+<header class="border-b border-line bg-white" data-controller="menu">
+  <div class="container-page flex h-16 items-center justify-between gap-4">
+    <%= render "shared/brand" %>
+    <button type="button" class="btn btn-ghost md:hidden" data-action="menu#toggle" aria-controls="menu-principal" aria-expanded="false" data-menu-target="button">
+      <%= icon "menu", label: "Ouvrir le menu" %>
+    </button>
+    <nav id="menu-principal" aria-label="Menu principal" data-menu-target="panel"
+         class="absolute inset-x-0 top-16 z-40 hidden flex-col gap-1 border-b border-line bg-white p-4 md:static md:flex md:flex-row md:items-center md:border-0 md:p-0">
+      <%= nav_link "Formations", courses_path %>
+      <% if user_signed_in? %>
+        <%= nav_link "Mon espace", dashboard_path %>
+        <%= nav_link "Assistance", support_threads_path %>
+        <% if current_user.backoffice? %>
+          <%= nav_link "Gestion", admin_root_path %>
+        <% end %>
+        <div class="md:ml-3 flex items-center gap-2 border-t border-line pt-3 md:border-0 md:pt-0">
+          <%= link_to edit_profile_path, class: "inline-flex items-center gap-2 no-underline text-ink", title: "Mon profil" do %>
+            <%= avatar_for current_user, size: 32 %><span class="md:sr-only"><%= current_user.full_name %></span>
+          <% end %>
+          <%= button_to "Se déconnecter", destroy_user_session_path, method: :delete, class: "btn btn-ghost btn-sm" %>
+        </div>
+      <% else %>
+        <%= link_to "Se connecter", new_user_session_path, class: "btn btn-ghost" %>
+        <%= link_to "Créer un compte", new_user_registration_path, class: "btn btn-primary" %>
+      <% end %>
+    </nav>
+  </div>
+</header>

@@ -1,132 +1,69 @@
-<div class="container">
-  <div class="row">
-   <div class="col-md-8">
-    <div class="card mb-2">
-        <% if @lesson.video.attached? %>
-          <div class="embed-responsive embed-responsive-16by9">
-            <video controls>
-              <source src=<%= rails_blob_path(@lesson.video) %> type="video/mp4" />
-              <noscript>
-                <p class="vjs-no-js">
-                  Pour visionner cette vidéo, veuillez activer JavaScript et envisager de passer à un navigateur web qui
-                  <a href="http://videojs.com/html5-video-support/" target="_blank">supporte la vidéo HTML5</a>
-                </p>
-              </noscript>
-            </video>
-          </div>
-        <% else %>
-          <div class="container-no-video">
-            <p class="d-flex justify-content-center no-video">Ce chapitre ne contient pas de support vidéo.</p>
-          </div>
-        <% end %>
-    </div>
-    <div class="card mb-2">
-    <ul class="nav nav-tabs">
-     <li class="nav-item">
-      <a class="nav-link active">Transcription</a>
-     </li>
-    </ul>
-    <div class="tab-pane fade show active">
-     <div class=container style="padding-top: 10px; padding-bottom: 10px;">
-      <div clas="my-10"><%= @lesson.rich_body %></div>
-     </div>
-    </div>
-    </div>
-    <div id="completed-card">
-      <div id="completed-lesson-link">
-        <% unless current_user.complete_lessons.exists?(id: @lesson.id) %>
-          <%= link_to complete_lessons_path(lesson_id: @lesson), method: :post do %>
-            <span>Je certifie avoir suivi ce chapitre. </span><i class="fa fa-play-circle" style= "color: #6C757D"></i>
-          <% end %>
-        <% else %>
-          <%= link_to complete_lesson_path(@lesson), method: :delete do %>
-            <span id="lesson-completed">Chapitre terminé </span><i class="fa fa-check-circle" style= "color: #3ccdae" ></i>
-          <% end %>
-        <% end %>
-      </div>
-    </div>
-    <div class="mb-2 text-center lessons-navigation">
-      <% if @workshop.lessons.where(id: @lesson.id-1).present? %>
-        <%= link_to "<<< Précédent", workshop_lesson_path(@workshop, @lesson.id - 1), class:"btn btn-outline-secondary btn-lessons-navigation" %>
-      <% end %>
-      <% if @workshop.lessons.where(id: @lesson.id+1).present? %>
-        <%= link_to "Suivant >>>", workshop_lesson_path(@workshop, @lesson.id + 1), class:"btn btn-outline-secondary btn-lessons-navigation" %>
-      <% end %>
-    </div>
-    <div class="card">
-      <div class="card-body">
-         <p>
-           <% if @lesson.comments.present? %>
-             <% @lesson.comments.each do |c| %>
-               <div>
-                 <% if c.user.photo.attached? %>
-                   <%= image_tag c.user.photo, alt: "User Profile", height: 30, width: 30, class: 'img-thumbnail', style: "margin-right: 20px;" %>
-                 <% else %>
-                   <%= image_tag 'no_avatar.png', alt: "User Profile", height: 30, width: 30, class: 'img-thumbnail' %>
-                 <% end %>
-                  <small>
-                    ﻿<%= link_to c.user.full_name, c.user %>  (il y a <%= time_ago_in_words(c.created_at) %>)
-                  </small>
-                  <p class="mt-1 ml-4">
-                    <%= c.body %>
-                  </p>
-                </div>
-              <% end %>
-            <% else %>
-              Il n'y a pas encore de commentaires pour ce chapitre.
-            <% end %>
-          </p>
-          <%= form_for [@lesson, @comment] do |f| %>
-            <div class="form-group">
-              Vous souhaitez laisser un commentaire ?
-              <%= f.text_area :body, class: "form-control", placeholder: "Entrez votre commentaire ici.", rows: 3 %>
-            <%= f.hidden_field :user_id, :value => current_user.id %>
-          </div>
-          <%= f.submit "Créer le commentaire", class: "btn btn-primary" %>
-         <% end %>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-4 center" id="sticky">
-   <div class="workshop-title">
-    <div class="workshop-title-header text-center">
-     <h5><%= @workshop.title %></h5>
-    </div>
-    <div class="list-lessons">
-    <ul class="card list-group list-group-fit text-center">
-      <% @workshop.lessons.each_with_index do |lesson, i| %>
-        <li class="list-group-item <%= active_lesson(workshop_lesson_path(@workshop, lesson)) %>">
-          <%= (i+1) %>. <%= link_to lesson.title, workshop_lesson_path(@workshop, lesson) %>
-          <% if current_user.complete_lessons.exists?(id: lesson.id) %>
-            <i class="fa fa-check-circle" style= "color: #3ccdae" ></i>
-          <% end %>
-        </li>
-      <% end %>
-      <li class="list-group-item">
-        <% if @answers.count == @questions.count %>
-          <%= link_to "Résultat du QCM", workshop_results_path(@workshop) %>
-        <% else %>
-          <%= link_to "#{ @lessons.count + 1}. QCM", new_question_answer_path(@question) %>
-        <% end %>
-      </li>
-    </ul>
-    </div>
-   </div>
-   <div class="card">
-    <ul class="list-group list-group-fit text-center">
-     <li class="list-group-item">
-      <span>
-       <small><i class="fa fa-chevron-circle-up" aria-hidden="true"></i></small> <%= @workshop.difficulty %>
-      </span>
-     </li>
-     <li class="list-group-item">
-      <span>
-       <small><i class="fa fa-list-ul" aria-hidden="true"></i></small> <%= @workshop.category %>
-      </span>
-     </li>
-    </ul>
-  </div>
-  </div>
- </div>
-</div>
+<% page_title @lesson.title %>
+<div class="container-page py-8" data-controller="heartbeat" data-heartbeat-url-value="<%= heartbeat_enrollment_lesson_path(@enrollment, @lesson) %>">
+  <div class="grid gap-8 lg:grid-cols-[1fr_18rem]">
+    <article class="min-w-0">
+      <nav class="mb-3 text-sm"><%= link_to @course.title, enrollment_path(@enrollment) %> <span aria-hidden="true">/</span> Module <%= @lesson.number %> sur <%= @course.lessons.size %></nav>
+      <h1 class="text-3xl"><%= @lesson.title %></h1>
+      <p class="mt-2 inline-flex items-center gap-1.5 text-sm text-ink-soft"><%= icon "clock", size: 16 %>Durée moyenne : <%= minutes_label @lesson.estimated_minutes %>
+        <% if @lesson.objectives.any? %> · Objectif<%= "s" if @lesson.objectives.size > 1 %> : <%= @lesson.objectives.map(&:position).join(", ") %><% end %></p>
 
+      <% if @lesson.video.attached? %>
+        <div class="mt-6 overflow-hidden rounded-lg bg-ink">
+          <video controls preload="metadata" class="aspect-video w-full" crossorigin="anonymous">
+            <source src="<%= rails_blob_path(@lesson.video) %>" type="<%= @lesson.video.content_type %>">
+            <% if @lesson.captions.attached? %>
+              <track kind="captions" src="<%= rails_blob_path(@lesson.captions) %>" srclang="fr" label="Français" default>
+            <% end %>
+            Votre navigateur ne lit pas cette vidéo : <%= link_to "téléchargez-la", rails_blob_path(@lesson.video, disposition: "attachment") %>.
+          </video>
+        </div>
+      <% end %>
+
+      <div class="prose-copas mt-8"><%= @lesson.content %></div>
+
+      <% if @lesson.resources.attached? %>
+        <section class="mt-8">
+          <h2 class="mb-3 text-lg">Ressources à télécharger</h2>
+          <ul class="space-y-2">
+            <% @lesson.resources.each do |file| %>
+              <li><%= link_to rails_blob_path(file, disposition: "attachment"), class: "inline-flex items-center gap-2" do %><%= icon "file" %><%= file.filename %> <span class="text-sm text-ink-soft">(<%= number_to_human_size file.byte_size %>)</span><% end %></li>
+            <% end %>
+          </ul>
+        </section>
+      <% end %>
+
+      <div class="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
+        <%= link_to(enrollment_lesson_path(@enrollment, @lesson.previous_lesson), class: "btn btn-ghost") { icon("arrow-left") + " Module précédent" } if @lesson.previous_lesson %>
+        <% if @progress.completed? %>
+          <span class="inline-flex items-center gap-2 font-bold text-ok"><%= icon "check" %> Terminé</span>
+          <%= link_to(enrollment_lesson_path(@enrollment, @lesson.next_lesson), class: "btn btn-primary") { "Module suivant ".html_safe + icon("arrow-right") } if @lesson.next_lesson %>
+        <% else %>
+          <%= button_to complete_enrollment_lesson_path(@enrollment, @lesson), class: "btn btn-primary" do %><%= icon "check" %> J'ai terminé ce module<% end %>
+        <% end %>
+      </div>
+    </article>
+
+    <aside class="space-y-6 lg:sticky lg:top-6 lg:self-start">
+      <nav aria-label="Modules" class="panel p-2">
+        <ol>
+          <% @course.lessons.each_with_index do |lesson, i| %>
+            <% done = @enrollment.lesson_completed?(lesson) %>
+            <li>
+              <%= link_to enrollment_lesson_path(@enrollment, lesson),
+                    class: "flex items-start gap-2 rounded-md px-3 py-2 text-sm no-underline #{lesson == @lesson ? 'bg-mist font-bold text-ink' : 'text-ink-soft hover:bg-paper'}",
+                    aria: { current: (lesson == @lesson ? "page" : nil) } do %>
+                <span class="mt-0.5 <%= done ? 'text-ok' : '' %>"><%= icon(done ? "check" : "play", size: 16) %></span>
+                <span><%= i + 1 %>. <%= lesson.title %></span>
+              <% end %>
+            </li>
+          <% end %>
+        </ol>
+      </nav>
+      <div class="panel-tint p-4 text-sm">
+        <p class="font-bold">Bloqué sur ce module ?</p>
+        <p class="mt-1 text-ink-soft">L'équipe pédagogique répond sous 2 jours ouvrés.</p>
+        <%= link_to "Poser une question", new_support_thread_path(enrollment_id: @enrollment.id, lesson_id: @lesson.id), class: "btn btn-secondary btn-sm mt-3" %>
+      </div>
+    </aside>
+  </div>
+</div>

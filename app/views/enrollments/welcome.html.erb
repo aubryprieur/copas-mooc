@@ -1,0 +1,46 @@
+<% page_title "Livret d'accueil" %>
+<section class="container-page py-10">
+  <nav class="mb-4 text-sm"><%= link_to @course.title, enrollment_path(@enrollment) %></nav>
+  <h1 class="measure">Bienvenue dans « <%= @course.title %> »</h1>
+  <p class="mt-3 text-lg text-ink-soft measure">Avant de commencer, voici comment se déroule la formation, qui vous accompagne et comment nous joindre.</p>
+
+  <div class="mt-8 grid gap-10 lg:grid-cols-[1fr_20rem]">
+    <div class="min-w-0">
+      <section class="panel panel-body mb-6">
+        <h2 class="mb-4">Votre formation en pratique</h2>
+        <dl class="facts">
+          <dt>Format</dt><dd><%= Course::MODALITY_LABELS[@course.modality] %></dd>
+          <dt>Durée</dt><dd><%= hours_label @course.duration_hours %> – <%= pluralize(@course.lessons.size, "module") %>, durée moyenne indiquée pour chacun</dd>
+          <dt>Évaluations</dt><dd>Un test de positionnement à l'entrée, des quiz de module, une évaluation finale notée (seuil <%= @course.pass_threshold %> %).</dd>
+          <dt>Assistance</dt><dd><%= simple_format_text @course.support_details %></dd>
+          <dt>Suivi</dt><dd>Nous mesurons votre progression et le temps passé sur chaque module. Sans activité pendant <%= @course.inactivity_reminder_days %> jours, nous vous écrivons pour savoir si tout va bien.</dd>
+          <% if @course.pedagogical_referent %><dt>Référent pédagogique</dt><dd><%= @course.pedagogical_referent.full_name %></dd><% end %>
+        </dl>
+      </section>
+      <% if @welcome %><div class="prose-copas"><%= @welcome.body %></div><% end %>
+    </div>
+    <aside class="h-fit space-y-4">
+      <div class="panel-tint p-5">
+        <h2 class="mb-2 text-lg">À lire aussi</h2>
+        <ul class="space-y-1">
+          <li><%= link_to "Règlement intérieur", page_path("reglement-interieur"), target: "_blank" %></li>
+          <li><%= link_to "Conditions générales", page_path("cgu"), target: "_blank" %></li>
+          <li><%= link_to "Vos référents", page_path("referents"), target: "_blank" %></li>
+          <li><%= link_to "Prévention des violences et du harcèlement", page_path("prevention-violences"), target: "_blank" %></li>
+          <li><%= link_to "Accessibilité et handicap", page_path("accessibilite"), target: "_blank" %></li>
+        </ul>
+      </div>
+      <% if @enrollment.onboarding? && @enrollment.welcome_acknowledged_at.nil? %>
+        <%= form_with url: acknowledge_welcome_enrollment_path(@enrollment), class: "panel panel-body" do %>
+          <label class="flex items-start gap-3">
+            <%= check_box_tag :confirm, "1", false, class: "checkbox mt-1", required: true %>
+            <span>J'ai pris connaissance du livret d'accueil, du règlement intérieur et des conditions générales.</span>
+          </label>
+          <%= submit_tag "Confirmer et continuer", class: "btn btn-primary mt-4 w-full" %>
+        <% end %>
+      <% elsif @enrollment.welcome_acknowledged_at %>
+        <p class="text-sm text-ink-soft">Lecture confirmée le <%= l(@enrollment.welcome_acknowledged_at, format: :long) %>.</p>
+      <% end %>
+    </aside>
+  </div>
+</section>

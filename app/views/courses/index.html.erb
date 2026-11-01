@@ -1,0 +1,66 @@
+<% page_title "Formations à distance" %>
+<section class="border-b border-line bg-white">
+  <div class="container-page grid gap-10 py-12 md:grid-cols-[1.4fr_1fr] md:py-16">
+    <div>
+      <h1 class="max-w-[16ch]">Se former à distance, au rythme de son service</h1>
+      <p class="mt-5 text-lg text-ink-soft measure">
+        Des parcours courts sur le logement social, l'action sociale et la participation des habitants,
+        pour les agents des collectivités et les salariés des associations. Une équipe vous répond à chaque étape.
+      </p>
+      <div class="mt-7 flex flex-wrap gap-3">
+        <a href="#catalogue" class="btn btn-primary">Voir les formations</a>
+        <%= link_to "Comment s'inscrire avec une convention", page_path("cgu"), class: "btn btn-secondary" %>
+      </div>
+    </div>
+    <div class="panel-tint p-6">
+      <h2 class="mb-4 text-lg">Comment se déroule une formation</h2>
+      <ol class="journey">
+        <li class="is-done"><span class="journey-title">Vous décrivez votre poste et vos attentes</span></li>
+        <li class="is-done"><span class="journey-title">Nous validons l'inscription et la convention</span></li>
+        <li class="is-current"><span class="journey-title">Un court test situe vos acquis</span></li>
+        <li><span class="journey-title">Vous suivez les modules, nous vous accompagnons</span></li>
+        <li><span class="journey-title">Évaluation finale et attestation</span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section id="catalogue" class="container-page py-12">
+  <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <h2 class="text-2xl">Catalogue <span class="font-normal text-ink-soft">(<%= @courses.size %>)</span></h2>
+    <% if @categories.any? %>
+      <nav aria-label="Filtrer par thème" class="flex flex-wrap gap-2">
+        <%= link_to "Tous les thèmes", courses_path(anchor: "catalogue"), class: "badge #{params[:categorie].blank? ? 'badge-info' : 'badge-neutral'} no-underline" %>
+        <% @categories.each do |category| %>
+          <%= link_to category, courses_path(categorie: category, anchor: "catalogue"), class: "badge #{params[:categorie] == category ? 'badge-info' : 'badge-neutral'} no-underline" %>
+        <% end %>
+      </nav>
+    <% end %>
+  </div>
+
+  <% if @courses.empty? %>
+    <div class="panel panel-body text-ink-soft">Aucune formation n'est ouverte pour le moment. Écrivez-nous à <%= mail_to org[:email] %> pour connaître le prochain calendrier.</div>
+  <% else %>
+    <ul class="divide-y divide-line border-y border-line">
+      <% @courses.each do |course| %>
+        <li class="grid gap-4 py-6 md:grid-cols-[1fr_auto] md:items-center">
+          <div>
+            <% if course.category.present? %><p class="mb-1 text-sm font-bold text-canard"><%= course.category %></p><% end %>
+            <h3 class="text-xl"><%= link_to course.title, course_path(course), class: "text-ink no-underline hover:underline" %></h3>
+            <% if course.subtitle.present? %><p class="mt-1 text-ink-soft measure"><%= course.subtitle %></p><% end %>
+            <ul class="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-ink-soft">
+              <li class="inline-flex items-center gap-1.5"><%= icon "clock", size: 16 %><%= hours_label(course.duration_hours) %></li>
+              <li class="inline-flex items-center gap-1.5"><%= icon "book", size: 16 %><%= pluralize(course.lessons.size, "module") %></li>
+              <li><%= Course::MODALITY_LABELS[course.modality] %></li>
+              <li><%= Course::LEVEL_LABELS[course.level] %></li>
+            </ul>
+          </div>
+          <div class="flex items-center gap-4 md:flex-col md:items-end">
+            <span class="font-bold"><%= price_label(course) %></span>
+            <%= link_to "Voir le programme", course_path(course), class: "btn btn-secondary btn-sm", aria: { label: "Voir le programme : #{course.title}" } %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</section>

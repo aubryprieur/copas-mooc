@@ -1,0 +1,16 @@
+<% page_title "Indicateurs – #{@course.title}" %>
+<%= render "admin/page_header", title: "Indicateurs de résultats", back: [@course.title, admin_course_path(@course)], subtitle: "Période #{@indicators.period_label}. Calcul automatique, identique à celui publié sur la fiche (ind. 2)." %>
+<% if @indicators.all.empty? %>
+  <p class="panel panel-body text-ink-soft">Pas encore de données sur la période.</p>
+<% else %>
+  <div class="panel table-wrap">
+    <table class="table">
+      <thead><tr><th>Indicateur</th><th>Valeur</th><th>Base</th><th>Mode de calcul</th></tr></thead>
+      <tbody>
+        <% @indicators.all.each do |i| %>
+          <tr><td class="font-bold"><%= i.label %></td><td><%= i.value %><%= i.unit %></td><td><%= i.base || "—" %></td><td class="text-sm"><%= i.formula %></td></tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>

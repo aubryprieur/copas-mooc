@@ -1,0 +1,26 @@
+<% page_title "Satisfaction" %>
+<%= render "admin/page_header", title: "Appréciations des apprenants", subtitle: "Indicateur 30 : questionnaires à chaud (fin de parcours) et à froid (3 mois après)." %>
+<%= form_with url: admin_surveys_path, method: :get, class: "mb-6 flex flex-wrap items-end gap-3" do %>
+  <div><%= label_tag :formation, "Formation", class: "label" %><%= select_tag :formation, options_from_collection_for_select(@courses, :slug, :title, params[:formation]), include_blank: "Toutes", class: "input" %></div>
+  <div><%= label_tag :type, "Questionnaire", class: "label" %><%= select_tag :type, options_for_select({ "À chaud" => "hot", "À froid" => "cold" }, params[:type]), include_blank: "Tous", class: "input" %></div>
+  <%= submit_tag "Filtrer", class: "btn btn-secondary", name: nil %>
+<% end %>
+<dl class="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+  <% SurveyResponse::RATING_FIELDS.each do |field, label| %>
+    <div class="panel p-4"><dt class="text-sm text-ink-soft"><%= label %></dt><dd class="m-0 font-display text-2xl font-bold"><%= @averages[field] ? "#{@averages[field]}/5" : "—" %></dd></div>
+  <% end %>
+</dl>
+<ul class="space-y-4">
+  <% @responses.each do |r| %>
+    <li class="panel panel-body">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <p class="font-bold"><%= r.enrollment.course.title %> · <%= r.hot? ? "à chaud" : "à froid" %></p>
+        <p class="text-sm text-ink-soft"><%= l(r.created_at.to_date, format: :long) %> · <%= link_to r.enrollment.user.full_name, admin_enrollment_path(r.enrollment) %></p>
+      </div>
+      <p class="mt-1 text-sm">Globale <strong><%= r.overall_rating %>/5</strong><%= " · recommandation #{r.recommend_score}/10" if r.recommend_score %></p>
+      <% if r.applied_in_practice.present? %><p class="mt-2"><strong>Mise en pratique :</strong> <%= r.applied_in_practice %></p><% end %>
+      <% if r.comment.present? %><blockquote class="mt-2 border-l-4 border-signal pl-3 text-ink-soft"><%= r.comment %></blockquote><% end %>
+    </li>
+  <% end %>
+</ul>
+<%== pagy_nav(@pagy) if @pagy.pages > 1 %>

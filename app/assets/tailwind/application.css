@@ -1,0 +1,177 @@
+@import "tailwindcss";
+
+/* Polices hébergées sur le serveur de l'app (aucun appel à Google Fonts : RGPD) */
+@font-face { font-family: "Atkinson Next"; src: url("/atkinson-hyperlegible-next-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Atkinson Next"; src: url("/atkinson-hyperlegible-next-latin-400-italic.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: "Atkinson Next"; src: url("/atkinson-hyperlegible-next-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Atkinson Next"; src: url("/atkinson-hyperlegible-next-latin-700-italic.woff2") format("woff2"); font-weight: 700; font-style: italic; font-display: swap; }
+@font-face { font-family: "Bricolage"; src: url("/bricolage-grotesque-latin-wght-normal.woff2") format("woff2"); font-weight: 200 800; font-display: swap; }
+
+@theme {
+  --font-sans: "Atkinson Next", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bricolage", "Atkinson Next", ui-sans-serif, sans-serif;
+
+  --color-paper: #FAFBFC;
+  --color-ink: #1B2430;
+  --color-ink-soft: #4A5565;
+  --color-line: #D5DDE0;
+  --color-mist: #E3ECEE;
+  --color-canard: #0F5C6E;
+  --color-canard-dark: #0A4352;
+  --color-canard-light: #D4E7EB;
+  --color-signal: #F6B92B;
+  --color-signal-soft: #FDF1D3;
+  --color-ok: #2E7D4F;
+  --color-ok-soft: #DCEFE3;
+  --color-danger: #B3261E;
+  --color-danger-soft: #F7DEDC;
+  --color-warn: #8A5A00;
+  --color-warn-soft: #FBEBC8;
+}
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; }
+  body { @apply bg-paper text-ink font-sans antialiased; font-size: 1.0625rem; line-height: 1.6; }
+  h1, h2, h3, h4 { @apply font-display text-ink; letter-spacing: -0.015em; line-height: 1.15; }
+  h1 { font-size: clamp(1.9rem, 1.4rem + 2vw, 2.9rem); font-weight: 700; }
+  h2 { font-size: 1.5rem; font-weight: 650; }
+  h3 { font-size: 1.15rem; font-weight: 650; }
+  a { @apply text-canard underline-offset-3; }
+  a:hover { @apply text-canard-dark; }
+  :focus-visible { outline: 3px solid var(--color-signal); outline-offset: 2px; border-radius: 4px; }
+  ::selection { background: var(--color-signal-soft); }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+}
+
+@utility measure {
+  max-width: 68ch;
+}
+
+@layer components {
+  .container-page { @apply mx-auto w-full max-w-6xl px-4 sm:px-6; }
+
+  /* Lien d'évitement (accessibilité clavier) */
+  .skip-link { @apply sr-only; }
+  .skip-link:focus { @apply not-sr-only fixed left-4 top-4 z-50 rounded bg-ink px-4 py-2 text-white; }
+
+  /* Boutons */
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 font-bold no-underline transition-colors; line-height: 1.2; cursor: pointer; }
+  .btn-primary { @apply bg-canard text-white; }
+  .btn-primary:hover { @apply bg-canard-dark text-white; }
+  .btn-secondary { @apply border border-line bg-white text-ink; }
+  .btn-secondary:hover { @apply border-canard text-canard; }
+  .btn-ghost { @apply text-canard; }
+  .btn-ghost:hover { @apply bg-mist; }
+  .btn-danger { @apply border border-danger/40 bg-white text-danger; }
+  .btn-danger:hover { @apply bg-danger-soft; }
+  .btn-sm { @apply px-3 py-1.5 text-sm; }
+  .btn[disabled], .btn.is-disabled { @apply cursor-not-allowed opacity-50; }
+
+  /* Navigation */
+  .nav-link { @apply inline-flex items-center gap-2 rounded-md px-3 py-2 font-bold text-ink-soft no-underline; }
+  .nav-link:hover { @apply bg-mist text-ink; }
+  .nav-link-active { @apply text-ink; box-shadow: inset 0 -3px 0 var(--color-signal); border-radius: 0; }
+
+  /* Pastilles d'état */
+  .badge { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-sm font-bold whitespace-nowrap; }
+  .badge-neutral { @apply bg-mist text-ink-soft; }
+  .badge-info { @apply bg-canard-light text-canard-dark; }
+  .badge-success { @apply bg-ok-soft text-ok; }
+  .badge-warning { @apply bg-warn-soft text-warn; }
+  .badge-danger { @apply bg-danger-soft text-danger; }
+
+  /* Surfaces : deux niveaux seulement */
+  .panel { @apply rounded-lg border border-line bg-white; }
+  .panel-body { @apply p-5 sm:p-6; }
+  .panel-tint { @apply rounded-lg bg-mist; }
+
+  /* Progression : le jaune signal est réservé à l'avancement */
+  .progress { @apply h-2 w-full overflow-hidden rounded-full bg-mist; }
+  .progress-fill { @apply h-full rounded-full bg-signal; transition: width 400ms ease; }
+
+  /* Tracé du parcours : l'élément signature de l'interface */
+  .journey { @apply relative list-none p-0; counter-reset: step; }
+  .journey > li { @apply relative pb-5 pl-11; counter-increment: step; }
+  .journey > li::before {
+    content: counter(step);
+    @apply absolute left-0 top-0 z-10 flex h-7 w-7 items-center justify-center rounded-full border-2 border-line bg-white text-sm font-bold text-ink-soft;
+  }
+  .journey > li::after { content: ""; @apply absolute left-[13px] top-7 bottom-0 w-[2px] bg-line; }
+  .journey > li:last-child::after { display: none; }
+  .journey > li.is-done::before { content: "✓"; @apply border-signal bg-signal text-ink; }
+  .journey > li.is-done::after { @apply bg-signal; width: 4px; left: 12px; }
+  .journey > li.is-current::before { @apply border-canard bg-canard text-white; box-shadow: 0 0 0 4px var(--color-canard-light); }
+  .journey-title { @apply font-bold leading-7; }
+  .journey > li:not(.is-done):not(.is-current) .journey-title { @apply text-ink-soft font-normal; }
+
+  /* Formulaires */
+  .field { @apply mb-5; }
+  .label { @apply mb-1.5 block font-bold; }
+  .hint { @apply mt-1 text-sm text-ink-soft; }
+  .input { @apply block w-full rounded-md border border-line bg-white px-3 py-2.5 text-ink; }
+  .input:focus { @apply border-canard outline-none; box-shadow: 0 0 0 3px var(--color-canard-light); }
+  textarea.input { min-height: 7rem; }
+  .field-error .input { @apply border-danger; }
+  .error-text { @apply mt-1 text-sm font-bold text-danger; }
+  .checkbox { @apply h-5 w-5 rounded border-line text-canard; accent-color: var(--color-canard); }
+  .error-summary { @apply mb-6 rounded-lg border-l-4 border-danger bg-danger-soft p-4; }
+
+  /* Tableaux */
+  .table { @apply w-full border-collapse text-left; }
+  .table th { @apply border-b-2 border-line px-3 py-2 text-sm font-bold text-ink-soft; }
+  .table td { @apply border-b border-line px-3 py-3 align-top; }
+  .table tbody tr:hover { @apply bg-paper; }
+  .table-wrap { @apply overflow-x-auto; }
+
+  /* Listes de définitions (fiches formation, dossiers) */
+  .facts { @apply grid gap-x-6 gap-y-1; grid-template-columns: 1fr; }
+  .facts dd { @apply mb-2; }
+  @media (min-width: 40rem) { .facts { grid-template-columns: minmax(8rem, max-content) 1fr; row-gap: 0.75rem; } .facts dd { margin-bottom: 0; } }
+  .facts dt { @apply font-bold text-ink-soft; }
+  .facts dd { @apply m-0; }
+
+  /* Contenus riches (Action Text) */
+  .prose-copas { max-width: 68ch; }
+  .prose-copas h1, .prose-copas h2 { @apply mt-8 mb-3 text-xl; }
+  .prose-copas h3 { @apply mt-6 mb-2; }
+  .prose-copas p, .prose-copas ul, .prose-copas ol, .prose-copas blockquote { @apply mb-4; }
+  .prose-copas ul { @apply list-disc pl-6; }
+  .prose-copas ol { @apply list-decimal pl-6; }
+  .prose-copas blockquote { @apply border-l-4 border-signal pl-4 italic text-ink-soft; }
+  .prose-copas pre { @apply mb-4 overflow-x-auto rounded bg-mist p-3 text-sm; }
+  .prose-copas img { @apply rounded-md; }
+  .prose-copas a { @apply underline; }
+
+  /* Messages flash */
+  .flash { @apply flex items-start gap-3 rounded-lg px-4 py-3 font-bold; }
+  .flash-notice { @apply bg-ok-soft text-ok; }
+  .flash-alert { @apply bg-danger-soft text-danger; }
+
+  .avatar { @apply inline-block rounded-full object-cover; }
+  .avatar-initials { @apply inline-flex items-center justify-center bg-canard-light text-sm font-bold text-canard-dark; }
+
+  /* Choix de réponse des évaluations */
+  .choice { @apply flex cursor-pointer items-start gap-3 rounded-md border border-line bg-white px-4 py-3; }
+  .choice:hover { @apply border-canard; }
+  .choice:has(input:checked) { @apply border-canard bg-canard-light; }
+  .choice input { @apply mt-1; accent-color: var(--color-canard); }
+
+  /* Échelle de notation 1–5 / 0–10 */
+  .scale { @apply flex flex-wrap gap-2; }
+  .scale label { @apply flex h-11 min-w-11 cursor-pointer items-center justify-center rounded-md border border-line bg-white px-3 font-bold; }
+  .scale label:has(input:checked) { @apply border-canard bg-canard text-white; }
+  .scale input { @apply sr-only; }
+  .scale label:has(input:focus-visible) { outline: 3px solid var(--color-signal); outline-offset: 2px; }
+
+  /* Pagination Pagy */
+  .pagy { @apply mt-6 flex flex-wrap gap-1; }
+  .pagy a { @apply rounded-md border border-line bg-white px-3 py-1.5 no-underline; }
+  .pagy a.current { @apply border-canard bg-canard text-white; }
+  .pagy a.gap, .pagy a:not([href]) { @apply text-ink-soft; }
+
+  /* Éditeur Trix */
+  trix-editor.input { min-height: 14rem; }
+  trix-toolbar .trix-button-group { @apply border-line; }
+}

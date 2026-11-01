@@ -1,0 +1,19 @@
+<% page_title "Formations" %>
+<%= render "admin/page_header", title: "Formations",
+      actions: (link_to(new_admin_course_path, class: "btn btn-primary") { icon("plus") + " Nouvelle formation" } if can_edit?) %>
+<div class="panel table-wrap">
+  <table class="table">
+    <thead><tr><th>Formation</th><th>Statut</th><th>Modules</th><th>Inscrits</th><th>Fiche mise à jour</th></tr></thead>
+    <tbody>
+      <% @courses.each do |course| %>
+        <tr>
+          <td><%= link_to course.title, admin_course_path(course), class: "font-bold" %><p class="text-sm text-ink-soft"><%= course.trainer&.full_name %></p></td>
+          <td><%= status_badge({ "draft" => "Brouillon", "published" => "Publiée", "archived" => "Archivée" }[course.status], course.published? ? :success : :neutral) %></td>
+          <td><%= course.lessons.size %></td>
+          <td><%= course.enrollments.count %></td>
+          <td class="text-sm"><%= l(course.info_updated_at.to_date, format: :long) if course.info_updated_at %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

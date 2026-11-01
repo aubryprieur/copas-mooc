@@ -1,0 +1,4 @@
+<p>Bonjour <%= @complaint.name %>,</p>
+<p>Nous accusons réception de votre demande n° <strong><%= @complaint.reference %></strong> (<%= @complaint.category_label.downcase %>), reçue le <%= l(@complaint.created_at, format: :long) %>.</p>
+<p>Elle est enregistrée à notre registre et vous recevrez une réponse écrite dans un délai de 10 jours ouvrés au plus.</p>
+<% if @complaint.report? %><p>Votre signalement n'est accessible qu'au référent désigné par COPAS et est traité de façon confidentielle.</p><% end %>

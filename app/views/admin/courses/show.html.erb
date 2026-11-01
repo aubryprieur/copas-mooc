@@ -1,0 +1,89 @@
+<% page_title @course.title %>
+<%= render "admin/page_header", title: @course.title, back: ["Formations", admin_courses_path],
+      subtitle: "#{Course::MODALITY_LABELS[@course.modality]} · #{hours_label(@course.duration_hours)} · durée cumulée des modules : #{minutes_label(@course.total_estimated_minutes)}",
+      actions: safe_join([
+        (link_to("Voir la fiche publique", course_path(@course), class: "btn btn-secondary", target: "_blank") if @course.published?),
+        link_to("Indicateurs", indicators_admin_course_path(@course), class: "btn btn-secondary"),
+        (link_to(edit_admin_course_path(@course), class: "btn btn-primary") { icon("pencil") + " Modifier la fiche" } if can_edit?)
+      ].compact) %>
+
+<% issues = @course.publishable_issues %>
+<% if issues.any? %>
+  <div class="mb-6 rounded-lg border-l-4 border-signal bg-signal-soft p-4">
+    <p class="font-bold">Avant publication (indicateurs 1, 5, 8, 11) :</p>
+    <ul class="mt-1 list-disc pl-5 text-sm"><% issues.each do |i| %><li><%= i %></li><% end %></ul>
+  </div>
+<% end %>
+
+<div class="grid gap-6 xl:grid-cols-[1fr_22rem]">
+  <div class="min-w-0 space-y-6">
+    <section class="panel" id="objectifs">
+      <h2 class="border-b border-line px-5 py-3 text-lg">Objectifs évaluables</h2>
+      <ol class="divide-y divide-line">
+        <% @course.objectives.each do |o| %>
+          <li class="px-5 py-3"><p class="font-bold"><%= o.position %>. <%= o.description %></p><p class="text-sm text-ink-soft">Critère : <%= o.success_criterion.presence || "à préciser" %> · <%= pluralize(o.questions.count, "question") %> d'évaluation</p></li>
+        <% end %>
+      </ol>
+    </section>
+
+    <section class="panel" id="modules">
+      <div class="flex items-center justify-between border-b border-line px-5 py-3">
+        <h2 class="text-lg">Modules</h2>
+        <%= link_to(new_admin_course_lesson_path(@course), class: "btn btn-secondary btn-sm") { icon("plus") + " Ajouter un module" } if can_edit? %>
+      </div>
+      <% if @lessons.empty? %>
+        <p class="px-5 py-4 text-ink-soft">Aucun module pour l'instant.</p>
+      <% else %>
+        <ol class="divide-y divide-line">
+          <% @lessons.each_with_index do |lesson, i| %>
+            <li class="flex flex-wrap items-center gap-3 px-5 py-3">
+              <span class="w-6 text-ink-soft"><%= i + 1 %>.</span>
+              <div class="min-w-0 flex-1">
+                <p class="font-bold"><%= lesson.title %></p>
+                <p class="text-sm text-ink-soft"><%= minutes_label lesson.estimated_minutes %>
+                  <%= " · vidéo" if lesson.video.attached? %><%= " · sous-titres" if lesson.captions.attached? %>
+                  <%= " · #{pluralize(lesson.resources.count, 'ressource')}" if lesson.resources.attached? %>
+                  <% if lesson.checkpoint %> · <%= link_to "quiz (#{lesson.checkpoint.questions.count} q.)", admin_course_assessment_path(@course, lesson.checkpoint) %><% end %></p>
+              </div>
+              <% if can_edit? %>
+                <div class="flex gap-1">
+                  <%= button_to move_admin_course_lesson_path(@course, lesson, direction: "up"), method: :patch, class: "btn btn-ghost btn-sm", disabled: i.zero? do %><%= icon "chevron-up", label: "Monter" %><% end %>
+                  <%= button_to move_admin_course_lesson_path(@course, lesson, direction: "down"), method: :patch, class: "btn btn-ghost btn-sm", disabled: i == @lessons.size - 1 do %><%= icon "chevron-down", label: "Descendre" %><% end %>
+                  <%= link_to "Modifier", edit_admin_course_lesson_path(@course, lesson), class: "btn btn-ghost btn-sm" %>
+                  <%= link_to "Quiz", new_admin_course_assessment_path(@course, lesson_id: lesson.id), class: "btn btn-ghost btn-sm" unless lesson.checkpoint %>
+                </div>
+              <% end %>
+            </li>
+          <% end %>
+        </ol>
+      <% end %>
+    </section>
+
+    <section class="panel" id="evaluations">
+      <h2 class="border-b border-line px-5 py-3 text-lg">Évaluations</h2>
+      <ul class="divide-y divide-line">
+        <% @assessments.each do |a| %>
+          <li class="flex items-center justify-between gap-3 px-5 py-3">
+            <div><%= link_to a.title, admin_course_assessment_path(@course, a), class: "font-bold" %><p class="text-sm text-ink-soft"><%= a.kind_label %><%= " · #{a.lesson.title}" if a.lesson %> · seuil <%= a.threshold %> %</p></div>
+            <%= status_badge pluralize(a.questions.size, "question"), a.questions.any? ? :info : :warning %>
+          </li>
+        <% end %>
+      </ul>
+    </section>
+  </div>
+
+  <aside class="space-y-6">
+    <section class="panel panel-body text-sm">
+      <h2 class="mb-3 text-lg">Suivi</h2>
+      <dl class="facts">
+        <dt>Statut</dt><dd><%= { "draft" => "Brouillon", "published" => "Publiée", "archived" => "Archivée" }[@course.status] %></dd>
+        <dt>Formateur</dt><dd><%= @course.trainer&.full_name || "—" %></dd>
+        <dt>Référent</dt><dd><%= @course.pedagogical_referent&.full_name || "—" %></dd>
+        <dt>Relance</dt><dd>après <%= @course.inactivity_reminder_days %> j</dd>
+        <dt>Alerte</dt><dd>après <%= @course.inactivity_alert_days %> j</dd>
+        <dt>Tarif</dt><dd><%= price_label(@course) %></dd>
+        <dt>Inscriptions</dt><dd><%= link_to @course.enrollments.count, admin_enrollments_path(formation: @course.slug) %></dd>
+      </dl>
+    </section>
+  </aside>
+</div>

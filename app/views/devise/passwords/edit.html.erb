@@ -1,27 +1,12 @@
-<h2>Change your password</h2>
-
-<%= simple_form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put }) do |f| %>
-  <%= f.error_notification %>
-
-  <%= f.input :reset_password_token, as: :hidden %>
-  <%= f.full_error :reset_password_token %>
-
-  <div class="form-inputs">
-    <%= f.input :password,
-                label: "New password",
-                required: true,
-                autofocus: true,
-                hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length),
-                input_html: { autocomplete: "new-password" } %>
-    <%= f.input :password_confirmation,
-                label: "Confirm your new password",
-                required: true,
-                input_html: { autocomplete: "new-password" } %>
-  </div>
-
-  <div class="form-actions">
-    <%= f.button :submit, "Change my password" %>
-  </div>
+<% page_title "Choisir un mot de passe" %>
+<%= render layout: "devise/shared/auth" do %>
+  <h1 class="text-3xl">Choisir un mot de passe</h1>
+  <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put, class: "mt-8 max-w-md" }) do |f| %>
+    <%= render "devise/shared/error_messages", resource: resource %>
+    <%= f.hidden_field :reset_password_token %>
+    <div class="field"><%= f.label :password, "Nouveau mot de passe", class: "label" %><%= f.password_field :password, autofocus: true, autocomplete: "new-password", class: "input", required: true %>
+      <p class="hint">12 caractères minimum, avec une majuscule, une minuscule et un chiffre.</p></div>
+    <div class="field"><%= f.label :password_confirmation, "Confirmer", class: "label" %><%= f.password_field :password_confirmation, autocomplete: "new-password", class: "input", required: true %></div>
+    <%= f.submit "Enregistrer le mot de passe", class: "btn btn-primary" %>
+  <% end %>
 <% end %>
-
-<%= render "devise/shared/links" %>

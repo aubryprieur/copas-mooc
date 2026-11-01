@@ -1,0 +1,32 @@
+<% cold = @kind == "cold" %>
+<% page_title(cold ? "Questionnaire à froid" : "Votre avis sur la formation") %>
+<section class="container-page py-10">
+  <nav class="mb-4 text-sm"><%= link_to @course.title, enrollment_path(@enrollment) %></nav>
+  <div class="measure">
+    <h1 class="text-3xl"><%= cold ? "Trois mois après, que retenez-vous de la formation ?" : "Votre avis sur la formation" %></h1>
+    <p class="mt-3 text-ink-soft">Deux minutes. Vos réponses sont lues par l'équipe et servent à améliorer la formation. Elles n'ont aucun effet sur votre attestation.</p>
+
+    <%= form_with model: @survey, url: enrollment_surveys_path(@enrollment, kind: @kind), class: "mt-8" do |f| %>
+      <%= render "shared/form_errors", record: @survey %>
+      <%= render "surveys/scale", f: f, field: :overall_rating, legend: "Globalement, êtes-vous satisfait de la formation ?", range: 1..5, required: true, hint: "1 : pas du tout satisfait · 5 : très satisfait" %>
+      <% unless cold %>
+        <%= render "surveys/scale", f: f, field: :content_rating, legend: SurveyResponse::RATING_FIELDS[:content_rating], range: 1..5, required: false, hint: nil %>
+        <%= render "surveys/scale", f: f, field: :support_rating, legend: SurveyResponse::RATING_FIELDS[:support_rating], range: 1..5, required: false, hint: nil %>
+        <%= render "surveys/scale", f: f, field: :platform_rating, legend: SurveyResponse::RATING_FIELDS[:platform_rating], range: 1..5, required: false, hint: nil %>
+      <% end %>
+      <%= render "surveys/scale", f: f, field: :objectives_rating, legend: SurveyResponse::RATING_FIELDS[:objectives_rating], range: 1..5, required: false, hint: nil %>
+      <%= render "surveys/scale", f: f, field: :recommend_score, legend: "Recommanderiez-vous cette formation à un collègue ?", range: 0..10, required: false, hint: "0 : certainement pas · 10 : certainement" %>
+      <% if cold %>
+        <div class="field">
+          <%= f.label :applied_in_practice, "Qu'avez-vous mis en pratique dans votre travail depuis la formation ?", class: "label" %>
+          <%= f.text_area :applied_in_practice, class: "input", required: true %>
+        </div>
+      <% end %>
+      <div class="field">
+        <%= f.label :comment, (cold ? "Qu'auriez-vous aimé approfondir ?" : "Qu'est-ce qui vous a été le plus utile ? Que faudrait-il améliorer ?"), class: "label" %>
+        <%= f.text_area :comment, class: "input" %>
+      </div>
+      <%= f.submit "Envoyer mon avis", class: "btn btn-primary" %>
+    <% end %>
+  </div>
+</section>

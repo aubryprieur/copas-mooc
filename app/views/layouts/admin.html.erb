@@ -1,19 +1,48 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
   <head>
-    <title>CopasMooc</title>
+    <title><%= page_title %> – Gestion</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="robots" content="noindex">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
-    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
-    <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
   </head>
-
-  <body>
-    <%= render 'shared/admin_header' %>
-    <%= render 'shared/alert_messages' %>
-    <%= yield %>
-    <%= render 'shared/footer' %>
+  <body class="min-h-screen" data-controller="menu">
+    <a href="#contenu" class="skip-link">Aller au contenu</a>
+    <div class="lg:grid lg:min-h-screen lg:grid-cols-[15rem_1fr]">
+      <header class="flex items-center justify-between border-b border-line bg-white px-4 py-3 lg:hidden">
+        <%= render "shared/brand" %>
+        <button type="button" class="btn btn-ghost" data-action="menu#toggle" data-menu-target="button" aria-controls="menu-gestion" aria-expanded="false"><%= icon "menu", label: "Menu" %></button>
+      </header>
+      <nav id="menu-gestion" aria-label="Gestion" data-menu-target="panel" class="hidden flex-col gap-1 border-r border-line bg-white p-4 lg:flex">
+        <div class="mb-6 hidden lg:block"><%= render "shared/brand" %><p class="mt-1 text-sm text-ink-soft">Espace de gestion</p></div>
+        <%= nav_link "Tableau de bord", admin_root_path, icon_name: "home", exact: true %>
+        <%= nav_link "Formations", admin_courses_path, icon_name: "book" %>
+        <%= nav_link "Inscriptions et suivi", admin_enrollments_path, icon_name: "users" %>
+        <%= nav_link "Assistance", admin_support_threads_path, icon_name: "message" %>
+        <%= nav_link "Réclamations", admin_complaints_path, icon_name: "inbox" %>
+        <%= nav_link "Satisfaction", admin_surveys_path, icon_name: "star" %>
+        <%= nav_link "Pages", admin_pages_path, icon_name: "file" %>
+        <%= nav_link "Comptes", admin_users_path, icon_name: "settings" if current_user.admin? || current_user.auditor? %>
+        <div class="mt-auto border-t border-line pt-4 text-sm">
+          <p class="font-bold"><%= current_user.full_name %></p>
+          <p class="text-ink-soft"><%= { "admin" => "Administrateur", "trainer" => "Formateur", "auditor" => "Auditeur (lecture seule)" }[current_user.role] %></p>
+          <div class="mt-2 flex flex-wrap gap-2">
+            <%= link_to "Voir le site", root_path, class: "btn btn-ghost btn-sm" %>
+            <%= button_to "Se déconnecter", destroy_user_session_path, method: :delete, class: "btn btn-ghost btn-sm" %>
+          </div>
+        </div>
+      </nav>
+      <main id="contenu" class="min-w-0 px-4 py-6 sm:px-8 lg:py-8" tabindex="-1">
+        <% if current_user.auditor? %>
+          <p class="mb-4 rounded-md bg-signal-soft px-4 py-2 text-sm font-bold text-warn">Compte observateur : consultation seule, aucune modification possible.</p>
+        <% end %>
+        <%= render "shared/flash" %>
+        <%= yield %>
+      </main>
+    </div>
   </body>
 </html>

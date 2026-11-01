@@ -1,0 +1,21 @@
+<%= form_with model: [:admin, @course, @assessment, @question], class: "panel panel-body measure" do |f| %>
+  <%= render "shared/form_errors", record: @question %>
+  <div class="field"><%= f.label :prompt, "Question", class: "label" %><%= f.text_area :prompt, class: "input", rows: 2, required: true %></div>
+  <fieldset class="field">
+    <legend class="label">Réponses possibles – cochez la bonne</legend>
+    <% @question.choices.each_with_index do |choice, i| %>
+      <%= f.fields_for :choices, choice, child_index: i do |c| %>
+        <div class="mb-2 flex items-center gap-3">
+          <%= radio_button_tag "question[correct_index]", i, choice.correct?, class: "h-5 w-5", aria: { label: "Bonne réponse : choix #{i + 1}" }, style: "accent-color: var(--color-canard)" %>
+          <%= c.text_field :label, class: "input", placeholder: "Réponse #{i + 1}" %>
+          <%= c.hidden_field :position, value: i + 1 %>
+          <% if choice.persisted? %><label class="flex items-center gap-1 text-sm"><%= c.check_box :_destroy, class: "checkbox" %> Retirer</label><% end %>
+        </div>
+      <% end %>
+    <% end %>
+    <p class="hint">Laissez vides les réponses inutiles. Au moins deux réponses, une seule bonne.</p>
+  </fieldset>
+  <div class="field"><%= f.label :objective_id, "Objectif évalué", class: "label" %><%= f.collection_select :objective_id, @course.objectives, :id, :label, { include_blank: "Aucun (question transversale)" }, class: "input" %></div>
+  <div class="field"><%= f.label :explanation, "Explication affichée après la réponse", class: "label" %><%= f.text_area :explanation, class: "input", rows: 2 %></div>
+  <div class="flex gap-3"><%= f.submit "Enregistrer la question", class: "btn btn-primary" %><%= link_to "Annuler", admin_course_assessment_path(@course, @assessment), class: "btn btn-ghost" %></div>
+<% end %>

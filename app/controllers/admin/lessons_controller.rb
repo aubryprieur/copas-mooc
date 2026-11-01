@@ -1,67 +1,58 @@
-class Admin::LessonsController < ApplicationController
- before_action :authenticate_admin!
+class Admin::LessonsController < Admin::BaseController
+  before_action :set_course
+  before_action :set_lesson, except: %i[new create]
 
- layout "admin"
-
- def show
-  @lesson = Lesson.find(params[:id])
- end
-
- def index
-  @lessons = Lesson.all
- end
-
- def new
-  @workshop = Workshop.find(params[:workshop_id])
-  @lesson = Lesson.new
- end
-
- def edit
-  @workshop = Workshop.find(params[:workshop_id])
-  @lesson = Lesson.find(params[:id])
- end
-
- def update
-  @lesson = Lesson.find(params[:id])
-  if @lesson.update_attributes(admin_lesson_params)
-   flash[:notice] = "Changements mis à jour avec succès!"
-   redirect_back(fallback_location: root_path)
-  else
-   flash[:notice] = "Impossible de mettre à jour, veuillez réessayer"
-   render :edit, alert: "Impossible de mettre à jour, veuillez réessayer"
+  def new
+    @lesson = @course.lessons.new
+    authorize @lesson
   end
- end
 
- def create
-  @workshop = Workshop.find(params[:workshop_id])
-  @lesson = Lesson.new(admin_lesson_params)
-
-  respond_to do |format|
-   if @lesson.save
-    format.html { redirect_to edit_admin_workshop_url(@workshop), notice: "La leçon a été créée avec succès." }
-    format.json { render json: @lesson, status: :created, location: [:admin,@lesson] }
-   else
-    format.html { render action: "new" }
-    format.json { render json: @lesson.errors, status: :unprocessable_entity }
-   end
+  def create
+    @lesson = @course.lessons.new(lesson_params)
+    authorize @lesson
+    if @lesson.save
+      redirect_to admin_course_path(@course, anchor: "modules"), notice: "Module ajouté."
+    else
+      render :new, status: :unprocessable_entity
+    end
   end
- end
 
- def destroy
-  @workshop = Workshop.find(params[:workshop_id])
-  @lesson = Lesson.find(params[:id])
-  @lesson.destroy
-  redirect_to edit_admin_workshop_url(@workshop), notice: "La leçon a été supprimée avec succès."
- end
+  def edit = authorize(@lesson)
 
- private
+  def update
+    authorize @lesson
+    if @lesson.update(lesson_params)
+      redirect_to admin_course_path(@course, anchor: "modules"), notice: "Module enregistré."
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
 
- def set_lesson
-  @lesson = current_lesson
- end
+  def destroy
+    authorize @lesson
+    @lesson.destroy
+    redirect_to admin_course_path(@course, anchor: "modules"), notice: "Module supprimé."
+  end
 
- def admin_lesson_params
-  params.require(:lesson).permit(:title, :description, :user_id, :workshop_id, :slug, :order, :video, :remove_video, :rich_body)
- end
+  # Réordonnancement (glisser-déposer ou flèches)
+  def move
+    authorize @lesson, :update?
+    lessons = @course.lessons.to_a
+    index = lessons.index(@lesson)
+    target = params[:direction] == "up" ? index - 1 : index + 1
+    if target.between?(0, lessons.size - 1)
+      lessons.insert(target, lessons.delete_at(index))
+      Lesson.transaction { lessons.each_with_index { |l, i| l.update_column(:position, i + 1) } }
+    end
+    redirect_to admin_course_path(@course, anchor: "modules")
+  end
 
+  private
+
+  def set_course = @course = Course.find_by!(slug: params[:course_id])
+  def set_lesson = @lesson = @course.lessons.find(params[:id])
+
+  def lesson_params
+    params.require(:lesson).permit(:title, :summary, :estimated_minutes, :content, :video, :captions, resources: [], objective_ids: [])
+  end
 end
