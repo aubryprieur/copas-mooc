@@ -1,0 +1,16 @@
+<p>Bonjour <%= @user.first_name %>,</p>
+<p><%= @reminder ? "Pour rappel, vous êtes attendu(e) demain" : "Vous êtes convoqué(e)" %> à la formation <strong><%= @course.title %></strong>.</p>
+<table style="font-size:15px;border-collapse:collapse">
+  <% @session.slots.each do |slot| %><tr><td style="padding:2px 12px 2px 0"><%= slot.label %></td></tr><% end %>
+</table>
+<% if (loc = @session.location) %>
+  <p><strong>Lieu :</strong> <%= loc.name %><br><%= simple_format(h(loc.address), {}, wrapper_tag: "span") %></p>
+  <% if loc.access_details.present? %><p><strong>Accès :</strong> <%= loc.access_details %></p><% end %>
+  <% if loc.accessibility.present? %><p><strong>Accessibilité :</strong> <%= loc.accessibility %></p><% end %>
+<% end %>
+<% if @session.trainer %><p><strong>Formateur :</strong> <%= @session.trainer.full_name %></p><% end %>
+<% unless @session.attendance_photo? %>
+  <p>Le jour J, vous signerez votre présence sur votre téléphone (QR code affiché en salle). Sans smartphone, utilisez la tablette du formateur avec votre code personnel : <strong><%= @enrollment.attendance_code %></strong>.</p>
+<% end %>
+<p><a href="<%= enrollment_url(@enrollment) %>" style="display:inline-block;background:#0F5C6E;color:#ffffff;padding:10px 18px;border-radius:6px;text-decoration:none;font-weight:bold">Voir ma formation, le livret d'accueil et le règlement</a></p>
+<p style="font-size:13px;color:#4A5565">Besoin d'un aménagement ou empêché(e) ? Répondez à ce courriel.</p>

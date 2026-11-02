@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_01_095832) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_02_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -107,6 +107,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_095832) do
     t.index ["enrollment_id"], name: "index_attempts_on_enrollment_id"
   end
 
+  create_table "attendances", force: :cascade do |t|
+    t.bigint "enrollment_id", null: false
+    t.bigint "session_slot_id", null: false
+    t.integer "status", default: 0, null: false
+    t.integer "signature_method"
+    t.datetime "signed_at"
+    t.text "signature"
+    t.time "arrived_at"
+    t.time "left_at"
+    t.bigint "recorded_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["enrollment_id", "session_slot_id"], name: "index_attendances_on_enrollment_id_and_session_slot_id", unique: true
+    t.index ["enrollment_id"], name: "index_attendances_on_enrollment_id"
+    t.index ["recorded_by_id"], name: "index_attendances_on_recorded_by_id"
+    t.index ["session_slot_id"], name: "index_attendances_on_session_slot_id"
+  end
+
   create_table "choices", force: :cascade do |t|
     t.bigint "question_id", null: false
     t.string "label", null: false
@@ -115,6 +133,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_095832) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["question_id"], name: "index_choices_on_question_id"
+  end
+
+  create_table "client_surveys", force: :cascade do |t|
+    t.bigint "course_session_id", null: false
+    t.string "respondent_name"
+    t.integer "overall_rating", null: false
+    t.integer "objectives_rating"
+    t.integer "organization_rating"
+    t.integer "trainer_rating"
+    t.text "observed_effects"
+    t.text "comment"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["course_session_id"], name: "index_client_surveys_on_course_session_id", unique: true
   end
 
   create_table "complaints", force: :cascade do |t|
@@ -140,6 +172,36 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_095832) do
     t.index ["handled_by_id"], name: "index_complaints_on_handled_by_id"
     t.index ["reference"], name: "index_complaints_on_reference", unique: true
     t.index ["user_id"], name: "index_complaints_on_user_id"
+  end
+
+  create_table "course_sessions", force: :cascade do |t|
+    t.bigint "course_id", null: false
+    t.bigint "organization_id"
+    t.bigint "location_id"
+    t.bigint "trainer_id"
+    t.bigint "training_request_id"
+    t.integer "kind", default: 0, null: false
+    t.integer "status", default: 0, null: false
+    t.integer "attendance_mode", default: 0, null: false
+    t.integer "funding_type", default: 0, null: false
+    t.string "convention_reference"
+    t.string "reference", null: false
+    t.integer "capacity"
+    t.text "adapted_program"
+    t.string "access_token", null: false
+    t.datetime "convocations_sent_at"
+    t.datetime "reminders_sent_at"
+    t.datetime "closed_at"
+    t.datetime "client_survey_sent_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["access_token"], name: "index_course_sessions_on_access_token", unique: true
+    t.index ["course_id"], name: "index_course_sessions_on_course_id"
+    t.index ["location_id"], name: "index_course_sessions_on_location_id"
+    t.index ["organization_id"], name: "index_course_sessions_on_organization_id"
+    t.index ["reference"], name: "index_course_sessions_on_reference", unique: true
+    t.index ["trainer_id"], name: "index_course_sessions_on_trainer_id"
+    t.index ["training_request_id"], name: "index_course_sessions_on_training_request_id"
   end
 
   create_table "courses", force: :cascade do |t|
@@ -177,6 +239,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_095832) do
     t.integer "legacy_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "delivery", default: 0, null: false
+    t.integer "default_attendance_mode", default: 0, null: false
     t.index ["pedagogical_referent_id"], name: "index_courses_on_pedagogical_referent_id"
     t.index ["slug"], name: "index_courses_on_slug", unique: true
     t.index ["status"], name: "index_courses_on_status"
@@ -214,9 +278,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_095832) do
     t.boolean "legacy", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "course_session_id"
+    t.string "attendance_code"
+    t.datetime "invited_at"
     t.index ["approved_by_id"], name: "index_enrollments_on_approved_by_id"
     t.index ["certificate_number"], name: "index_enrollments_on_certificate_number", unique: true
     t.index ["course_id"], name: "index_enrollments_on_course_id"
+    t.index ["course_session_id"], name: "index_enrollments_on_course_session_id"
     t.index ["needs_reviewed_by_id"], name: "index_enrollments_on_needs_reviewed_by_id"
     t.index ["status"], name: "index_enrollments_on_status"
     t.index ["user_id", "course_id"], name: "index_enrollments_on_user_id_and_course_id", unique: true
@@ -258,6 +326,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_095832) do
     t.index ["course_id"], name: "index_lessons_on_course_id"
   end
 
+  create_table "locations", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "address", null: false
+    t.text "access_details"
+    t.text "accessibility"
+    t.text "equipment"
+    t.integer "capacity"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "needs_assessments", force: :cascade do |t|
     t.bigint "enrollment_id", null: false
     t.string "job_title", null: false
@@ -279,6 +358,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_095832) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["course_id"], name: "index_objectives_on_course_id"
+  end
+
+  create_table "organizations", force: :cascade do |t|
+    t.string "name", null: false
+    t.integer "kind", default: 0, null: false
+    t.string "contact_name"
+    t.string "contact_email"
+    t.string "contact_phone"
+    t.text "address"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "pages", force: :cascade do |t|
@@ -313,6 +403,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_095832) do
     t.datetime "updated_at", null: false
     t.index ["enrollment_id"], name: "index_reminders_on_enrollment_id"
     t.index ["sent_by_id"], name: "index_reminders_on_sent_by_id"
+  end
+
+  create_table "session_slots", force: :cascade do |t|
+    t.bigint "course_session_id", null: false
+    t.date "date", null: false
+    t.time "starts_at", null: false
+    t.time "ends_at", null: false
+    t.integer "status", default: 0, null: false
+    t.string "sign_token", null: false
+    t.datetime "opened_at"
+    t.datetime "closed_at"
+    t.bigint "closed_by_id"
+    t.text "trainer_signature"
+    t.datetime "trainer_signed_at"
+    t.datetime "sheet_uploaded_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["closed_by_id"], name: "index_session_slots_on_closed_by_id"
+    t.index ["course_session_id", "date", "starts_at"], name: "idx_on_course_session_id_date_starts_at_1215c18eaf"
+    t.index ["course_session_id"], name: "index_session_slots_on_course_session_id"
+    t.index ["sign_token"], name: "index_session_slots_on_sign_token", unique: true
   end
 
   create_table "solid_cable_messages", force: :cascade do |t|
@@ -529,6 +640,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_095832) do
     t.index ["enrollment_id"], name: "index_survey_responses_on_enrollment_id"
   end
 
+  create_table "training_requests", force: :cascade do |t|
+    t.bigint "course_id", null: false
+    t.bigint "organization_id"
+    t.string "organization_name", null: false
+    t.integer "organization_kind", default: 0, null: false
+    t.string "contact_name", null: false
+    t.string "contact_email", null: false
+    t.string "contact_phone"
+    t.string "contact_role"
+    t.integer "participants_count"
+    t.string "desired_period"
+    t.text "participants_profile", null: false
+    t.text "structure_objectives", null: false
+    t.text "constraints"
+    t.boolean "accessibility_needs", default: false, null: false
+    t.integer "status", default: 0, null: false
+    t.text "internal_note"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["course_id"], name: "index_training_requests_on_course_id"
+    t.index ["organization_id"], name: "index_training_requests_on_organization_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "first_name", default: "", null: false
     t.string "last_name", default: "", null: false
@@ -576,12 +710,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_095832) do
   add_foreign_key "attempt_answers", "questions"
   add_foreign_key "attempts", "assessments"
   add_foreign_key "attempts", "enrollments"
+  add_foreign_key "attendances", "enrollments"
+  add_foreign_key "attendances", "session_slots"
+  add_foreign_key "attendances", "users", column: "recorded_by_id"
   add_foreign_key "choices", "questions"
+  add_foreign_key "client_surveys", "course_sessions"
   add_foreign_key "complaints", "courses"
   add_foreign_key "complaints", "users"
   add_foreign_key "complaints", "users", column: "handled_by_id"
+  add_foreign_key "course_sessions", "courses"
+  add_foreign_key "course_sessions", "locations"
+  add_foreign_key "course_sessions", "organizations"
+  add_foreign_key "course_sessions", "training_requests"
+  add_foreign_key "course_sessions", "users", column: "trainer_id"
   add_foreign_key "courses", "users", column: "pedagogical_referent_id"
   add_foreign_key "courses", "users", column: "trainer_id"
+  add_foreign_key "enrollments", "course_sessions"
   add_foreign_key "enrollments", "courses"
   add_foreign_key "enrollments", "users"
   add_foreign_key "enrollments", "users", column: "approved_by_id"
@@ -597,6 +741,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_095832) do
   add_foreign_key "questions", "objectives"
   add_foreign_key "reminders", "enrollments"
   add_foreign_key "reminders", "users", column: "sent_by_id"
+  add_foreign_key "session_slots", "course_sessions"
+  add_foreign_key "session_slots", "users", column: "closed_by_id"
   add_foreign_key "solid_queue_batch_executions", "solid_queue_batches", column: "batch_id", on_delete: :cascade
   add_foreign_key "solid_queue_batch_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
@@ -611,4 +757,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_095832) do
   add_foreign_key "support_threads", "lessons"
   add_foreign_key "support_threads", "users"
   add_foreign_key "survey_responses", "enrollments"
+  add_foreign_key "training_requests", "courses"
+  add_foreign_key "training_requests", "organizations"
 end

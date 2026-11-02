@@ -38,6 +38,10 @@ gem "prawn-table"
 
 gem "pagy", "~> 9.0"
 
+# QR codes (émargement, questionnaires en salle) et import CSV des participants
+gem "rqrcode", "~> 3.0"
+gem "csv"
+
 group :development, :test do
   gem "debug", platforms: %i[mri windows], require: "debug/prelude"
   gem "brakeman", require: false

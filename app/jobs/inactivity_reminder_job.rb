@@ -4,7 +4,8 @@ class InactivityReminderJob < ApplicationJob
   queue_as :default
 
   def perform
-    Enrollment.active.includes(:course, :user, :reminders).find_each do |enrollment|
+    # Les formations sur site sont suivies par l'émargement, pas par l'activité en ligne.
+    Enrollment.active.where(course_session_id: nil).includes(:course, :user, :reminders).find_each do |enrollment|
       days = enrollment.days_inactive
       next if days.nil?
 

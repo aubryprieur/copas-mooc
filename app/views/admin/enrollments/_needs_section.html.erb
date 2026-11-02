@@ -12,7 +12,12 @@
         <dt>Référent handicap</dt><dd><%= needs.accommodation_contact_requested ? status_badge("Contact demandé", :warning) : "Non demandé" %></dd>
       </dl>
     <% else %>
-      <p class="text-ink-soft">Inscription reprise de l'ancienne plateforme : pas de recueil des besoins.</p>
+      <% if e.onsite? %>
+        <p class="font-bold text-warn">Recueil des besoins pas encore complété par le participant<%= " (invitation envoyée le #{l(e.invited_at, format: :long)})" if e.invited_at %>.</p>
+        <p class="mt-1 text-ink-soft">L'analyse du besoin de la structure figure dans <%= e.course_session.training_request ? link_to("sa demande", admin_training_request_path(e.course_session.training_request)) : "la fiche de la session" %>.</p>
+      <% else %>
+        <p class="text-ink-soft">Inscription reprise de l'ancienne plateforme : pas de recueil des besoins.</p>
+      <% end %>
     <% end %>
     <div class="mt-5 border-t border-line pt-4">
       <% if e.needs_reviewed_at %>

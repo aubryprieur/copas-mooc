@@ -1,0 +1,3 @@
+<% page_title "Nouvelle session" %>
+<%= render "admin/page_header", title: "Nouvelle session sur site", back: ["Sessions sur site", admin_course_sessions_path], subtitle: (@session.training_request ? "À partir de la demande de #{@session.training_request.organization_name}" : nil) %>
+<%= render "form" %>

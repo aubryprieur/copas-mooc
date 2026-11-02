@@ -29,7 +29,17 @@ class ActivityEvent < ApplicationRecord
     "support.message" => "Échange avec l'équipe pédagogique",
     "survey.submitted" => "Questionnaire de satisfaction rendu",
     "enrollment.completed" => "Parcours terminé, attestation émise",
-    "enrollment.abandoned" => "Abandon enregistré"
+    "enrollment.abandoned" => "Abandon enregistré",
+    "enrollment.invited" => "Inscription par la structure, invitation envoyée",
+    "needs.submitted" => "Recueil des besoins complété",
+    "convocation.sent" => "Convocation envoyée",
+    "convocation.reminder" => "Rappel de convocation envoyé",
+    "attendance.opened" => "Émargement ouvert",
+    "attendance.signed" => "Présence signée",
+    "attendance.recorded" => "Présence saisie par le formateur",
+    "attendance.corrected" => "Présence corrigée (motif tracé)",
+    "attendance.closed" => "Demi-journée clôturée",
+    "material.downloaded" => "Support téléchargé"
   }.freeze
 
   def label = LABELS.fetch(action, action)

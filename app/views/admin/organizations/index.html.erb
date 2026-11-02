@@ -1,0 +1,18 @@
+<% page_title "Structures" %>
+<%= render "admin/page_header", title: "Structures clientes", back: ["Sessions sur site", admin_course_sessions_path],
+      actions: (link_to(new_admin_organization_path, class: "btn btn-primary") { icon("plus") + " Ajouter une structure" } if policy(Organization).create?) %>
+<div class="panel table-wrap">
+  <table class="table">
+    <thead><tr><th>Structure</th><th>Contact</th><th>Sessions</th><th></th></tr></thead>
+    <tbody>
+      <% @organizations.each do |o| %>
+        <tr>
+          <td class="font-bold"><%= o.name %><p class="text-sm font-normal text-ink-soft"><%= o.kind_label %></p></td>
+          <td class="text-sm"><%= o.contact_name %><br><%= o.contact_email %></td>
+          <td class="text-sm"><%= o.course_sessions.size %></td>
+          <td class="text-right"><%= link_to "Modifier", edit_admin_organization_path(o), class: "btn btn-ghost btn-sm" if policy(o).update? %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

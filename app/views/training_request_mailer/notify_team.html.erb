@@ -1,0 +1,7 @@
+<p>Nouvelle demande de formation sur site :</p>
+<ul>
+  <li><strong><%= @request.organization_name %></strong> – <%= @request.contact_name %> (<%= @request.contact_email %>)</li>
+  <li>Formation : <%= @course.title %></li>
+  <li>Participants : <%= @request.participants_count || "non précisé" %> · période : <%= @request.desired_period.presence || "non précisée" %></li>
+</ul>
+<p><a href="<%= admin_training_request_url(@request) %>" style="display:inline-block;background:#0F5C6E;color:#ffffff;padding:10px 18px;border-radius:6px;text-decoration:none;font-weight:bold">Étudier la demande</a></p>

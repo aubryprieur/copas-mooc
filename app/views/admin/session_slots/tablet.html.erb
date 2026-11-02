@@ -1,0 +1,28 @@
+<% page_title "Signature sur tablette" %>
+<% cs = @session %>
+<div class="mx-auto max-w-xl">
+  <nav class="mb-2 text-sm"><%= link_to "Retour à l'émargement", admin_session_slot_path(@slot) %></nav>
+  <h1 class="text-2xl">Signer sa présence</h1>
+  <p class="mt-1 text-ink-soft"><%= cs.course.title %> · <%= @slot.label %></p>
+  <% if !@slot.signing_window_open? %>
+    <p class="panel panel-body mt-6">L'émargement n'est pas ouvert à cette heure.</p>
+  <% elsif @participants.empty? %>
+    <p class="panel panel-body mt-6">Tous les participants ont signé.</p>
+  <% else %>
+    <%= form_with url: tablet_sign_admin_session_slot_path(@slot), class: "panel panel-body mt-6", data: (cs.attendance_drawn? ? { controller: "signature-pad", action: "submit->signature-pad#submit" } : {}) do %>
+      <div class="field"><%= label_tag :enrollment_id, "Votre nom", class: "label" %><%= select_tag :enrollment_id, options_for_select(@participants.map { [_1.user.full_name, _1.id] }), class: "input", required: true %></div>
+      <div class="field">
+        <%= label_tag :code, "Votre code personnel (4 chiffres, sur votre convocation)", class: "label" %>
+        <%= text_field_tag :code, nil, class: "input w-40 text-2xl tracking-widest", inputmode: "numeric", pattern: "[0-9]{4}", maxlength: 4, autocomplete: "off", required: true %>
+      </div>
+      <% if cs.attendance_drawn? %>
+        <p class="label">Votre signature</p>
+        <canvas data-signature-pad-target="canvas" class="h-44 w-full touch-none rounded-lg border-2 border-dashed border-line bg-white" aria-label="Zone de signature"></canvas>
+        <input type="hidden" name="signature" data-signature-pad-target="input">
+        <p class="error-text" data-signature-pad-target="error" hidden>Tracez votre signature avant de valider.</p>
+        <button type="button" class="btn btn-ghost mt-2" data-action="signature-pad#clear">Effacer</button>
+      <% end %>
+      <%= submit_tag "Valider ma présence", class: "btn btn-primary mt-4 w-full py-3" %>
+    <% end %>
+  <% end %>
+</div>

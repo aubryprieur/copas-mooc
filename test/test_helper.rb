@@ -40,6 +40,13 @@ module TestFactories
                                                               expectations: "Savoir monter un dossier FSL complet" })
   end
 
+  def create_onsite_session(mode: :photo, slots: nil, trainer: nil)
+    course = create_course(delivery: :onsite)
+    org = Organization.create!(name: "Ville test #{SecureRandom.hex(2)}", contact_email: "rh@ville.fr", contact_name: "RH")
+    slots ||= [ { date: Date.current, starts_at: "09:00", ends_at: "12:30" }, { date: Date.current, starts_at: "13:30", ends_at: "17:00" } ]
+    CourseSession.create!(course: course, organization: org, attendance_mode: mode, trainer: trainer, slots_attributes: slots)
+  end
+
   def answers_for(assessment, correct: true)
     assessment.questions.to_h { |q| [ q.id.to_s, q.choices.detect { |c| c.correct? == correct }.id.to_s ] }
   end

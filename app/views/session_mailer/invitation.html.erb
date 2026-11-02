@@ -1,0 +1,14 @@
+<p>Bonjour <%= @user.first_name %>,</p>
+<p><%= @session.organization&.name || "Votre structure" %> vous a inscrit(e) à la formation <strong><%= @course.title %></strong>, <%= @session.dates_label %><%= ", #{@session.location.name}" if @session.location %>.</p>
+<p>Avant la formation, merci de prendre 5 minutes pour :</p>
+<ol>
+  <li>décrire votre poste et vos attentes, pour que le formateur adapte la formation ;</li>
+  <li>lire le livret d'accueil ;</li>
+  <li>répondre à un court test de positionnement.</li>
+</ol>
+<% if @token %>
+  <p><a href="<%= edit_user_password_url(reset_password_token: @token) %>" style="display:inline-block;background:#0F5C6E;color:#ffffff;padding:10px 18px;border-radius:6px;text-decoration:none;font-weight:bold">Créer mon mot de passe et commencer</a></p>
+  <p style="font-size:13px;color:#4A5565">Ce lien est valable 14 jours. Votre identifiant est <%= @user.email %>.</p>
+<% else %>
+  <p><a href="<%= enrollment_url(@enrollment) %>" style="display:inline-block;background:#0F5C6E;color:#ffffff;padding:10px 18px;border-radius:6px;text-decoration:none;font-weight:bold">Accéder à mon espace</a></p>
+<% end %>

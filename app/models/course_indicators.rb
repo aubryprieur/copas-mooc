@@ -32,8 +32,12 @@ class CourseIndicators
     return if base.empty?
 
     value = (base.sum(&:progress_percent) / base.size.to_f).round
-    Indicator.new(:realisation, "Taux de réalisation du parcours", value, "%", base.size,
-                  "Moyenne, pour chaque apprenant ayant commencé, du nombre de modules terminés divisé par le nombre de modules prévus.")
+    formula = if course.onsite?
+                "Moyenne, pour chaque participant, des heures émargées divisées par les heures prévues de sa session."
+    else
+                "Moyenne, pour chaque apprenant ayant commencé, du nombre de modules terminés divisé par le nombre de modules prévus."
+    end
+    Indicator.new(:realisation, "Taux de réalisation", value, "%", base.size, formula)
   end
 
   def abandon

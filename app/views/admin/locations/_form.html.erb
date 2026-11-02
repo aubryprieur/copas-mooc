@@ -1,0 +1,10 @@
+<%= form_with model: [:admin, @location], class: "panel panel-body measure" do |f| %>
+  <%= render "shared/form_errors", record: @location %>
+  <div class="field"><%= f.label :name, "Nom", class: "label" %><%= f.text_field :name, class: "input", required: true, placeholder: "Ex. : Mairie de Roubaix, salle du conseil" %></div>
+  <div class="field"><%= f.label :address, "Adresse", class: "label" %><%= f.text_area :address, class: "input", rows: 3, required: true %></div>
+  <div class="field"><%= f.label :access_details, "Accès (transports, stationnement, accueil)", class: "label" %><%= f.text_area :access_details, class: "input", rows: 2 %></div>
+  <div class="field"><%= f.label :accessibility, "Accessibilité aux personnes à mobilité réduite", class: "label" %><%= f.text_area :accessibility, class: "input", rows: 2 %></div>
+  <div class="field"><%= f.label :equipment, "Équipement (vidéoprojecteur, wifi…)", class: "label" %><%= f.text_area :equipment, class: "input", rows: 2 %></div>
+  <div class="field"><%= f.label :capacity, "Capacité (personnes)", class: "label" %><%= f.number_field :capacity, class: "input", min: 1 %></div>
+  <div class="flex gap-3"><%= f.submit "Enregistrer", class: "btn btn-primary" %><%= link_to "Annuler", admin_locations_path, class: "btn btn-ghost" %></div>
+<% end %>

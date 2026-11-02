@@ -20,7 +20,10 @@
       <nav id="menu-gestion" aria-label="Gestion" data-menu-target="panel" class="hidden flex-col gap-1 border-r border-line bg-white p-4 lg:flex">
         <div class="mb-6 hidden lg:block"><%= render "shared/brand" %><p class="mt-1 text-sm text-ink-soft">Espace de gestion</p></div>
         <%= nav_link "Tableau de bord", admin_root_path, icon_name: "home", exact: true %>
+        <%= nav_link "Aujourd'hui", admin_today_path, icon_name: "pen" %>
         <%= nav_link "Formations", admin_courses_path, icon_name: "book" %>
+        <%= nav_link "Sessions sur site", admin_course_sessions_path, icon_name: "calendar" %>
+        <%= nav_link "Demandes des structures", admin_training_requests_path, icon_name: "map-pin" %>
         <%= nav_link "Inscriptions et suivi", admin_enrollments_path, icon_name: "users" %>
         <%= nav_link "Assistance", admin_support_threads_path, icon_name: "message" %>
         <%= nav_link "Réclamations", admin_complaints_path, icon_name: "inbox" %>

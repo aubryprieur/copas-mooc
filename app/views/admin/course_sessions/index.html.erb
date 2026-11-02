@@ -1,0 +1,29 @@
+<% page_title "Sessions sur site" %>
+<%= render "admin/page_header", title: "Sessions sur site",
+      actions: safe_join([link_to("Structures", admin_organizations_path, class: "btn btn-secondary"), link_to("Lieux", admin_locations_path, class: "btn btn-secondary"),
+                          (link_to(new_admin_course_session_path, class: "btn btn-primary") { icon("plus") + " Nouvelle session" } if policy(CourseSession).create?)].compact) %>
+<nav class="mb-4 flex flex-wrap gap-2">
+  <%= link_to "Toutes", admin_course_sessions_path, class: "badge #{params[:statut].blank? ? 'badge-info' : 'badge-neutral'} no-underline" %>
+  <% CourseSession::STATUS_LABELS.each do |k, v| %><%= link_to v, admin_course_sessions_path(statut: k), class: "badge #{params[:statut] == k ? 'badge-info' : 'badge-neutral'} no-underline" %><% end %>
+</nav>
+<% if @sessions.empty? %>
+  <p class="panel panel-body text-ink-soft">Aucune session. Créez-en une depuis une demande de structure ou avec « Nouvelle session ».</p>
+<% else %>
+  <div class="panel table-wrap">
+    <table class="table">
+      <thead><tr><th>Dates</th><th>Formation</th><th>Structure</th><th>Participants</th><th>Formateur</th><th>Statut</th></tr></thead>
+      <tbody>
+        <% @sessions.each do |cs| %>
+          <tr>
+            <td><%= link_to cs.dates_label.upcase_first, admin_course_session_path(cs), class: "font-bold" %><p class="text-sm text-ink-soft"><%= pluralize(cs.slots.size, "demi-journée", plural: "demi-journées") %> · <%= hours_count cs.total_hours %></p></td>
+            <td class="text-sm"><%= cs.course.title %></td>
+            <td class="text-sm"><%= cs.organization&.name || "Inter" %></td>
+            <td class="text-sm"><%= cs.enrollments.count { |e| !e.declined? } %><%= " / #{cs.capacity}" if cs.capacity %></td>
+            <td class="text-sm"><%= cs.trainer&.full_name || "—" %></td>
+            <td><%= status_badge cs.status_label, cs.completed? ? :success : (cs.cancelled? ? :neutral : :info) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>

@@ -5,12 +5,19 @@ class EnrollmentsController < ApplicationController
   # Vue « parcours » : étapes, modules, évaluations, attestation
   def show
     authorize @enrollment, :owner?
-    redirect_to welcome_enrollment_path(@enrollment) if @enrollment.onboarding? && !@enrollment.welcome_acknowledged_at
+    if @enrollment.onboarding? && @enrollment.onsite? && @enrollment.needs_assessment.nil?
+      redirect_to new_enrollment_needs_assessment_path(@enrollment)
+    elsif @enrollment.onboarding? && !@enrollment.welcome_acknowledged_at
+      redirect_to welcome_enrollment_path(@enrollment)
+    end
   end
 
   # Indicateur 9 : livret d'accueil, règlement intérieur, assistance, référents
   def welcome
     authorize @enrollment, :owner?
+    if @enrollment.onboarding? && @enrollment.onsite? && @enrollment.needs_assessment.nil?
+      return redirect_to new_enrollment_needs_assessment_path(@enrollment)
+    end
     @welcome = Page.fetch("livret-accueil")
   end
 
@@ -32,6 +39,9 @@ class EnrollmentsController < ApplicationController
   # Attestation de fin de formation (art. L6353-1)
   def certificate
     authorize @enrollment, :certificate?
+    unless @enrollment.certificate_ready?
+      return redirect_to enrollment_path(@enrollment), alert: "L'attestation sera disponible après la clôture de la dernière demi-journée."
+    end
     pdf = CertificatePdf.new(@enrollment).render
     send_data pdf, filename: "attestation-#{@enrollment.certificate_number}.pdf", type: "application/pdf", disposition: "inline"
   end

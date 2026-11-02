@@ -1,0 +1,18 @@
+<% page_title "Lieux" %>
+<%= render "admin/page_header", title: "Lieux de formation", back: ["Sessions sur site", admin_course_sessions_path], subtitle: "Adresse, accès et accessibilité, repris dans les convocations (ind. 9 et 17).",
+      actions: (link_to(new_admin_location_path, class: "btn btn-primary") { icon("plus") + " Ajouter un lieu" } if policy(Location).create?) %>
+<div class="panel table-wrap">
+  <table class="table">
+    <thead><tr><th>Lieu</th><th>Capacité</th><th>Accessibilité</th><th></th></tr></thead>
+    <tbody>
+      <% @locations.each do |l| %>
+        <tr>
+          <td class="font-bold"><%= l.name %><p class="text-sm font-normal text-ink-soft"><%= l.address.squish %></p></td>
+          <td class="text-sm"><%= l.capacity || "—" %></td>
+          <td class="text-sm"><%= l.accessibility.presence || status_badge("À renseigner", :warning) %></td>
+          <td class="text-right"><%= link_to "Modifier", edit_admin_location_path(l), class: "btn btn-ghost btn-sm" if policy(l).update? %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

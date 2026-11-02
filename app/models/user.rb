@@ -45,6 +45,14 @@ class User < ApplicationRecord
 
   def enrollment_for(course) = enrollments.find_by(course: course)
 
+  # Un participant inscrit par sa structure reçoit un lien pour choisir son mot de passe :
+  # ce lien reste valable 14 jours tant qu'il ne s'est jamais connecté.
+  def reset_password_period_valid?
+    return reset_password_sent_at.present? && reset_password_sent_at > 14.days.ago if sign_in_count.zero? && enrollments.where.not(invited_at: nil).exists?
+
+    super
+  end
+
   private
 
   def record_terms_acceptance

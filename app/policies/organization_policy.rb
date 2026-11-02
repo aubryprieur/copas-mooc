@@ -1,0 +1,4 @@
+class OrganizationPolicy < BackofficePolicy
+  def create? = user&.admin?
+  def update? = user&.admin?
+end
